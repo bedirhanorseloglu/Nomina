@@ -2,21 +2,29 @@
 
 import { format, addDays, subDays, getDay } from "date-fns"
 import { tr } from "date-fns/locale"
-import { Topic } from "@/types"
+import { Topic, Subject } from "@/types"
 import { useDroppable } from "@dnd-kit/core"
 import { UNIVERSITY_CLASSES } from "@/lib/data"
+import { motion, AnimatePresence } from "framer-motion"
+import { useState, useMemo } from "react"
 
 interface DailyPlanViewProps {
   date: Date
   topics: Topic[]
+  subjects: Subject[]
+  isDragging: boolean
   onDateChange: (date: Date) => void
+  onRemoveTopic: (topicId: string, dateStr?: string, timeStr?: string) => void
+  slotNotes: Record<string, string>
+  onUpdateNote: (slotId: string, note: string) => void
+  holidays: string[]
+  onToggleHoliday: (dateStr: string) => void
 }
 
 const HOURS = Array.from({ length: 15 }, (_, i) => i + 8) // 08 to 22
-const HOLIDAYS = ["2026-05-01", "2026-05-19", "2026-07-15", "2026-08-30", "2026-09-05"]
 const EXAM_DATE = "2026-09-06"
 
-function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, lockedType }: any) {
+function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, lockedType, color, isDragging, onRemoveTopic, note, onUpdateNote, subjects }: any) {
   const slotId = `${dateStr}_${hour.toString().padStart(2, '0')}:00`
   const { setNodeRef, isOver } = useDroppable({
     id: slotId,
@@ -24,142 +32,273 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
     disabled: isLocked
   })
 
-  let bgColor = "bg-surface"
-  if (isLocked) {
-    if (lockedType === 'uni') bgColor = "bg-indigo-500/10 border-indigo-500/30"
-    if (lockedType === 'code') bgColor = "bg-cyan-500/10 border-cyan-500/30"
-    if (lockedType === 'holiday') bgColor = "bg-red-500/10 border-red-500/30"
-  } else if (isOver) bgColor = "bg-accent/20 border-accent"
-  else if (topic) bgColor = "bg-accent/10 border-accent/40"
-  else if (revision) bgColor = revision.level === 3 ? "bg-accent2/10 border-accent2/30" : "bg-blue-500/10 border-blue-500/30"
-
   return (
-    <div className="flex gap-4 min-h-[60px] group">
-      <div className="w-16 flex flex-col items-end pt-2 shrink-0">
-        <span className="text-sm font-mono text-muted">{hour.toString().padStart(2, '0')}:00</span>
-      </div>
-      <div 
-        ref={setNodeRef}
-        className={`flex-1 border rounded-lg p-3 transition-colors ${bgColor} ${isLocked ? 'cursor-not-allowed' : 'cursor-pointer hover:border-accent/30'}`}
-      >
-        {isLocked && lockedTitle && (
-          <div className="flex items-center gap-2">
-            <span className={lockedType === 'uni' ? 'text-indigo-400' : lockedType === 'code' ? 'text-cyan-400' : 'text-red-400'}>
-              {lockedType === 'uni' ? '🟣' : lockedType === 'code' ? '🔵' : '🏖'}
-            </span>
-            <span className={`font-medium ${lockedType === 'uni' ? 'text-indigo-300' : lockedType === 'code' ? 'text-cyan-300' : 'text-red-300'}`}>
-              {lockedTitle}
-            </span>
-          </div>
-        )}
+    <div 
+      ref={setNodeRef}
+      className={`group relative rounded-2xl p-4 transition-all duration-300 border flex flex-col gap-3 ${
+        isLocked 
+          ? 'bg-slate-50 border-slate-100 opacity-60' 
+          : 'bg-white border-slate-100 hover:border-accent/40 hover:shadow-md'
+      } ${isOver ? 'ring-2 ring-accent border-transparent scale-[1.02] z-10' : ''} ${
+        isDragging && !isLocked && !topic ? 'border-dashed border-accent/30 bg-accent/5 animate-pulse' : ''
+      }`}
+    >
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-black font-mono text-slate-400 group-hover:text-slate-900 transition-colors tracking-tighter bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+          {hour.toString().padStart(2, '0')}:00
+        </span>
         {topic && !isLocked && (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-accent">🟢</span>
-              <span className="text-text-main font-medium">{topic.title}</span>
-            </div>
-          </div>
-        )}
-        {revision && !isLocked && !topic && (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className={revision.level === 3 ? "text-accent2" : "text-blue-500"}>🔄</span>
-              <span className={`font-medium ${revision.level === 3 ? "text-text-main" : "text-blue-400"}`}>
-                {revision.title} {revision.level === 3 ? "(Son Tekrar)" : "(Tekrar)"}
-              </span>
-            </div>
-          </div>
-        )}
-        {!isLocked && !topic && !revision && (
-          <span className="text-muted text-sm opacity-0 group-hover:opacity-100 transition-opacity">Boş Slot (Sürükle & Bırak)</span>
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemoveTopic(topic.id, dateStr, `${hour.toString().padStart(2, '0')}:00`);
+            }}
+            className="w-6 h-6 rounded-md bg-slate-50 text-slate-300 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+          >
+            ✕
+          </button>
         )}
       </div>
+
+      <div className="min-h-[50px] flex flex-col justify-center">
+        {isLocked && lockedTitle ? (
+          <div className="flex items-center gap-3">
+             <span className="text-2xl grayscale">{lockedType === 'uni' ? '🎓' : lockedType === 'code' ? '💻' : '🏖'}</span>
+             <div className="flex flex-col min-w-0">
+                <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">KAPALI</span>
+                <span className="text-sm font-bold text-slate-600 leading-tight truncate">{lockedTitle}</span>
+             </div>
+          </div>
+        ) : topic ? (
+          <div className="flex items-center gap-3">
+             <div className="w-1.5 h-8 rounded-full shrink-0" style={{ backgroundColor: color }} />
+             <div className="flex flex-col min-w-0">
+                <span className="text-[10px] font-black uppercase tracking-widest truncate" style={{ color }}>
+                  {subjects.find((s: any) => s.topics.some((t: any) => t.id === topic.id))?.title}
+                </span>
+                <span className="text-sm font-bold text-slate-900 leading-tight">{topic.title}</span>
+             </div>
+          </div>
+        ) : revision ? (
+          <div className="flex items-center gap-3">
+             <div className={`w-1.5 h-8 rounded-full shrink-0 ${revision.level === 3 ? 'bg-amber-400' : 'bg-blue-400'}`} />
+             <div className="flex flex-col min-w-0">
+                <span className={`text-[10px] font-black uppercase tracking-widest ${revision.level === 3 ? 'text-amber-500' : 'text-blue-500'}`}>
+                  {revision.level === 3 ? "Kritik Tekrar" : "Rutin Tekrar"}
+                </span>
+                <span className="text-sm font-bold text-slate-900 leading-tight">{revision.title}</span>
+             </div>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center border-2 border-dashed border-slate-100 rounded-xl py-4 bg-slate-50/50">
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 group-hover:text-accent/60 transition-colors">
+               {isDragging ? "BURAYA BIRAK" : "BOŞ SLOT"}
+             </span>
+          </div>
+        )}
+      </div>
+
+      {!isLocked && (
+        <div className={`mt-2 p-3 rounded-xl border transition-all ${
+          note ? 'bg-amber-50/50 border-amber-100 shadow-sm' : 'bg-slate-50/50 border-slate-100 group-hover:bg-white'
+        }`}>
+           <div className="flex items-center gap-2 mb-1.5 opacity-40">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+              <span className="text-[8px] font-black uppercase tracking-widest">Özel Not</span>
+           </div>
+           <textarea 
+             value={note || ""}
+             onChange={(e) => onUpdateNote(slotId, e.target.value)}
+             placeholder="Bir not bırakın..."
+             rows={2}
+             className="w-full bg-transparent border-0 outline-none text-xs text-slate-700 font-medium focus:text-slate-900 transition-all placeholder:text-slate-200 resize-none leading-relaxed"
+             onClick={(e) => e.stopPropagation()}
+           />
+        </div>
+      )}
     </div>
   )
 }
 
-export default function DailyPlanView({ date, topics, onDateChange }: DailyPlanViewProps) {
+export default function DailyPlanView({ date, topics, subjects, isDragging, onDateChange, onRemoveTopic, slotNotes, onUpdateNote, holidays, onToggleHoliday }: DailyPlanViewProps) {
+  const [activeTab, setActiveTab] = useState<'morning' | 'afternoon' | 'evening'>('morning')
   const dateStr = format(date, "yyyy-MM-dd")
-  const dayOfWeek = getDay(date)
-  
-  const isHoliday = HOLIDAYS.includes(dateStr) || dayOfWeek === 0
+  const isHoliday = holidays.includes(dateStr)
   const isExamDay = dateStr === EXAM_DATE
-  const isCodingDay = dayOfWeek === 6
-
   const topicsForDay = topics.filter(t => t.scheduledDate === dateStr)
 
+  const morningHours = [8, 9, 10, 11, 12]
+  const afternoonHours = [13, 14, 15, 16, 17]
+  const eveningHours = [18, 19, 20, 21, 22]
+
+  const stats = useMemo(() => {
+    const check = (hours: number[]) => {
+      return hours.some(h => {
+        const timeStr = `${h.toString().padStart(2, '0')}:00`
+        const hasTopic = topicsForDay.some(t => t.scheduledTime === timeStr)
+        const hasRevision = topics.some(t => t.revisions?.some(r => r.date === dateStr && r.time === timeStr))
+        const hasUni = UNIVERSITY_CLASSES.some(c => {
+          if (c.date !== dateStr) return false
+          const startH = parseInt(c.startTime.split(":")[0])
+          const endH = parseInt(c.endTime.split(":")[0])
+          return h >= startH && h < endH
+        })
+        return hasTopic || hasRevision || hasUni
+      })
+    }
+    return {
+      morning: check(morningHours),
+      afternoon: check(afternoonHours),
+      evening: check(eveningHours)
+    }
+  }, [topics, topicsForDay, dateStr])
+
+  const getHoursForTab = () => {
+    if (activeTab === 'morning') return morningHours
+    if (activeTab === 'afternoon') return afternoonHours
+    return eveningHours
+  }
+
+  const tabContent = (hours: number[]) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      {hours.map(hour => {
+        let lockedTitle = ""
+        let lockedType = ""
+        let isLocked = false
+
+        const universityClass = UNIVERSITY_CLASSES.find(c => {
+          if (c.date !== dateStr) return false
+          const startH = parseInt(c.startTime.split(":")[0])
+          const endH = parseInt(c.endTime.split(":")[0])
+          return hour >= startH && hour < endH
+        })
+
+        if (isExamDay) {
+          isLocked = true
+          lockedTitle = "KPSS Sınavı"
+          lockedType = "holiday"
+        } else if (isHoliday) {
+          isLocked = true
+          lockedTitle = "Dinlenme Günü"
+          lockedType = "holiday"
+        } else if (universityClass) {
+          isLocked = true
+          lockedTitle = `${universityClass.courseCode}`
+          lockedType = "uni"
+        }
+
+        const slotTimeStr = `${hour.toString().padStart(2, '0')}:00`
+        const topic = topicsForDay.find(t => t.scheduledTime === slotTimeStr)
+        
+        let color = "var(--accent)"
+        if (topic) {
+          const subject = subjects.find(s => s.topics.some(t => t.id === topic.id))
+          if (subject) color = subject.color
+        }
+
+        let revision = null
+        for (const t of topics) {
+          const rev = t.revisions?.find(r => r.date === dateStr && r.time === slotTimeStr)
+          if (rev) {
+            revision = { ...rev, title: t.title }
+            break
+          }
+        }
+
+        return (
+          <TimeSlot 
+            key={hour} 
+            hour={hour} 
+            dateStr={dateStr}
+            topic={topic}
+            revision={revision}
+            isLocked={isLocked}
+            lockedTitle={lockedTitle}
+            lockedType={lockedType}
+            color={color}
+            isDragging={isDragging}
+            onRemoveTopic={onRemoveTopic}
+            note={slotNotes[`${dateStr}_${hour.toString().padStart(2, '0')}:00`]}
+            onUpdateNote={onUpdateNote}
+            subjects={subjects}
+          />
+        )
+      })}
+    </div>
+  )
+
   return (
-    <div className="bg-card/40 border border-border-custom rounded-xl p-6 backdrop-blur-sm">
-      <div className="flex justify-between items-center mb-6 pb-4 border-b border-border-custom">
-        <h2 className="text-xl font-heading text-2xl font-bold text-text-main flex items-center gap-3">
-          {format(date, "d MMMM yyyy, EEEE", { locale: tr })}
-          {isExamDay && <span className="bg-red-500/20 text-red-400 px-2 py-0.5 rounded text-xs">Sınav Günü!</span>}
-        </h2>
-        <div className="flex gap-2">
-          <button onClick={() => onDateChange(subDays(date, 1))} className="px-3 py-1 bg-surface hover:bg-surface/80 rounded border border-border-custom text-sm">Önceki</button>
-          <button onClick={() => onDateChange(new Date())} className="px-3 py-1 bg-surface hover:bg-surface/80 rounded border border-border-custom text-sm">Bugün</button>
-          <button onClick={() => onDateChange(addDays(date, 1))} className="px-3 py-1 bg-surface hover:bg-surface/80 rounded border border-border-custom text-sm">Sonraki</button>
+    <div className="flex flex-col gap-6">
+      {/* Date Header */}
+      <div className="glass rounded-3xl p-6 flex flex-col lg:flex-row justify-between items-center gap-6">
+        <div className="flex items-center gap-6">
+           <div className="bg-accent/10 w-16 h-16 rounded-2xl flex flex-col items-center justify-center border border-accent/20 shadow-sm">
+              <span className="text-[10px] font-black uppercase text-accent tracking-tighter">{format(date, "MMM", { locale: tr })}</span>
+              <span className="text-2xl font-black text-slate-900 leading-tight">{format(date, "dd")}</span>
+           </div>
+           <div className="flex flex-col text-center lg:text-left">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+                {format(date, "EEEE", { locale: tr })}
+              </h2>
+              <div className="flex items-center justify-center lg:justify-start gap-3 mt-1">
+                <button 
+                  onClick={() => onToggleHoliday(dateStr)}
+                  className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border transition-all ${
+                    isHoliday 
+                      ? "bg-red-500/10 text-red-500 border-red-500/20" 
+                      : "bg-slate-100 text-slate-400 border-slate-200 hover:border-accent/40 hover:text-accent"
+                  }`}
+                >
+                  {isHoliday ? "🏖 Tatili İptal Et" : "🏖 Tatil Modu"}
+                </button>
+              </div>
+           </div>
+        </div>
+
+        <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
+          <button onClick={() => onDateChange(subDays(new Date(date), 1))} className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200">←</button>
+          <button onClick={() => onDateChange(new Date())} className="px-6 py-2 bg-accent text-white font-black rounded-xl hover:shadow-lg hover:shadow-accent/30 transition-all text-xs uppercase tracking-widest">Bugün</button>
+          <button onClick={() => onDateChange(addDays(new Date(date), 1))} className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200">→</button>
         </div>
       </div>
 
-      <div className="space-y-2 relative">
-        {HOURS.map(hour => {
-          let lockedTitle = ""
-          let lockedType = ""
-          let isLocked = false
-
-          // Check for university classes at this specific hour
-          const universityClass = UNIVERSITY_CLASSES.find(c => {
-            if (c.date !== dateStr) return false
-            const startH = parseInt(c.startTime.split(":")[0])
-            const endH = parseInt(c.endTime.split(":")[0])
-            return hour >= startH && hour < endH
-          })
-
-          if (isExamDay) {
-            isLocked = true
-            lockedTitle = "KPSS Sınavı"
-            lockedType = "holiday"
-          } else if (isHoliday) {
-            isLocked = true
-            lockedTitle = "Tatil / Dinlenme"
-            lockedType = "holiday"
-          } else if (isCodingDay) {
-            isLocked = true
-            lockedTitle = "Yazılım Projeleri"
-            lockedType = "code"
-          } else if (universityClass) {
-            isLocked = true
-            lockedTitle = `${universityClass.courseCode} — ${universityClass.courseName}`
-            lockedType = "uni"
-          }
-
-          const slotTimeStr = `${hour.toString().padStart(2, '0')}:00`
-          const topic = topicsForDay.find(t => t.scheduledTime === slotTimeStr)
-          
-          // Find revision for this slot
-          let revision = null
-          for (const t of topics) {
-            const rev = t.revisions?.find(r => r.date === dateStr && r.time === slotTimeStr)
-            if (rev) {
-              revision = { ...rev, title: t.title }
-              break
-            }
-          }
-
-          return (
-            <TimeSlot 
-              key={hour} 
-              hour={hour} 
-              dateStr={dateStr}
-              topic={topic}
-              revision={revision}
-              isLocked={isLocked}
-              lockedTitle={lockedTitle}
-              lockedType={lockedType}
-            />
-          )
-        })}
+      {/* Timeline with Tabs */}
+      <div className="glass rounded-3xl overflow-hidden flex flex-col">
+        <div className="flex border-b border-slate-100">
+           {(['morning', 'afternoon', 'evening'] as const).map((tab) => {
+             const hasActivity = stats[tab]
+             return (
+               <button
+                 key={tab}
+                 onClick={() => setActiveTab(tab)}
+                 className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative flex items-center justify-center gap-2 ${
+                   activeTab === tab ? 'text-accent' : 'text-slate-400 hover:text-slate-600 bg-slate-50/30'
+                 }`}
+               >
+                 <span>{tab === 'morning' ? 'Sabah' : tab === 'afternoon' ? 'Öğle' : 'Akşam'}</span>
+                 {hasActivity && (
+                   <div className={`w-1.5 h-1.5 rounded-full ${activeTab === tab ? 'bg-accent' : 'bg-slate-300'} animate-pulse`} />
+                 )}
+                 {activeTab === tab && (
+                   <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-accent" />
+                 )}
+               </button>
+             )
+           })}
+        </div>
+        <div className="p-6">
+           <AnimatePresence mode="wait">
+             <motion.div
+               key={activeTab}
+               initial={{ opacity: 0, y: 10 }}
+               animate={{ opacity: 1, y: 0 }}
+               exit={{ opacity: 0, y: -10 }}
+               transition={{ duration: 0.2 }}
+             >
+               {tabContent(getHoursForTab())}
+             </motion.div>
+           </AnimatePresence>
+        </div>
       </div>
     </div>
   )

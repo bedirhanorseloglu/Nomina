@@ -1,15 +1,13 @@
 "use client"
 
 import { Subject, Topic } from "@/types"
-import { motion } from "framer-motion"
+import { motion, AnimatePresence } from "framer-motion"
 import { useDraggable } from "@dnd-kit/core"
+import { format } from "date-fns"
+import { tr } from "date-fns/locale"
+import { useEffect, useCallback } from "react"
 
-interface TopicListProps {
-  subject: Subject
-  onToggleTopic: (topicId: string) => void
-}
-
-function DraggableTopicItem({ topic, onToggleTopic }: { topic: Topic, onToggleTopic: (id: string) => void }) {
+function DraggableTopicItem({ topic, onToggleTopic, onScheduleTopic, color, subjectIcon }: { topic: Topic, onToggleTopic: (id: string) => void, onScheduleTopic: (id: string) => void, color: string, subjectIcon: string }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `topic_${topic.id}`,
     data: { topic }
@@ -17,8 +15,8 @@ function DraggableTopicItem({ topic, onToggleTopic }: { topic: Topic, onToggleTo
 
   const style = transform ? {
     transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: isDragging ? 50 : 1,
-    opacity: isDragging ? 0.8 : 1,
+    zIndex: isDragging ? 100 : 1,
+    opacity: isDragging ? 0.9 : 1,
   } : undefined
 
   return (
@@ -26,85 +24,207 @@ function DraggableTopicItem({ topic, onToggleTopic }: { topic: Topic, onToggleTo
       ref={setNodeRef}
       style={style}
       layoutId={`topic-${topic.id}`}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`w-full flex items-center gap-4 p-3 rounded-lg border transition-all text-left group ${
+      className={`group relative flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 border ${
         topic.done 
-          ? "bg-accent/5 border-accent/20" 
-          : "bg-surface/50 border-transparent hover:border-border-custom hover:bg-surface"
+          ? "bg-slate-50 border-transparent grayscale" 
+          : "bg-white border-slate-100 hover:border-accent/40 hover:bg-white hover:shadow-lg hover:shadow-slate-200"
       }`}
     >
       <div 
         {...listeners} 
         {...attributes}
-        className="cursor-grab active:cursor-grabbing text-muted hover:text-text-main pr-2 shrink-0"
-        title="Takvime Sürükle"
+        className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-accent p-1.5 shrink-0 bg-slate-50 rounded-xl transition-colors"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>
       </div>
 
       <button
         onClick={() => onToggleTopic(topic.id)}
-        className="flex-1 flex items-center gap-3 text-left"
+        className="flex-1 flex items-center gap-3 text-left overflow-hidden"
       >
-        <div className={`w-5 h-5 rounded flex items-center justify-center border transition-colors shrink-0 ${
-          topic.done 
-            ? "bg-accent border-accent text-bg" 
-            : "border-muted group-hover:border-text-main"
-        }`}>
+        <div 
+          className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all shrink-0 ${
+            topic.done 
+              ? "bg-accent border-accent text-white" 
+              : "border-slate-100 group-hover:border-accent/60"
+          }`}
+        >
           {topic.done && (
             <motion.svg
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 0.3 }}
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+              strokeWidth="4"
               className="w-3 h-3"
             >
               <polyline points="20 6 9 17 4 12"></polyline>
             </motion.svg>
           )}
         </div>
-        <span className={`text-sm md:text-base transition-colors ${
-          topic.done ? "text-muted line-through" : "text-text-main"
-        }`}>
-          {topic.title}
-        </span>
+        <div className="flex flex-col min-w-0">
+          <span className={`text-sm font-bold transition-colors truncate ${
+            topic.done ? "text-slate-400 line-through" : "text-slate-900"
+          }`}>
+            {topic.title}
+          </span>
+          {topic.questionCount && !topic.done && (
+             <span className="text-[10px] text-slate-400 font-black opacity-60">{topic.questionCount} SORU</span>
+          )}
+        </div>
       </button>
 
-      {topic.scheduledDate && (
-        <div className="text-[10px] text-accent bg-accent/10 px-2 py-1 rounded border border-accent/20 shrink-0">
-          {topic.scheduledDate.slice(5)}
-        </div>
-      )}
+      <div className="flex items-center gap-2 shrink-0">
+        {!topic.done && (
+          <button
+            onClick={() => onScheduleTopic(topic.id)}
+            className="w-8 h-8 rounded-xl bg-accent/10 text-accent hover:bg-accent hover:text-white transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 shadow-sm"
+            title="Bugüne Ekle"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </button>
+        )}
+        
+        {topic.schedules && topic.schedules.length > 0 && (
+          <div className="flex gap-1">
+            {topic.schedules.slice(0, 1).map((sch, i) => (
+              <div 
+                key={i}
+                className="text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-lg border shadow-sm shadow-black/5"
+                style={{ color: color, backgroundColor: `${color}10`, borderColor: `${color}20` }}
+              >
+                {format(new Date(sch.date), "dd MMM", { locale: tr })}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </motion.div>
   )
 }
 
-export default function TopicList({ subject, onToggleTopic }: TopicListProps) {
-  const completedCount = subject.topics.filter(t => t.done).length
-  const totalCount = subject.topics.length
+interface TopicListProps {
+  subjects: Subject[]
+  activeSubjectId: string
+  onSelectSubject: (id: string) => void
+  onToggleTopic: (topicId: string, subjectId: string) => void
+  onScheduleTopic: (topicId: string, subjectId: string) => void
+  onUpdateSubjectName: (subjectId: string, newName: string) => void
+}
+
+export default function TopicList({ subjects, activeSubjectId, onSelectSubject, onToggleTopic, onScheduleTopic, onUpdateSubjectName }: TopicListProps) {
+  const currentIndex = subjects.findIndex(s => s.id === activeSubjectId)
+  const subject = subjects[currentIndex] || subjects[0]
+
+  const goToNext = useCallback(() => {
+    const nextIndex = (currentIndex + 1) % subjects.length
+    onSelectSubject(subjects[nextIndex].id)
+  }, [currentIndex, subjects, onSelectSubject])
+
+  const goToPrev = useCallback(() => {
+    const prevIndex = (currentIndex - 1 + subjects.length) % subjects.length
+    onSelectSubject(subjects[prevIndex].id)
+  }, [currentIndex, subjects, onSelectSubject])
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") goToNext()
+      if (e.key === "ArrowLeft") goToPrev()
+    }
+    window.addEventListener("keydown", handleKeyDown)
+    return () => window.removeEventListener("keydown", handleKeyDown)
+  }, [goToNext, goToPrev])
 
   return (
-    <div className="bg-card/40 border border-border-custom rounded-xl p-6 backdrop-blur-sm">
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-border-custom">
-        <h2 className="text-xl font-heading font-bold flex items-center gap-2">
-          <span>{subject.icon}</span> {subject.title}
-        </h2>
-        <div className="text-sm font-mono text-muted">
-          <span className="text-accent">{completedCount}</span> / {totalCount}
+    <div className="flex flex-col gap-4">
+      {/* Subject Navigation Header */}
+      <div className="flex items-center justify-between px-2 mb-2">
+        <div className="flex items-center gap-2">
+           <button 
+             onClick={goToPrev}
+             className="w-8 h-8 rounded-xl bg-white border border-slate-100 hover:border-accent transition-all flex items-center justify-center text-slate-400 hover:text-accent shadow-sm"
+           >
+             ←
+           </button>
+           <button 
+             onClick={goToNext}
+             className="w-8 h-8 rounded-xl bg-white border border-slate-100 hover:border-accent transition-all flex items-center justify-center text-slate-400 hover:text-accent shadow-sm"
+           >
+             →
+           </button>
         </div>
+        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
+           {currentIndex + 1} / {subjects.length} DERS
+        </span>
       </div>
 
-      <div className="space-y-2">
-        {subject.topics.map((topic) => (
-          <DraggableTopicItem key={topic.id} topic={topic} onToggleTopic={onToggleTopic} />
-        ))}
-      </div>
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={subject.id}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -20 }}
+          transition={{ duration: 0.3, ease: "easeInOut" }}
+          className="glass rounded-[2.5rem] p-8 relative overflow-hidden"
+        >
+          {/* Background Decorative Icon */}
+          <div className="absolute top-[-20px] right-[-20px] text-8xl opacity-[0.03] select-none pointer-events-none rotate-12">
+            {subject.icon}
+          </div>
+
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4 flex-1">
+                <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-2xl shadow-inner shadow-slate-100 border border-slate-100">
+                  {subject.icon}
+                </div>
+                <div className="flex flex-col flex-1">
+                  <input 
+                    type="text"
+                    value={subject.title}
+                    onChange={(e) => onUpdateSubjectName(subject.id, e.target.value)}
+                    className="bg-transparent border-0 outline-none text-xl font-black text-slate-900 p-0 w-full tracking-tight"
+                  />
+                  <div className="flex items-center gap-2">
+                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{subject.category}</span>
+                     <div className="w-1 h-1 rounded-full bg-slate-200" />
+                     <span className="text-[10px] font-black uppercase tracking-[0.2em]" style={{ color: subject.color }}>{subject.subCategory}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex flex-col items-end">
+                <span className="text-2xl font-black font-mono tracking-tighter" style={{ color: subject.color }}>
+                  {Math.round((subject.topics.filter(t => t.done).length / subject.topics.length) * 100)}%
+                </span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Başarı</span>
+              </div>
+            </div>
+            
+            {subject.tip && (
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100">
+                <p className="text-xs text-slate-500 leading-relaxed flex gap-3">
+                  <span className="text-lg opacity-40 shrink-0">💡</span>
+                  <span className="italic">{subject.tip}</span>
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2 custom-scrollbar">
+            {subject.topics.map((topic) => (
+              <DraggableTopicItem 
+                key={topic.id} 
+                topic={topic} 
+                onToggleTopic={(id) => onToggleTopic(id, subject.id)} 
+                onScheduleTopic={(id) => onScheduleTopic(id, subject.id)}
+                color={subject.color} 
+                subjectIcon={subject.icon}
+              />
+            ))}
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   )
 }

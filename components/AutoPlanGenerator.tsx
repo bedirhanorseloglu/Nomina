@@ -33,8 +33,7 @@ export default function AutoPlanGenerator({ isOpen, onClose, subjects, onApplyPl
     // Clear all existing plans for incomplete topics
     currentSubjects.forEach(s => s.topics.forEach(t => {
       if (!t.done) {
-        t.scheduledDate = undefined
-        t.scheduledTime = undefined
+        t.schedules = []
         t.revisions = []
       }
     }))
@@ -89,11 +88,10 @@ export default function AutoPlanGenerator({ isOpen, onClose, subjects, onApplyPl
       // Stop condition: Exam day
       if (dateStr > EXAM_DATE_STR) break
 
-      const isHoliday = HOLIDAYS.includes(dateStr) || dayOfWeek === 0 // Sunday
-      const isSoftwareDay = dayOfWeek === 6 // Saturday
+      const isHoliday = HOLIDAYS.includes(dateStr)
       const weeksToExam = differenceInWeeks(examDate, currentDate)
 
-      if (!isHoliday && !isSoftwareDay && dateStr !== EXAM_DATE_STR) {
+      if (!isHoliday && dateStr !== EXAM_DATE_STR) {
         // Normal distribution or Exam week rules
         const isExamWeek = weeksToExam < 2
         const isLast3Days = differenceInWeeks(examDate, currentDate) === 0 && isAfter(currentDate, subDays(examDate, 4))
@@ -138,8 +136,7 @@ export default function AutoPlanGenerator({ isOpen, onClose, subjects, onApplyPl
                 const subject = currentSubjects.find(s => s.id === nextTopic.subjectId)
                 const topic = subject?.topics.find(t => t.id === nextTopic.topic.id)
                 if (topic) {
-                  topic.scheduledDate = dateStr
-                  topic.scheduledTime = slot
+                  topic.schedules = [{ date: dateStr, time: slot }]
                   topicsScheduled++
                   
                   // Add Spaced Repetition Tasks

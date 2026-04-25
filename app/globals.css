@@ -1,14 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #f5f7fa;
-  --color-surface: #ffffff;
+  --color-bg: #ffffff;
+  --color-surface: #f8fafc;
   --color-card: #ffffff;
   --color-border-custom: rgba(0, 0, 0, 0.08);
   --color-accent: #00a884;
-  --color-accent2: #e08e00;
-  --color-text-main: #1a202c;
-  --color-muted: #718096;
+  --color-accent2: #f59e0b;
+  --color-text-main: #0f172a;
+  --color-muted: #64748b;
+  --color-success: #10b981;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
 }
 
 @theme inline {
@@ -20,10 +23,13 @@
   --color-accent2: var(--color-accent2);
   --color-text-main: var(--color-text-main);
   --color-muted: var(--color-muted);
+  --color-success: var(--color-success);
+  --color-error: var(--color-error);
+  --color-warning: var(--color-warning);
 
-  --font-heading: var(--font-space-grotesk), sans-serif;
-  --font-sans: var(--font-inter), sans-serif;
-  --font-mono: var(--font-jetbrains-mono), monospace;
+  --font-heading: 'Outfit', sans-serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
 body {
@@ -35,26 +41,65 @@ body {
 
 h1, h2, h3, h4, h5, h6, .font-heading {
   font-family: var(--font-heading);
+  letter-spacing: -0.02em;
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: var(--color-bg);
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--color-card);
-  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent);
 }
 
-/* Base selection color */
-::selection {
-  background: var(--color-accent);
-  color: #ffffff;
+/* Glassmorphism Classes (Pure White Mode) */
+.glass {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.04);
+}
+
+.glass-hover {
+  transition: all 0.3s ease;
+}
+.glass-hover:hover {
+  border-color: rgba(0, 168, 132, 0.1);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
+
+/* Custom Checkbox */
+.custom-checkbox {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border-custom);
+  border-radius: 6px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s;
+}
+
+.custom-checkbox:checked {
+  background-color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.custom-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
 }

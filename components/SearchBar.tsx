@@ -38,9 +38,12 @@ export default function SearchBar({ subjects, onSelectSubject }: SearchBarProps)
   })
 
   return (
-    <div ref={wrapperRef} className="relative w-full max-w-md z-30">
-      <div className="relative">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted">🔍</span>
+    <div ref={wrapperRef} className="relative w-full z-50">
+      <div className="relative group">
+        <div className="absolute inset-0 bg-accent/5 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity rounded-2xl" />
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-accent transition-colors">
+           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </span>
         <input
           type="text"
           value={query}
@@ -49,47 +52,55 @@ export default function SearchBar({ subjects, onSelectSubject }: SearchBarProps)
             setIsOpen(true)
           }}
           onFocus={() => setIsOpen(true)}
-          placeholder="Konu veya ders ara..."
-          className="w-full bg-surface border border-border-custom rounded-lg py-2 pl-10 pr-4 text-sm text-text-main placeholder-muted focus:outline-none focus:border-accent/50 transition-colors"
+          placeholder="Komuta: Araştır..."
+          className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-6 text-sm text-slate-900 placeholder-slate-300 focus:outline-none focus:bg-white focus:border-accent/30 transition-all backdrop-blur-md shadow-inner shadow-black/[0.02]"
         />
       </div>
 
       <AnimatePresence>
         {isOpen && query && results.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="absolute top-full left-0 right-0 mt-2 bg-card border border-border-custom rounded-lg shadow-2xl overflow-hidden max-h-96 overflow-y-auto"
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            className="absolute top-full left-0 right-0 mt-3 glass rounded-2xl shadow-xl overflow-hidden max-h-[400px] overflow-y-auto z-50 border border-slate-100"
           >
-            {results.map((result) => (
-              <div key={result.subject.id} className="p-2 border-b border-border-custom last:border-0">
-                <button
-                  className="w-full text-left px-3 py-2 rounded-md hover:bg-surface transition-colors flex items-center gap-2"
-                  onClick={() => {
-                    onSelectSubject(result.subject.id)
-                    setIsOpen(false)
-                    setQuery("")
-                  }}
-                >
-                  <span>{result.subject.icon}</span>
-                  <span className="font-bold text-sm text-text-main">{result.subject.title}</span>
-                </button>
-                {result.topics.map(topic => (
+            <div className="p-2 space-y-1">
+              {results.map((result) => (
+                <div key={result.subject.id} className="rounded-xl overflow-hidden bg-slate-50/50 p-1">
                   <button
-                    key={topic.id}
-                    className="w-full text-left pl-9 pr-3 py-1.5 rounded-md hover:bg-surface text-sm text-muted hover:text-text-main transition-colors truncate"
+                    className="w-full text-left px-4 py-3 rounded-lg hover:bg-accent/5 transition-colors flex items-center justify-between group"
                     onClick={() => {
                       onSelectSubject(result.subject.id)
                       setIsOpen(false)
                       setQuery("")
                     }}
                   >
-                    {topic.title}
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{result.subject.icon}</span>
+                      <span className="font-black text-xs uppercase tracking-widest text-slate-900">{result.subject.title}</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-400 group-hover:text-accent">DERSE GİT</span>
                   </button>
-                ))}
-              </div>
-            ))}
+                  <div className="space-y-1 mt-1 pl-4 pb-2">
+                    {result.topics.map(topic => (
+                      <button
+                        key={topic.id}
+                        className="w-full text-left px-4 py-2 rounded-lg hover:bg-white text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors truncate flex items-center gap-2"
+                        onClick={() => {
+                          onSelectSubject(result.subject.id)
+                          setIsOpen(false)
+                          setQuery("")
+                        }}
+                      >
+                        <div className="w-1.5 h-1.5 rounded-full bg-slate-200" />
+                        {topic.title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

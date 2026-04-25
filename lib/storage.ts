@@ -16,7 +16,8 @@ export const loadData = (): AppData => {
       // But for this SPA, we just use it directly.
       return {
         ...parsed,
-        subjects: mergeWithInitialData(parsed.subjects)
+        subjects: mergeWithInitialData(parsed.subjects),
+        slotNotes: parsed.slotNotes || {}
       }
     }
   } catch (err) {
@@ -35,7 +36,15 @@ const mergeWithInitialData = (savedSubjects: Subject[]) => {
       ...initialSubject,
       topics: initialSubject.topics.map(initialTopic => {
         const savedTopic = savedSubject.topics.find(t => t.id === initialTopic.id)
-        return savedTopic ? { ...initialTopic, done: savedTopic.done } : initialTopic
+        if (!savedTopic) return initialTopic
+        return { 
+          ...initialTopic, 
+          done: savedTopic.done,
+          schedules: savedTopic.schedules,
+          revisions: savedTopic.revisions,
+          scheduledDate: savedTopic.scheduledDate,
+          scheduledTime: savedTopic.scheduledTime
+        }
       })
     }
   })

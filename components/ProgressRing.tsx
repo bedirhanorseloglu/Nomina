@@ -7,9 +7,10 @@ interface ProgressRingProps {
   percentage: number
   size?: number
   strokeWidth?: number
+  color?: string
 }
 
-export default function ProgressRing({ percentage, size = 120, strokeWidth = 8 }: ProgressRingProps) {
+export default function ProgressRing({ percentage, size = 120, strokeWidth = 8, color = "var(--accent)" }: ProgressRingProps) {
   const [isMounted, setIsMounted] = useState(false)
   
   useEffect(() => {
@@ -34,7 +35,7 @@ export default function ProgressRing({ percentage, size = 120, strokeWidth = 8 }
         />
         {/* Progress track */}
         <motion.circle
-          className="text-accent stroke-current"
+          style={{ stroke: color }}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           fill="transparent"
