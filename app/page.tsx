@@ -173,8 +173,22 @@ export default function Home() {
   const updateSlotNote = (slotId: string, note: string) => {
     if (!data) return
     const newSlotNotes = { ...(data.slotNotes || {}), [slotId]: note }
-    if (!note) delete newSlotNotes[slotId]
-    setData({ ...data, slotNotes: newSlotNotes })
+    if (!note) {
+      delete newSlotNotes[slotId]
+      // Also clean up completed status if note is deleted
+      const newCompletedNotes = { ...(data.completedNotes || {}) }
+      delete newCompletedNotes[slotId]
+      setData({ ...data, slotNotes: newSlotNotes, completedNotes: newCompletedNotes })
+    } else {
+      setData({ ...data, slotNotes: newSlotNotes })
+    }
+  }
+
+  const toggleNote = (slotId: string) => {
+    if (!data) return
+    const currentCompleted = data.completedNotes || {}
+    const newCompletedNotes = { ...currentCompleted, [slotId]: !currentCompleted[slotId] }
+    setData({ ...data, completedNotes: newCompletedNotes })
   }
 
   const updateSubjectName = (subjectId: string, newName: string) => {
@@ -340,7 +354,9 @@ export default function Home() {
                       onDateChange={setSelectedDate} 
                       onRemoveTopic={removeTopic} 
                       slotNotes={data.slotNotes || {}}
+                      completedNotes={data.completedNotes || {}}
                       onUpdateNote={updateSlotNote}
+                      onToggleNote={toggleNote}
                       holidays={data.holidays || []}
                       onToggleHoliday={toggleHoliday}
                     />
@@ -354,6 +370,7 @@ export default function Home() {
                       topics={allTopicsFlat} 
                       subjects={data.subjects} 
                       slotNotes={data.slotNotes || {}}
+                      completedNotes={data.completedNotes || {}}
                       isDragging={!!activeId} 
                       onDayClick={handleDayClick} 
                     />

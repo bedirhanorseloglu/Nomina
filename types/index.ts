@@ -35,6 +35,7 @@ export type AppData = {
   streak: number
   lastActiveDate: string | null
   slotNotes?: Record<string, string> // Key: "YYYY-MM-DD_HH:mm"
+  completedNotes?: Record<string, boolean> // Key: "YYYY-MM-DD_HH:mm"
   holidays?: string[] // Array of "YYYY-MM-DD"
 }
 

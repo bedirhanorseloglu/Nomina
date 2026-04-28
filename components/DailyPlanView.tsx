@@ -16,7 +16,9 @@ interface DailyPlanViewProps {
   onDateChange: (date: Date) => void
   onRemoveTopic: (topicId: string, dateStr?: string, timeStr?: string) => void
   slotNotes: Record<string, string>
+  completedNotes: Record<string, boolean>
   onUpdateNote: (slotId: string, note: string) => void
+  onToggleNote: (slotId: string) => void
   holidays: string[]
   onToggleHoliday: (dateStr: string) => void
 }
@@ -24,7 +26,7 @@ interface DailyPlanViewProps {
 const HOURS = Array.from({ length: 15 }, (_, i) => i + 8) // 08 to 22
 const EXAM_DATE = "2026-09-06"
 
-function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, lockedType, color, isDragging, onRemoveTopic, note, onUpdateNote, subjects }: any) {
+function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, lockedType, color, isDragging, onRemoveTopic, note, isCompleted, onUpdateNote, onToggleNote, subjects }: any) {
   const slotId = `${dateStr}_${hour.toString().padStart(2, '0')}:00`
   const { setNodeRef, isOver } = useDroppable({
     id: slotId,
@@ -99,19 +101,56 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
       </div>
 
       {!isLocked && (
-        <div className={`mt-2 p-3 rounded-xl border transition-all ${
-          note ? 'bg-amber-50/50 border-amber-100 shadow-sm' : 'bg-slate-50/50 border-slate-100 group-hover:bg-white'
+        <div className={`mt-2 p-3 rounded-xl border transition-all relative ${
+          note 
+            ? isCompleted 
+              ? 'bg-slate-50 border-slate-200 opacity-60' 
+              : 'bg-amber-50/50 border-amber-100 shadow-sm' 
+            : 'bg-slate-50/50 border-slate-100 group-hover:bg-white'
         }`}>
-           <div className="flex items-center gap-2 mb-1.5 opacity-40">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-              <span className="text-[8px] font-black uppercase tracking-widest">Özel Not</span>
+           <div className="flex items-center justify-between mb-1.5">
+              <div className="flex items-center gap-2 opacity-40">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span className="text-[8px] font-black uppercase tracking-widest">Özel Not</span>
+              </div>
+              
+              {note && (
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleNote(slotId);
+                  }}
+                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                    isCompleted 
+                      ? 'bg-emerald-500 border-emerald-500 text-white scale-110 shadow-lg shadow-emerald-500/20' 
+                      : 'bg-white border-slate-200 hover:border-emerald-400'
+                  }`}
+                >
+                  <AnimatePresence mode="wait">
+                    {isCompleted && (
+                      <motion.div
+                        initial={{ scale: 0, rotate: -45 }}
+                        animate={{ scale: 1, rotate: 0 }}
+                        exit={{ scale: 0, rotate: 45 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </button>
+              )}
            </div>
            <textarea 
              value={note || ""}
              onChange={(e) => onUpdateNote(slotId, e.target.value)}
              placeholder="Bir not bırakın..."
              rows={2}
-             className="w-full bg-transparent border-0 outline-none text-xs text-slate-700 font-medium focus:text-slate-900 transition-all placeholder:text-slate-200 resize-none leading-relaxed"
+             className={`w-full bg-transparent border-0 outline-none text-xs font-medium transition-all placeholder:text-slate-200 resize-none leading-relaxed ${
+               isCompleted ? 'text-slate-400 line-through' : 'text-slate-700 focus:text-slate-900'
+             }`}
              onClick={(e) => e.stopPropagation()}
            />
         </div>
@@ -120,7 +159,7 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
   )
 }
 
-export default function DailyPlanView({ date, topics, subjects, isDragging, onDateChange, onRemoveTopic, slotNotes, onUpdateNote, holidays, onToggleHoliday }: DailyPlanViewProps) {
+export default function DailyPlanView({ date, topics, subjects, isDragging, onDateChange, onRemoveTopic, slotNotes, completedNotes, onUpdateNote, onToggleNote, holidays, onToggleHoliday }: DailyPlanViewProps) {
   const [activeTab, setActiveTab] = useState<'morning' | 'afternoon' | 'evening'>('morning')
   const dateStr = format(date, "yyyy-MM-dd")
   const isHoliday = holidays.includes(dateStr)
@@ -219,7 +258,9 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
             isDragging={isDragging}
             onRemoveTopic={onRemoveTopic}
             note={slotNotes[`${dateStr}_${hour.toString().padStart(2, '0')}:00`]}
+            isCompleted={completedNotes[`${dateStr}_${hour.toString().padStart(2, '0')}:00`]}
             onUpdateNote={onUpdateNote}
+            onToggleNote={onToggleNote}
             subjects={subjects}
           />
         )

@@ -12,6 +12,7 @@ interface MonthlyCalendarProps {
   topics: Topic[]
   subjects: Subject[]
   slotNotes: Record<string, string>
+  completedNotes: Record<string, boolean>
   isDragging: boolean
   onDayClick: (date: Date) => void
 }
@@ -28,6 +29,7 @@ function DroppableDayCell({
   allTopics, 
   subjects, 
   slotNotes,
+  completedNotes,
   isDragging, 
   onClick 
 }: { 
@@ -37,6 +39,7 @@ function DroppableDayCell({
   allTopics: Topic[], 
   subjects: Subject[], 
   slotNotes: Record<string, string>,
+  completedNotes: Record<string, boolean>,
   isDragging: boolean, 
   onClick: () => void 
 }) {
@@ -47,7 +50,11 @@ function DroppableDayCell({
   const classesForDay = UNIVERSITY_CLASSES.filter(c => c.date === dateStr)
   const notesForDay = Object.entries(slotNotes)
     .filter(([key, val]) => key.startsWith(dateStr) && val.trim() !== "")
-    .map(([key, val]) => ({ time: key.split("_")[1], text: val }))
+    .map(([key, val]) => ({ 
+      time: key.split("_")[1], 
+      text: val,
+      isCompleted: completedNotes[key] || false 
+    }))
 
   const { isOver, setNodeRef } = useDroppable({
     id: dateStr,
@@ -97,8 +104,12 @@ function DroppableDayCell({
 
         <div className="mt-auto flex flex-wrap gap-1 items-center">
            {notesForDay.length > 0 && (
-             <div className="flex items-center gap-0.5 bg-red-50 p-1 rounded-md border border-red-100 shadow-sm">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+             <div className={`flex items-center gap-0.5 p-1 rounded-md border shadow-sm ${
+               notesForDay.every(n => n.isCompleted) 
+                 ? 'bg-emerald-50 border-emerald-100' 
+                 : 'bg-red-50 border-red-100'
+             }`}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill={notesForDay.every(n => n.isCompleted) ? "#10b981" : "#FF0000"}><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
              </div>
            )}
            {allTopics.some(t => t.revisions?.some(r => r.date === dateStr)) && <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-sm" />}
@@ -112,7 +123,7 @@ function DroppableDayCell({
   )
 }
 
-export default function MonthlyCalendar({ topics, subjects, slotNotes, isDragging, onDayClick }: MonthlyCalendarProps) {
+export default function MonthlyCalendar({ topics, subjects, slotNotes, completedNotes, isDragging, onDayClick }: MonthlyCalendarProps) {
   const [currentDate, setCurrentDate] = useState(new Date())
   const monthStart = startOfMonth(currentDate)
   const monthEnd = endOfMonth(monthStart)
@@ -153,6 +164,7 @@ export default function MonthlyCalendar({ topics, subjects, slotNotes, isDraggin
               allTopics={topics}
               subjects={subjects}
               slotNotes={slotNotes}
+              completedNotes={completedNotes}
               isDragging={isDragging}
               onClick={() => onDayClick(day)}
             />
