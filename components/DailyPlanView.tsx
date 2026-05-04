@@ -172,25 +172,41 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
 
   const stats = useMemo(() => {
     const check = (hours: number[]) => {
-      return hours.some(h => {
+      let hasSomething = false
+      let hasUncompleted = false
+
+      hours.forEach(h => {
         const timeStr = `${h.toString().padStart(2, '0')}:00`
-        const hasTopic = topicsForDay.some(t => t.scheduledTime === timeStr)
-        const hasRevision = topics.some(t => t.revisions?.some(r => r.date === dateStr && r.time === timeStr))
+        const slotId = `${dateStr}_${timeStr}`
+        
+        const topic = topicsForDay.find(t => t.scheduledTime === timeStr)
+        const revisionTopic = topics.find(t => t.revisions?.some(r => r.date === dateStr && r.time === timeStr))
         const hasUni = UNIVERSITY_CLASSES.some(c => {
           if (c.date !== dateStr) return false
           const startH = parseInt(c.startTime.split(":")[0])
           const endH = parseInt(c.endTime.split(":")[0])
           return h >= startH && h < endH
         })
-        return hasTopic || hasRevision || hasUni
+        const hasNote = slotNotes[slotId] && slotNotes[slotId].trim() !== ""
+        const isNoteCompleted = completedNotes[slotId]
+
+        if (topic || revisionTopic || hasUni || hasNote) {
+          hasSomething = true
+          // INDICATOR LOGIC: Only notes determine the "uncompleted" (red) status now.
+          if (hasNote && !isNoteCompleted) {
+            hasUncompleted = true
+          }
+        }
       })
+
+      return { hasSomething, hasUncompleted }
     }
     return {
       morning: check(morningHours),
       afternoon: check(afternoonHours),
       evening: check(eveningHours)
     }
-  }, [topics, topicsForDay, dateStr])
+  }, [topics, topicsForDay, dateStr, slotNotes, completedNotes])
 
   const getHoursForTab = () => {
     if (activeTab === 'morning') return morningHours
@@ -307,7 +323,7 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
       <div className="glass rounded-3xl overflow-hidden flex flex-col">
         <div className="flex border-b border-slate-100">
            {(['morning', 'afternoon', 'evening'] as const).map((tab) => {
-             const hasActivity = stats[tab]
+             const { hasSomething, hasUncompleted } = stats[tab]
              return (
                <button
                  key={tab}
@@ -317,8 +333,12 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
                  }`}
                >
                  <span>{tab === 'morning' ? 'Sabah' : tab === 'afternoon' ? 'Öğle' : 'Akşam'}</span>
-                 {hasActivity && (
-                   <div className={`w-1.5 h-1.5 rounded-full ${activeTab === tab ? 'bg-accent' : 'bg-slate-300'} animate-pulse`} />
+                 {hasSomething && (
+                   <div className={`w-1.5 h-1.5 rounded-full ${
+                     hasUncompleted 
+                       ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' 
+                       : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
+                   } animate-pulse`} />
                  )}
                  {activeTab === tab && (
                    <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-accent" />

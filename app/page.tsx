@@ -29,6 +29,7 @@ export default function Home() {
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
   const [isAutoPlanOpen, setIsAutoPlanOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [activeView, setActiveView] = useState<'daily'|'monthly'>('daily')
   const [isSaving, setIsSaving] = useState(false)
   const isInitialLoad = useRef(true)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
@@ -211,9 +212,12 @@ export default function Home() {
 
   const handleDayClick = (date: Date) => {
     setSelectedDate(date)
-    if (dailyPlanRef.current) {
-      dailyPlanRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
-    }
+    setActiveView('daily')
+    setTimeout(() => {
+      if (dailyPlanRef.current) {
+        dailyPlanRef.current.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+    }, 100)
   }
 
   const activeSubject = data.subjects.find(s => s.id === activeSubjectId) || data.subjects[0]
@@ -340,40 +344,92 @@ export default function Home() {
                 </div>
                 
                 {/* Right Col: Timeline & Context */}
-                <div className="xl:col-span-8 flex flex-col gap-16">
-                  <div ref={dailyPlanRef} className="flex flex-col gap-6">
-                    <div className="flex items-center justify-between px-2">
-                       <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted opacity-60">Günlük Operasyon</h3>
-                       <span className="text-[10px] font-bold text-accent2 bg-accent2/5 px-2 py-0.5 rounded-full ring-1 ring-accent2/20">Zaman Çizelgesi</span>
-                    </div>
-                    <DailyPlanView 
-                      date={selectedDate} 
-                      topics={allTopicsFlat} 
-                      subjects={data.subjects} 
-                      isDragging={!!activeId} 
-                      onDateChange={setSelectedDate} 
-                      onRemoveTopic={removeTopic} 
-                      slotNotes={data.slotNotes || {}}
-                      completedNotes={data.completedNotes || {}}
-                      onUpdateNote={updateSlotNote}
-                      onToggleNote={toggleNote}
-                      holidays={data.holidays || []}
-                      onToggleHoliday={toggleHoliday}
-                    />
+                <div className="xl:col-span-8 flex flex-col gap-6">
+                  {/* View Switcher Tabs */}
+                  <div className="glass rounded-[2rem] p-2 flex items-center gap-2">
+                    <button 
+                      onClick={() => setActiveView('daily')}
+                      className={`flex-1 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-3 relative overflow-hidden ${
+                        activeView === 'daily' 
+                          ? 'text-white' 
+                          : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {activeView === 'daily' && (
+                        <motion.div 
+                          layoutId="activeTabBg"
+                          className="absolute inset-0 bg-accent"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                      <span className="relative z-10">Günlük Operasyon</span>
+                      {activeView === 'daily' && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-1.5 h-1.5 rounded-full bg-white animate-pulse relative z-10" />}
+                    </button>
+                    <button 
+                      onClick={() => setActiveView('monthly')}
+                      className={`flex-1 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-3 relative overflow-hidden ${
+                        activeView === 'monthly' 
+                          ? 'text-white' 
+                          : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {activeView === 'monthly' && (
+                        <motion.div 
+                          layoutId="activeTabBg"
+                          className="absolute inset-0 bg-accent"
+                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                        />
+                      )}
+                      <span className="relative z-10">Aylık Projeksiyon</span>
+                      {activeView === 'monthly' && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-1.5 h-1.5 rounded-full bg-white animate-pulse relative z-10" />}
+                    </button>
                   </div>
 
-                  <div className="flex flex-col gap-6">
-                    <div className="flex items-center justify-between px-2">
-                       <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted opacity-60">Aylık Projeksiyon</h3>
-                    </div>
-                    <MonthlyCalendar 
-                      topics={allTopicsFlat} 
-                      subjects={data.subjects} 
-                      slotNotes={data.slotNotes || {}}
-                      completedNotes={data.completedNotes || {}}
-                      isDragging={!!activeId} 
-                      onDayClick={handleDayClick} 
-                    />
+                  <div className="relative">
+                    <AnimatePresence mode="wait">
+                      {activeView === 'daily' ? (
+                        <motion.div 
+                          key="daily"
+                          ref={dailyPlanRef}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <DailyPlanView 
+                            date={selectedDate} 
+                            topics={allTopicsFlat} 
+                            subjects={data.subjects} 
+                            isDragging={!!activeId} 
+                            onDateChange={setSelectedDate} 
+                            onRemoveTopic={removeTopic} 
+                            slotNotes={data.slotNotes || {}}
+                            completedNotes={data.completedNotes || {}}
+                            onUpdateNote={updateSlotNote}
+                            onToggleNote={toggleNote}
+                            holidays={data.holidays || []}
+                            onToggleHoliday={toggleHoliday}
+                          />
+                        </motion.div>
+                      ) : (
+                        <motion.div 
+                          key="monthly"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <MonthlyCalendar 
+                            topics={allTopicsFlat} 
+                            subjects={data.subjects} 
+                            slotNotes={data.slotNotes || {}}
+                            completedNotes={data.completedNotes || {}}
+                            isDragging={!!activeId} 
+                            onDayClick={handleDayClick} 
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               </div>
