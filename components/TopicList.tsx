@@ -22,27 +22,26 @@ function DraggableTopicItem({ topic, onToggleTopic, onScheduleTopic, color, subj
   return (
     <motion.div
       ref={setNodeRef}
+      {...listeners} 
+      {...attributes}
       style={style}
       layoutId={`topic-${topic.id}`}
-      className={`group relative flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 border ${
+      className={`cursor-grab active:cursor-grabbing group relative flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 border ${
         topic.done 
           ? "bg-slate-50 border-transparent grayscale" 
           : "bg-white border-slate-100 hover:border-accent/40 hover:bg-white hover:shadow-lg hover:shadow-slate-200"
       }`}
     >
       <div 
-        {...listeners} 
-        {...attributes}
-        className="cursor-grab active:cursor-grabbing text-slate-300 hover:text-accent p-1.5 shrink-0 bg-slate-50 rounded-xl transition-colors"
+        className="text-slate-300 group-hover:text-accent p-1.5 shrink-0 bg-slate-50 rounded-xl transition-colors"
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="9" cy="12" r="1"></circle><circle cx="9" cy="5" r="1"></circle><circle cx="9" cy="19" r="1"></circle><circle cx="15" cy="12" r="1"></circle><circle cx="15" cy="5" r="1"></circle><circle cx="15" cy="19" r="1"></circle></svg>
       </div>
 
-      <button
-        onClick={() => onToggleTopic(topic.id)}
-        className="flex-1 flex items-center gap-3 text-left overflow-hidden"
-      >
-        <div 
+      <div className="flex-1 flex items-center gap-3 text-left overflow-hidden">
+        <button
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={(e) => { e.stopPropagation(); onToggleTopic(topic.id); }}
           className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all shrink-0 ${
             topic.done 
               ? "bg-accent border-accent text-white" 
@@ -62,8 +61,11 @@ function DraggableTopicItem({ topic, onToggleTopic, onScheduleTopic, color, subj
               <polyline points="20 6 9 17 4 12"></polyline>
             </motion.svg>
           )}
-        </div>
-        <div className="flex flex-col min-w-0">
+        </button>
+        <div 
+          onClick={() => onToggleTopic(topic.id)}
+          className="flex flex-col min-w-0 flex-1 select-none"
+        >
           <span className={`text-sm font-bold transition-colors truncate ${
             topic.done ? "text-slate-400 line-through" : "text-slate-900"
           }`}>
@@ -73,12 +75,13 @@ function DraggableTopicItem({ topic, onToggleTopic, onScheduleTopic, color, subj
              <span className="text-[10px] text-slate-400 font-black opacity-60">{topic.questionCount} SORU</span>
           )}
         </div>
-      </button>
+      </div>
 
       <div className="flex items-center gap-2 shrink-0">
         {!topic.done && (
           <button
-            onClick={() => onScheduleTopic(topic.id)}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onScheduleTopic(topic.id); }}
             className="w-8 h-8 rounded-xl bg-accent/10 text-accent hover:bg-accent hover:text-white transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 shadow-sm"
             title="Bugüne Ekle"
           >
