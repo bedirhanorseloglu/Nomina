@@ -328,7 +328,7 @@ export default function Home() {
               <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12 items-start">
                 
                 {/* Left Col: Knowledge Base */}
-                <div className="xl:col-span-4 flex flex-col gap-6 sticky top-0">
+                <div className="xl:col-span-4 flex flex-col gap-6 xl:sticky xl:top-24">
                   <div className="flex items-center justify-between px-2">
                      <h3 className="text-xs font-black uppercase tracking-[0.3em] text-muted opacity-60">Müfredat Havuzu</h3>
                      <span className="text-[10px] font-bold text-accent bg-accent/5 px-2 py-0.5 rounded-full ring-1 ring-accent/20">Sürüklenebilir</span>
