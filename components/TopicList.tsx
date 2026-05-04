@@ -169,17 +169,17 @@ export default function TopicList({ subjects, activeSubjectId, onSelectSubject, 
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="glass rounded-[2.5rem] p-8 relative overflow-hidden"
+          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden"
         >
           {/* Background Decorative Icon */}
           <div className="absolute top-[-20px] right-[-20px] text-8xl opacity-[0.03] select-none pointer-events-none rotate-12">
             {subject.icon}
           </div>
 
-          <div className="flex flex-col gap-4 mb-8">
-            <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-4 mb-8 relative z-10">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4 flex-1">
-                <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-2xl shadow-inner shadow-slate-100 border border-slate-100">
+                <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-2xl shadow-inner shadow-slate-100 border border-slate-100 shrink-0">
                   {subject.icon}
                 </div>
                 <div className="flex flex-col flex-1">
@@ -196,7 +196,7 @@ export default function TopicList({ subjects, activeSubjectId, onSelectSubject, 
                   </div>
                 </div>
               </div>
-              <div className="flex flex-col items-end">
+              <div className="flex flex-col items-start sm:items-end bg-white/50 sm:bg-transparent p-3 sm:p-0 rounded-xl sm:rounded-none">
                 <span className="text-2xl font-black font-mono tracking-tighter" style={{ color: subject.color }}>
                   {Math.round((subject.topics.filter(t => t.done).length / subject.topics.length) * 100)}%
                 </span>

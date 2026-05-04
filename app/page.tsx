@@ -246,12 +246,12 @@ export default function Home() {
 
         <div className="flex-1 flex flex-col h-screen overflow-hidden relative bg-white">
           {/* Top Header */}
-          <header className="h-20 border-b border-slate-100 bg-white sticky top-0 flex items-center justify-between px-6 md:px-12 z-40 shrink-0">
-            <div className="flex items-center gap-6">
+          <header className="h-20 border-b border-slate-100 bg-white sticky top-0 flex items-center justify-between px-4 md:px-12 z-40 shrink-0 gap-4">
+            <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto justify-between md:justify-start">
               <button onClick={() => setIsSidebarOpen(true)} className="md:hidden bg-slate-100 p-2 rounded-xl text-slate-900 hover:bg-accent/10 hover:text-accent transition-all">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
               </button>
-              <div className="hidden md:block w-80">
+              <div className="hidden md:block w-full max-w-xs md:w-80">
                 <SearchBar subjects={data.subjects} onSelectSubject={setActiveSubjectId} />
               </div>
             </div>
@@ -284,17 +284,17 @@ export default function Home() {
           </header>
 
           {/* Main Scroll Area */}
-          <main ref={scrollAreaRef} className="flex-1 overflow-y-auto p-6 md:p-12 custom-scrollbar">
-            <div className="max-w-7xl mx-auto space-y-16">
+          <main ref={scrollAreaRef} className="flex-1 overflow-y-auto p-4 sm:p-6 md:p-12 custom-scrollbar">
+            <div className="max-w-7xl mx-auto space-y-12 md:space-y-16">
               
               {/* Motivation Section */}
               <MotivationalQuote />
               
               {/* Overview Section */}
               <section className="flex flex-col gap-8">
-                 <div className="flex items-center justify-between">
+                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-0">
                     <div className="flex flex-col">
-                       <h1 className="text-4xl font-black font-heading text-text-main tracking-tighter">GÖSTERGE PANELİ</h1>
+                       <h1 className="text-3xl md:text-4xl font-black font-heading text-text-main tracking-tighter">GÖSTERGE PANELİ</h1>
                        <p className="text-muted text-sm font-medium">Hedeflerinize ulaşmak için bugün harika bir gün.</p>
                     </div>
                     <div className="hidden md:flex items-center gap-4 glass p-3 rounded-[2rem]">
@@ -325,7 +325,7 @@ export default function Home() {
               </section>
 
               {/* Content Grid */}
-              <div className="grid grid-cols-1 xl:grid-cols-12 gap-12 items-start">
+              <div className="grid grid-cols-1 xl:grid-cols-12 gap-8 xl:gap-12 items-start">
                 
                 {/* Left Col: Knowledge Base */}
                 <div className="xl:col-span-4 flex flex-col gap-6 sticky top-0">
@@ -346,10 +346,10 @@ export default function Home() {
                 {/* Right Col: Timeline & Context */}
                 <div className="xl:col-span-8 flex flex-col gap-6">
                   {/* View Switcher Tabs */}
-                  <div className="glass rounded-[2rem] p-2 flex items-center gap-2">
+                  <div className="glass rounded-[2rem] p-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <button 
                       onClick={() => setActiveView('daily')}
-                      className={`flex-1 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-3 relative overflow-hidden ${
+                      className={`flex-1 py-3 sm:py-4 rounded-[1.5rem] text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-2 sm:gap-3 relative overflow-hidden ${
                         activeView === 'daily' 
                           ? 'text-white' 
                           : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
@@ -367,7 +367,7 @@ export default function Home() {
                     </button>
                     <button 
                       onClick={() => setActiveView('monthly')}
-                      className={`flex-1 py-4 rounded-[1.5rem] text-xs font-black uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-3 relative overflow-hidden ${
+                      className={`flex-1 py-3 sm:py-4 rounded-[1.5rem] text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-2 sm:gap-3 relative overflow-hidden ${
                         activeView === 'monthly' 
                           ? 'text-white' 
                           : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'

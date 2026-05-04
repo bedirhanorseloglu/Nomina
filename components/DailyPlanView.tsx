@@ -287,8 +287,8 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
   return (
     <div className="flex flex-col gap-6">
       {/* Date Header */}
-      <div className="glass rounded-3xl p-6 flex flex-col lg:flex-row justify-between items-center gap-6">
-        <div className="flex items-center gap-6">
+      <div className="glass rounded-3xl p-4 sm:p-6 flex flex-col lg:flex-row justify-between items-center gap-6">
+        <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full lg:w-auto">
            <div className="bg-accent/10 w-16 h-16 rounded-2xl flex flex-col items-center justify-center border border-accent/20 shadow-sm">
               <span className="text-[10px] font-black uppercase text-accent tracking-tighter">{format(date, "MMM", { locale: tr })}</span>
               <span className="text-2xl font-black text-slate-900 leading-tight">{format(date, "dd")}</span>
@@ -312,10 +312,10 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
            </div>
         </div>
 
-        <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100">
-          <button onClick={() => onDateChange(subDays(new Date(date), 1))} className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200">←</button>
-          <button onClick={() => onDateChange(new Date())} className="px-6 py-2 bg-accent text-white font-black rounded-xl hover:shadow-lg hover:shadow-accent/30 transition-all text-xs uppercase tracking-widest">Bugün</button>
-          <button onClick={() => onDateChange(addDays(new Date(date), 1))} className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200">→</button>
+        <div className="flex items-center justify-between sm:justify-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100 w-full sm:w-auto">
+          <button onClick={() => onDateChange(subDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 shrink-0">←</button>
+          <button onClick={() => onDateChange(new Date())} className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-accent text-white font-black rounded-xl hover:shadow-lg hover:shadow-accent/30 transition-all text-[10px] sm:text-xs uppercase tracking-widest whitespace-nowrap">Bugün</button>
+          <button onClick={() => onDateChange(addDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 shrink-0">→</button>
         </div>
       </div>
 
