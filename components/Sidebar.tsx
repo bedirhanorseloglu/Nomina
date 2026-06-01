@@ -3,6 +3,7 @@
 import { Subject } from "@/types"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useEffect } from "react"
+import { X, Cpu } from "lucide-react"
 
 interface SidebarProps {
   subjects: Subject[]
@@ -25,15 +26,15 @@ export default function Sidebar({ subjects, activeSubjectId, onSelect, isOpen, s
   const categories = Array.from(new Set(subjects.map(s => s.category)))
 
   const SidebarContent = () => (
-    <div className="h-full flex flex-col p-4 bg-white overflow-y-auto w-72 md:w-full border-r border-slate-100 md:border-r-0">
+    <div className="h-full flex flex-col p-4 bg-[#f5f5f7]/30 backdrop-blur-md overflow-y-auto w-72 md:w-full border-r border-slate-200/40 md:border-r-0">
       <div className="flex items-center justify-between mb-10 mt-4 md:mt-0 px-2">
-        <h2 className="font-heading text-2xl font-black text-slate-900 tracking-tighter flex items-center gap-3">
-          <span className="bg-accent/10 p-2 rounded-xl text-accent shadow-sm shadow-accent/5">KPSS</span>
+        <h2 className="font-heading text-2xl font-black text-[#1d1d1f] tracking-tighter flex items-center gap-3">
+          <span className="bg-[#0071e3]/10 p-2 rounded-xl text-[#0071e3] shadow-sm shadow-[#0071e3]/5">KPSS</span>
           <span className="text-xs font-medium text-slate-400 uppercase tracking-widest mt-1">2026</span>
         </h2>
         {isMobile && (
-          <button onClick={() => setIsOpen(false)} className="bg-slate-50 p-2 rounded-full text-slate-400 hover:text-slate-900 transition-colors">
-            ✕
+          <button onClick={() => setIsOpen(false)} className="bg-slate-100/80 p-2 rounded-full text-slate-500 hover:text-slate-900 hover:bg-slate-200/50 transition-colors">
+            <X className="w-4 h-4" strokeWidth={2.5} />
           </button>
         )}
       </div>
@@ -108,12 +109,14 @@ export default function Sidebar({ subjects, activeSubjectId, onSelect, isOpen, s
         ))}
       </div>
 
-      <div className="mt-auto pt-6 border-t border-slate-100 px-2">
-        <div className="bg-slate-50/50 rounded-2xl p-4 flex items-center gap-4 border border-slate-100">
-           <div className="bg-accent text-white p-2 rounded-lg font-black text-xs shadow-sm">AI</div>
+      <div className="mt-auto pt-6 border-t border-slate-100 px-2 space-y-3">
+        <div className="bg-white/60 rounded-2xl p-4 flex items-center gap-4 border border-slate-200/30 shadow-sm">
+           <div className="bg-[#0071e3] text-white p-2 rounded-xl shadow-sm shadow-[#0071e3]/20 flex items-center justify-center">
+              <Cpu className="w-4 h-4" strokeWidth={2.5} />
+           </div>
            <div className="flex flex-col">
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Plan Durumu</span>
-              <span className="text-xs text-slate-900 font-semibold">Strateji Aktif</span>
+              <span className="text-xs text-[#1d1d1f] font-semibold">Strateji Aktif</span>
            </div>
         </div>
       </div>
@@ -122,7 +125,7 @@ export default function Sidebar({ subjects, activeSubjectId, onSelect, isOpen, s
 
   if (!isMobile) {
     return (
-      <div className="w-80 flex-shrink-0 sticky top-0 h-screen py-6 pl-6 pr-4 border-r border-slate-100 hidden md:block bg-white">
+      <div className="w-80 flex-shrink-0 sticky top-0 h-screen py-6 pl-6 pr-4 border-r border-slate-200/40 hidden md:block bg-[#f5f5f7]">
         <SidebarContent />
       </div>
     )
@@ -144,7 +147,7 @@ export default function Sidebar({ subjects, activeSubjectId, onSelect, isOpen, s
             animate={{ x: 0 }}
             exit={{ x: "-100%" }}
             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed inset-y-0 left-0 z-50 shadow-2xl md:hidden bg-white"
+            className="fixed inset-y-0 left-0 z-50 shadow-2xl md:hidden bg-[#f5f5f7]"
           >
             <SidebarContent />
           </motion.div>

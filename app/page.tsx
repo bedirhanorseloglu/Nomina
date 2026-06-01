@@ -20,6 +20,9 @@ import DailyPlanView from "@/components/DailyPlanView"
 import AutoPlanGenerator from "@/components/AutoPlanGenerator"
 import MotivationalQuote from "@/components/MotivationalQuote"
 import { AppData, Subject } from "@/types"
+import DenemeLinkButton from "@/components/deneme/DenemeLinkButton"
+import confetti from "canvas-confetti"
+import { toast } from "sonner"
 
 export default function Home() {
   const [data, setData] = useState<AppData | null>(null)
@@ -74,14 +77,29 @@ export default function Home() {
 
   const toggleTopic = (topicId: string, subjectId?: string) => {
     if (!data) return
+    let wasCompleted = false
     const newSubjects = data.subjects.map(subject => {
       if (subjectId && subject.id !== subjectId) return subject
       return {
         ...subject,
-        topics: subject.topics.map(t => t.id === topicId ? { ...t, done: !t.done } : t)
+        topics: subject.topics.map(t => {
+          if (t.id === topicId) {
+            wasCompleted = !t.done
+            return { ...t, done: wasCompleted }
+          }
+          return t
+        })
       }
     })
     setData({ ...data, subjects: newSubjects })
+    if (wasCompleted) {
+      toast.success("Müfredat konusu tamamlandı! Başarılar! 📘")
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.8 }
+      })
+    }
   }
 
   const handleReset = () => {
@@ -188,8 +206,17 @@ export default function Home() {
   const toggleNote = (slotId: string) => {
     if (!data) return
     const currentCompleted = data.completedNotes || {}
-    const newCompletedNotes = { ...currentCompleted, [slotId]: !currentCompleted[slotId] }
+    const isNowCompleted = !currentCompleted[slotId]
+    const newCompletedNotes = { ...currentCompleted, [slotId]: isNowCompleted }
     setData({ ...data, completedNotes: newCompletedNotes })
+    if (isNowCompleted) {
+      toast.success("Günlük görev tamamlandı! Harika gidiyorsun! 🚀")
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.75 }
+      })
+    }
   }
 
   const updateSubjectName = (subjectId: string, newName: string) => {
@@ -244,9 +271,9 @@ export default function Home() {
           setIsOpen={setIsSidebarOpen}
         />
 
-        <div className="flex-1 flex flex-col h-screen overflow-hidden relative bg-white">
+        <div className="flex-1 flex flex-col h-screen overflow-hidden relative bg-[#f5f5f7]">
           {/* Top Header */}
-          <header className="h-20 border-b border-slate-100 bg-white sticky top-0 flex items-center justify-between px-4 md:px-12 z-40 shrink-0 gap-4">
+          <header className="h-20 border-b border-slate-200/40 bg-[#f5f5f7]/80 backdrop-blur-md sticky top-0 flex items-center justify-between px-4 md:px-12 z-40 shrink-0 gap-4">
             <div className="flex items-center gap-4 md:gap-6 w-full md:w-auto justify-between md:justify-start">
               <button onClick={() => setIsSidebarOpen(true)} className="md:hidden bg-slate-100 p-2 rounded-xl text-slate-900 hover:bg-accent/10 hover:text-accent transition-all">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
@@ -277,8 +304,8 @@ export default function Home() {
                 <KPSSCountdown />
               </div>
 
-              <div className="flex items-center gap-3">
-                <button onClick={() => setIsResetModalOpen(true)} className="w-10 h-10 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center font-black">✕</button>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <button onClick={() => setIsResetModalOpen(true)} className="w-10 h-10 rounded-xl bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center font-black shrink-0">✕</button>
               </div>
             </div>
           </header>
@@ -293,9 +320,12 @@ export default function Home() {
               {/* Overview Section */}
               <section className="flex flex-col gap-8">
                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 md:gap-0">
-                    <div className="flex flex-col">
-                       <h1 className="text-3xl md:text-4xl font-black font-heading text-text-main tracking-tighter">GÖSTERGE PANELİ</h1>
-                       <p className="text-muted text-sm font-medium">Hedeflerinize ulaşmak için bugün harika bir gün.</p>
+                    <div className="flex flex-col gap-4">
+                       <div>
+                         <h1 className="text-3xl md:text-4xl font-black font-heading text-text-main tracking-tighter">GÖSTERGE PANELİ</h1>
+                         <p className="text-muted text-sm font-medium">Hedeflerinize ulaşmak için bugün harika bir gün.</p>
+                       </div>
+                       <DenemeLinkButton variant="card" />
                     </div>
                     <div className="hidden md:flex items-center gap-4 glass p-3 rounded-[2rem]">
                         <ProgressRing percentage={totalPercent} size={80} strokeWidth={8} color={activeSubject?.color} />

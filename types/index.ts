@@ -30,6 +30,24 @@ export type Subject = {
   topics: Topic[]
 }
 
+export type DenemeSubjectScore = {
+  subjectId: string
+  correct: number
+  wrong: number
+  empty: number
+}
+
+export type DenemeRecordData = {
+  id: string
+  name: string
+  date: string
+  publisher?: string
+  scores: DenemeSubjectScore[]
+  note?: string
+  examType?: "genel" | "brans"
+  bransSubjectId?: string
+}
+
 export type AppData = {
   subjects: Subject[]
   streak: number
@@ -37,6 +55,8 @@ export type AppData = {
   slotNotes?: Record<string, string> // Key: "YYYY-MM-DD_HH:mm"
   completedNotes?: Record<string, boolean> // Key: "YYYY-MM-DD_HH:mm"
   holidays?: string[] // Array of "YYYY-MM-DD"
+  denemeler?: DenemeRecordData[]
+  denemeTargetNet?: number
 }
 
 export type UniversityClass = {

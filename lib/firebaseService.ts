@@ -24,10 +24,27 @@ export const saveToFirebase = async (data: AppData) => {
   try {
     const docRef = doc(db, DATA_COLLECTION, DEFAULT_USER_ID);
     const sanitized = stripUndefined(data) as AppData;
-    await setDoc(docRef, sanitized);
+    await setDoc(docRef, sanitized, { merge: true });
     console.log("✅ Firebase'e kaydedildi");
   } catch (error) {
     console.error("❌ Firebase kayıt hatası:", error);
+  }
+};
+
+export const saveDenemeDataToFirebase = async (
+  denemeler: AppData["denemeler"],
+  denemeTargetNet?: number
+) => {
+  try {
+    const docRef = doc(db, DATA_COLLECTION, DEFAULT_USER_ID);
+    const payload = stripUndefined({
+      denemeler,
+      ...(denemeTargetNet !== undefined ? { denemeTargetNet } : {}),
+    }) as Pick<AppData, "denemeler" | "denemeTargetNet">;
+    await setDoc(docRef, payload, { merge: true });
+    console.log("✅ Deneme verileri Firebase'e kaydedildi");
+  } catch (error) {
+    console.error("❌ Deneme Firebase kayıt hatası:", error);
   }
 };
 

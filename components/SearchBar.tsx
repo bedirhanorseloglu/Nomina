@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { Subject } from "@/types"
 import { motion, AnimatePresence } from "framer-motion"
+import { Search, ChevronRight } from "lucide-react"
 
 interface SearchBarProps {
   subjects: Subject[]
@@ -41,9 +42,9 @@ export default function SearchBar({ subjects, onSelectSubject }: SearchBarProps)
     <div ref={wrapperRef} className="relative w-full z-50">
       <div className="relative group">
         <div className="absolute inset-0 bg-accent/5 blur-xl opacity-0 group-focus-within:opacity-100 transition-opacity rounded-2xl" />
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-accent transition-colors">
-           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-        </span>
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-accent transition-colors flex items-center justify-center">
+            <Search className="w-4 h-4" strokeWidth={2.5} />
+         </span>
         <input
           type="text"
           value={query}
@@ -80,7 +81,7 @@ export default function SearchBar({ subjects, onSelectSubject }: SearchBarProps)
                       <span className="text-xl">{result.subject.icon}</span>
                       <span className="font-black text-xs uppercase tracking-widest text-slate-900">{result.subject.title}</span>
                     </div>
-                    <span className="text-[10px] font-bold text-slate-400 group-hover:text-accent">DERSE GİT</span>
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-accent transition-colors" strokeWidth={2.5} />
                   </button>
                   <div className="space-y-1 mt-1 pl-4 pb-2">
                     {result.topics.map(topic => (

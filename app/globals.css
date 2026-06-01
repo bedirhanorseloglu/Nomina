@@ -1,17 +1,17 @@
 @import "tailwindcss";
 
 :root {
-  --color-bg: #ffffff;
-  --color-surface: #f8fafc;
-  --color-card: #ffffff;
-  --color-border-custom: rgba(0, 0, 0, 0.08);
-  --color-accent: #00a884;
-  --color-accent2: #f59e0b;
-  --color-text-main: #0f172a;
-  --color-muted: #64748b;
-  --color-success: #10b981;
-  --color-error: #ef4444;
-  --color-warning: #f59e0b;
+  --color-bg: #f5f5f7; /* Apple System Gray Page Background */
+  --color-surface: #f5f5f7;
+  --color-card: rgba(255, 255, 255, 0.72);
+  --color-border-custom: rgba(0, 0, 0, 0.04);
+  --color-accent: #0071e3; /* Apple Blue Main Accent */
+  --color-accent2: #ff9500; /* Apple Orange */
+  --color-text-main: #1d1d1f; /* Apple Charcoal */
+  --color-muted: #86868b; /* Apple Muted Label Gray */
+  --color-success: #34c759; /* Apple Green */
+  --color-error: #ff3b30; /* Apple Red */
+  --color-warning: #ffcc00; /* Apple Yellow */
 }
 
 @theme inline {
@@ -27,9 +27,9 @@
   --color-error: var(--color-error);
   --color-warning: var(--color-warning);
 
-  --font-heading: 'Outfit', sans-serif;
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  --font-mono: "SF Mono", "SFProMono-Regular", "Cascadia Code", Consolas, monospace;
 }
 
 body {
@@ -37,34 +37,39 @@ body {
   color: var(--color-text-main);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  letter-spacing: -0.01em;
 }
 
 h1, h2, h3, h4, h5, h6, .font-heading {
   font-family: var(--font-heading);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.022em;
 }
 
-/* Custom Scrollbar */
+/* Custom Scrollbar (macOS Style) */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--color-bg);
+  background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--color-accent);
+  background: rgba(0, 0, 0, 0.22);
 }
 
-/* Glassmorphism Classes (Pure White Mode) */
+/* Glassmorphism Classes (Premium Apple Translucent Glass) */
 .glass {
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.06);
-  box-shadow: 0 4px 25px rgba(0, 0, 0, 0.04);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: 
+    0 4px 30px rgba(0, 0, 0, 0.02), 
+    0 1px 2px rgba(0, 0, 0, 0.01);
 }
 
 .glass-hover {
@@ -102,4 +107,355 @@ h1, h2, h3, h4, h5, h6, .font-heading {
   color: #fff;
   font-weight: bold;
   font-size: 12px;
+}
+
+.field-input {
+  width: 100%;
+  height: 2.75rem;
+  padding: 0 1rem;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-main);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.field-input:focus {
+  outline: none;
+  border-color: rgba(0, 168, 132, 0.35);
+  box-shadow: 0 0 0 3px rgba(0, 168, 132, 0.12);
+}
+
+/* Deneme Merkezi - Apple Inspired UI Redesign */
+.deneme-page {
+  position: relative;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
+.deneme-page-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: none; /* Apple style relies on solid clean F5F5F7 background */
+  z-index: -1;
+}
+
+.deneme-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  border-radius: 1.25rem; /* 20px rounding */
+  box-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.01), 
+    0 4px 16px rgba(0, 0, 0, 0.02);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.deneme-card:hover {
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.02), 
+    0 8px 24px rgba(0, 0, 0, 0.04);
+}
+
+.deneme-summary-panel {
+  background: #ffffff;
+  border-left: none; /* Clean Apple card */
+}
+
+.deneme-subject-row {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.03);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  border-left: none; /* Apple style uses clean borders, not thick colored left bars */
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.01);
+}
+
+.deneme-subject-row:hover {
+  background: #ffffff;
+  transform: scale(1.005);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
+  border-color: rgba(0, 0, 0, 0.06);
+}
+
+.deneme-subject-row--error {
+  background: #fffbfb;
+  border-color: rgba(239, 68, 68, 0.2);
+}
+
+.deneme-net-badge {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.deneme-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.deneme-field > span {
+  font-size: 0.6875rem; /* 11px Apple Label */
+  font-weight: 600;
+  text-transform: none; /* No aggressive caps */
+  letter-spacing: -0.01em;
+  color: #86868b;
+  margin-left: 0.125rem;
+}
+
+.deneme-input {
+  width: 100%;
+  padding: 0.625rem 0.75rem 0.625rem 2.5rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1d1d1f;
+  transition: all 0.15s ease;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.01);
+}
+
+.deneme-input:focus {
+  outline: none;
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.12);
+}
+
+textarea.deneme-input {
+  min-height: 80px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.75rem 0.625rem 2.5rem;
+  background: #ffffff;
+}
+
+textarea.deneme-input:focus {
+  border-color: #0071e3;
+  box-shadow: 0 0 0 3px rgba(0, 113, 227, 0.12);
+}
+
+/* Apple System Buttons */
+.deneme-btn-primary {
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.75rem; /* 12px capsule feel */
+  background: #0071e3; /* Apple System Blue */
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: none; /* Flat premium buttons */
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.deneme-btn-primary:hover:not(:disabled) {
+  background: #0077ed;
+  transform: none;
+}
+
+.deneme-btn-primary:active:not(:disabled) {
+  background: #0062c3;
+}
+
+.deneme-btn-primary:disabled {
+  background: #e5e5ea;
+  color: #aeaeb2;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.deneme-btn-secondary {
+  padding: 0.625rem 1.25rem;
+  border-radius: 0.75rem;
+  background: #f5f5f7;
+  color: #0071e3;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.deneme-btn-secondary:hover {
+  background: #e8e8ed;
+}
+
+.deneme-btn-secondary:active {
+  background: #dddde3;
+}
+
+.deneme-btn-ghost {
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #515154;
+  transition: all 0.18s ease;
+  cursor: pointer;
+}
+
+.deneme-btn-ghost:hover {
+  background: #f5f5f7;
+  color: #1d1d1f;
+}
+
+.deneme-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem;
+  background: #ffffff;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  text-align: center;
+}
+
+.deneme-history-score {
+  min-width: 80px;
+}
+
+.deneme-history-bar {
+  height: 5px;
+  background: #e5e5ea;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.deneme-history-bar-fill {
+  height: 100%;
+  background: #0071e3;
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 5px;
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+/* iOS Segmented Tab Controls */
+.ios-segmented {
+  background: rgba(118, 118, 128, 0.12);
+  padding: 2px;
+  border-radius: 0.625rem; /* 10px rounded track */
+  display: inline-flex;
+}
+
+.ios-segmented-item {
+  border-radius: 0.5rem; /* 8px rounded slider */
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #1d1d1f;
+  transition: all 0.2s ease;
+}
+
+/* Interactive iOS table styles */
+.deneme-table-wrapper {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: #ffffff;
+}
+
+.deneme-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.deneme-table th {
+  padding: 0.875rem 1rem;
+  font-weight: 600;
+  text-transform: none; /* Apple style is clean */
+  letter-spacing: -0.01em;
+  color: #86868b;
+  background: #f5f5f7;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  user-select: none;
+}
+
+.deneme-table td {
+  padding: 0.875rem 1rem;
+  font-weight: 500;
+  color: #1d1d1f;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.03);
+}
+
+.deneme-table tr:last-child td {
+  border-bottom: none;
+}
+
+.deneme-table-row {
+  transition: background-color 0.15s ease;
+}
+
+.deneme-table-row:hover {
+  background-color: #f5f5f7;
+}
+
+/* Custom iOS slider styling */
+.premium-range {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: #d1d1d6;
+  outline: none;
+}
+
+.premium-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: 0.5px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12), 0 3px 1px rgba(0, 0, 0, 0.04);
+  transition: transform 0.1s ease;
+}
+
+.premium-range::-webkit-slider-thumb:hover {
+  transform: scale(1.05);
+}
+
+/* Sonner — sade bildirimler */
+[data-sonner-toaster][data-y-position="bottom"] {
+  --offset: 24px;
+}
+
+[data-sonner-toast].app-toast {
+  font-family: var(--font-sans) !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08) !important;
+  font-size: 0.875rem !important;
+}
+
+[data-sonner-toast].app-toast [data-title] {
+  font-weight: 600 !important;
+  color: #1d1d1f !important;
 }
