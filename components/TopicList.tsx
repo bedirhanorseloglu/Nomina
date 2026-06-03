@@ -28,8 +28,8 @@ function DraggableTopicItem({ topic, onToggleTopic, onScheduleTopic, color, subj
       style={style}
       layoutId={`topic-${topic.id}`}
       className={`cursor-grab active:cursor-grabbing group relative flex items-center gap-3 p-3 rounded-2xl transition-all duration-300 border ${topic.done
-          ? "bg-slate-50 border-transparent grayscale"
-          : "bg-white border-slate-100 hover:border-accent/40 hover:bg-white hover:shadow-lg hover:shadow-slate-200"
+          ? "bg-gray-50 dark:bg-slate-800/50 border-transparent grayscale"
+          : "bg-white dark:bg-[#1e293b] border-gray-100 dark:border-white/10 hover:border-accent/40 dark:hover:border-accent/40 hover:bg-gray-50/50 dark:hover:bg-slate-800 hover:shadow-[0_4px_20px_rgb(0,0,0,0.04)] dark:hover:shadow-none"
         }`}
     >
       <div
@@ -44,7 +44,7 @@ function DraggableTopicItem({ topic, onToggleTopic, onScheduleTopic, color, subj
           onClick={(e) => { e.stopPropagation(); onToggleTopic(topic.id); }}
           className={`w-6 h-6 rounded-lg flex items-center justify-center border-2 transition-all shrink-0 ${topic.done
               ? "bg-accent border-accent text-white"
-              : "border-slate-100 group-hover:border-accent/60"
+              : "border-slate-100 dark:border-slate-700 group-hover:border-accent/60"
             }`}
         >
           {topic.done && (
@@ -61,7 +61,7 @@ function DraggableTopicItem({ topic, onToggleTopic, onScheduleTopic, color, subj
           onClick={() => onToggleTopic(topic.id)}
           className="flex flex-col min-w-0 flex-1 select-none"
         >
-          <span className={`text-sm font-bold transition-colors truncate ${topic.done ? "text-slate-400 line-through" : "text-slate-900"
+          <span className={`text-sm font-bold transition-colors truncate ${topic.done ? "text-slate-400 line-through" : "text-slate-900 dark:text-slate-100"
             }`}>
             {topic.title}
           </span>
@@ -140,13 +140,13 @@ export default function TopicList({ subjects, activeSubjectId, onSelectSubject, 
         <div className="flex items-center gap-2">
           <button
             onClick={goToPrev}
-            className="w-8 h-8 rounded-xl bg-white border border-slate-100 hover:border-accent transition-all flex items-center justify-center text-slate-400 hover:text-accent shadow-sm"
+            className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-accent dark:hover:border-accent transition-all flex items-center justify-center text-gray-400 hover:text-accent shadow-sm"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
             onClick={goToNext}
-            className="w-8 h-8 rounded-xl bg-white border border-slate-100 hover:border-accent transition-all flex items-center justify-center text-slate-400 hover:text-accent shadow-sm"
+            className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-accent dark:hover:border-accent transition-all flex items-center justify-center text-gray-400 hover:text-accent shadow-sm"
           >
             <ChevronRight className="w-4 h-4" />
           </button>
@@ -163,7 +163,7 @@ export default function TopicList({ subjects, activeSubjectId, onSelectSubject, 
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -20 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="glass rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-8 relative overflow-hidden"
+          className="bg-white dark:bg-[#1e293b]/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 relative overflow-hidden border border-gray-100 dark:border-white/5 shadow-sm"
         >
           {/* Background Decorative Icon */}
           <div className="absolute top-[-20px] right-[-20px] text-8xl opacity-[0.03] select-none pointer-events-none rotate-12">
@@ -173,7 +173,7 @@ export default function TopicList({ subjects, activeSubjectId, onSelectSubject, 
           <div className="flex flex-col gap-4 mb-8 relative z-10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center gap-4 flex-1">
-                <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center text-2xl shadow-inner shadow-slate-100 border border-slate-100 shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-2xl shadow-inner shadow-slate-100 dark:shadow-slate-900 border border-slate-100 dark:border-slate-700 shrink-0">
                   {subject.icon}
                 </div>
                 <div className="flex flex-col flex-1">
@@ -181,7 +181,7 @@ export default function TopicList({ subjects, activeSubjectId, onSelectSubject, 
                     type="text"
                     value={subject.title}
                     onChange={(e) => onUpdateSubjectName(subject.id, e.target.value)}
-                    className="bg-transparent border-0 outline-none text-xl font-black text-slate-900 p-0 w-full tracking-tight"
+                    className="bg-transparent border-0 outline-none text-xl font-black text-slate-900 dark:text-slate-100 p-0 w-full tracking-tight"
                   />
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">{subject.category}</span>
@@ -199,8 +199,8 @@ export default function TopicList({ subjects, activeSubjectId, onSelectSubject, 
             </div>
 
             {subject.tip && (
-              <div className="bg-slate-50/80 backdrop-blur-sm rounded-2xl p-4 border border-slate-100/60">
-                <p className="text-xs text-slate-500 leading-relaxed flex gap-3">
+              <div className="bg-slate-50/80 dark:bg-slate-800/80 backdrop-blur-sm rounded-2xl p-4 border border-slate-100/60 dark:border-slate-700/60">
+                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed flex gap-3">
                   <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                   <span className="italic">{subject.tip}</span>
                 </p>

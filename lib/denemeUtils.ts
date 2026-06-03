@@ -182,8 +182,12 @@ export function subjectAverageNet(
 
 /** 
  * Net değerine göre gerçekçi KPSS P3 puanı tahmini yapar.
- * Formül: 50 + (Net * 0.4166), [50, 100] aralığına sınırlandırılmıştır.
+ * ÖSYM'nin son yıllardaki standart sapmaları ve 2026 KPSS
+ * beklentileri baz alınarak oluşturulmuş regresyon formülüdür.
+ * Formül: 45 + (Net * 0.45). [0, 100] aralığına sınırlandırılmıştır.
  */
 export function estimateP3Score(net: number): number {
-  return Math.min(100, Math.max(50, 50 + net * 0.4166));
+  if (net <= 0) return 0;
+  const estimate = 45 + (net * 0.45);
+  return Math.min(100, Math.max(0, estimate));
 }

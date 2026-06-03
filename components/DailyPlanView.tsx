@@ -39,14 +39,14 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
       ref={setNodeRef}
       className={`group relative rounded-2xl p-4 transition-all duration-300 border flex flex-col gap-3 ${
         isLocked 
-          ? 'bg-slate-50 border-slate-100 opacity-60' 
-          : 'bg-white border-slate-100 hover:border-accent/40 hover:shadow-md'
+          ? 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 opacity-60' 
+          : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-700 hover:border-accent/40 dark:hover:border-accent/40 hover:shadow-md'
       } ${isOver ? 'ring-2 ring-accent border-transparent scale-[1.02] z-10' : ''} ${
         isDragging && !isLocked && !topic ? 'border-dashed border-accent/30 bg-accent/5 animate-pulse' : ''
       }`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-black font-mono text-slate-400 group-hover:text-slate-900 transition-colors tracking-tighter bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200">
+        <span className="text-[10px] font-black font-mono text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors tracking-tighter bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
           {hour.toString().padStart(2, '0')}:00
         </span>
         {topic && !isLocked && (
@@ -55,7 +55,7 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
               e.stopPropagation();
               onRemoveTopic(topic.id, dateStr, `${hour.toString().padStart(2, '0')}:00`);
             }}
-            className="w-6 h-6 rounded-md bg-slate-50 text-slate-300 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+            className="w-6 h-6 rounded-md bg-slate-50 dark:bg-slate-800 text-slate-300 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
           >
             ✕
           </button>
@@ -68,7 +68,7 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
              <span className="text-2xl grayscale">{lockedType === 'uni' ? '🎓' : lockedType === 'code' ? '💻' : '🏖'}</span>
              <div className="flex flex-col min-w-0">
                 <span className="text-[10px] font-black uppercase text-slate-400 tracking-widest">KAPALI</span>
-                <span className="text-sm font-bold text-slate-600 leading-tight truncate">{lockedTitle}</span>
+                <span className="text-sm font-bold text-slate-600 dark:text-slate-300 leading-tight truncate">{lockedTitle}</span>
              </div>
           </div>
         ) : topic ? (
@@ -78,7 +78,7 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
                 <span className="text-[10px] font-black uppercase tracking-widest truncate" style={{ color }}>
                   {subjects.find((s: any) => s.topics.some((t: any) => t.id === topic.id))?.title}
                 </span>
-                <span className="text-sm font-bold text-slate-900 leading-tight">{topic.title}</span>
+                <span className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight">{topic.title}</span>
              </div>
           </div>
         ) : revision ? (
@@ -88,11 +88,11 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
                 <span className={`text-[10px] font-black uppercase tracking-widest ${revision.level === 3 ? 'text-amber-500' : 'text-blue-500'}`}>
                   {revision.level === 3 ? "Kritik Tekrar" : "Rutin Tekrar"}
                 </span>
-                <span className="text-sm font-bold text-slate-900 leading-tight">{revision.title}</span>
+                <span className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight">{revision.title}</span>
              </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center border-2 border-dashed border-slate-100 rounded-xl py-4 bg-slate-50/50">
+          <div className="flex items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl py-4 bg-slate-50/50 dark:bg-slate-800/50">
              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 group-hover:text-accent/60 transition-colors">
                {isDragging ? "BURAYA BIRAK" : "BOŞ SLOT"}
              </span>
@@ -104,9 +104,9 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
         <div className={`mt-2 p-3 rounded-xl border transition-all relative ${
           note 
             ? isCompleted 
-              ? 'bg-slate-50 border-slate-200 opacity-60' 
-              : 'bg-amber-50/50 border-amber-100 shadow-sm' 
-            : 'bg-slate-50/50 border-slate-100 group-hover:bg-white'
+              ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-60' 
+              : 'bg-amber-50/50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/30 shadow-sm' 
+            : 'bg-slate-50/50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700 group-hover:bg-white dark:group-hover:bg-slate-800'
         }`}>
            <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-2 opacity-40">
@@ -123,7 +123,7 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
                   className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
                     isCompleted 
                       ? 'bg-emerald-500 border-emerald-500 text-white scale-110 shadow-lg shadow-emerald-500/20' 
-                      : 'bg-white border-slate-200 hover:border-emerald-400'
+                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-emerald-400'
                   }`}
                 >
                   <AnimatePresence mode="wait">
@@ -148,8 +148,8 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
              onChange={(e) => onUpdateNote(slotId, e.target.value)}
              placeholder="Bir not bırakın..."
              rows={2}
-             className={`w-full bg-transparent border-0 outline-none text-xs font-medium transition-all placeholder:text-slate-200 resize-none leading-relaxed ${
-               isCompleted ? 'text-slate-400 line-through' : 'text-slate-700 focus:text-slate-900'
+             className={`w-full bg-transparent border-0 outline-none text-xs font-medium transition-all placeholder:text-slate-200 dark:placeholder:text-slate-600 resize-none leading-relaxed ${
+               isCompleted ? 'text-slate-400 dark:text-slate-500 line-through' : 'text-slate-700 dark:text-slate-300 focus:text-slate-900 dark:focus:text-slate-100'
              }`}
              onClick={(e) => e.stopPropagation()}
            />
@@ -291,10 +291,10 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full lg:w-auto">
            <div className="bg-accent/10 w-16 h-16 rounded-2xl flex flex-col items-center justify-center border border-accent/20 shadow-sm">
               <span className="text-[10px] font-black uppercase text-accent tracking-tighter">{format(date, "MMM", { locale: tr })}</span>
-              <span className="text-2xl font-black text-slate-900 leading-tight">{format(date, "dd")}</span>
+              <span className="text-2xl font-black text-slate-900 dark:text-slate-100 leading-tight">{format(date, "dd")}</span>
            </div>
            <div className="flex flex-col text-center lg:text-left">
-              <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+              <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                 {format(date, "EEEE", { locale: tr })}
               </h2>
               <div className="flex items-center justify-center lg:justify-start gap-3 mt-1">
@@ -303,7 +303,7 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
                   className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border transition-all ${
                     isHoliday 
                       ? "bg-red-500/10 text-red-500 border-red-500/20" 
-                      : "bg-slate-100 text-slate-400 border-slate-200 hover:border-accent/40 hover:text-accent"
+                      : "bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:border-accent/40 hover:text-accent"
                   }`}
                 >
                   {isHoliday ? "🏖 Tatili İptal Et" : "🏖 Tatil Modu"}
@@ -312,10 +312,10 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
            </div>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-100 w-full sm:w-auto">
-          <button onClick={() => onDateChange(subDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 shrink-0">←</button>
+        <div className="flex items-center justify-between sm:justify-center gap-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 w-full sm:w-auto">
+          <button onClick={() => onDateChange(subDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0">←</button>
           <button onClick={() => onDateChange(new Date())} className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-accent text-white font-black rounded-xl hover:shadow-lg hover:shadow-accent/30 transition-all text-[10px] sm:text-xs uppercase tracking-widest whitespace-nowrap">Bugün</button>
-          <button onClick={() => onDateChange(addDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 shrink-0">→</button>
+          <button onClick={() => onDateChange(addDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0">→</button>
         </div>
       </div>
 
@@ -329,7 +329,7 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
                  key={tab}
                  onClick={() => setActiveTab(tab)}
                  className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative flex items-center justify-center gap-2 ${
-                   activeTab === tab ? 'text-accent' : 'text-slate-400 hover:text-slate-600 bg-slate-50/30'
+                   activeTab === tab ? 'text-accent' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-slate-50/30 dark:bg-slate-800/30'
                  }`}
                >
                  <span>{tab === 'morning' ? 'Sabah' : tab === 'afternoon' ? 'Öğle' : 'Akşam'}</span>

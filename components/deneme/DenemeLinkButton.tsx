@@ -21,7 +21,7 @@ export default function DenemeLinkButton({
   onNavigate?: () => void;
 }) {
   return (
-    <Link href="/deneme/" className={styles[variant]} onClick={onNavigate}>
+    <Link href="/deneme" className={styles[variant]} onClick={onNavigate}>
       <span className="text-base leading-none">📊</span>
       {variant === "header" ? (
         <>

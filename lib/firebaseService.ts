@@ -1,9 +1,8 @@
 import { db } from "./firebase";
-import { doc, getDoc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, where, getDocs, serverTimestamp } from "firebase/firestore";
 import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
-const DEFAULT_USER_ID = "main_user";
 
 // Firestore doesn't allow undefined values — strip them recursively
 function stripUndefined(obj: unknown): unknown {
@@ -20,9 +19,10 @@ function stripUndefined(obj: unknown): unknown {
   return obj;
 }
 
-export const saveToFirebase = async (data: AppData) => {
+export const saveToFirebase = async (userId: string, data: AppData) => {
+  if (!userId) return;
   try {
-    const docRef = doc(db, DATA_COLLECTION, DEFAULT_USER_ID);
+    const docRef = doc(db, DATA_COLLECTION, userId);
     const sanitized = stripUndefined(data) as AppData;
     await setDoc(docRef, sanitized, { merge: true });
     console.log("✅ Firebase'e kaydedildi");
@@ -32,11 +32,13 @@ export const saveToFirebase = async (data: AppData) => {
 };
 
 export const saveDenemeDataToFirebase = async (
+  userId: string,
   denemeler: AppData["denemeler"],
   denemeTargetNet?: number
 ) => {
+  if (!userId) return;
   try {
-    const docRef = doc(db, DATA_COLLECTION, DEFAULT_USER_ID);
+    const docRef = doc(db, DATA_COLLECTION, userId);
     const payload = stripUndefined({
       denemeler,
       ...(denemeTargetNet !== undefined ? { denemeTargetNet } : {}),
@@ -48,9 +50,10 @@ export const saveDenemeDataToFirebase = async (
   }
 };
 
-export const loadFromFirebase = async (): Promise<AppData | null> => {
+export const loadFromFirebase = async (userId: string): Promise<AppData | null> => {
+  if (!userId) return null;
   try {
-    const docRef = doc(db, DATA_COLLECTION, DEFAULT_USER_ID);
+    const docRef = doc(db, DATA_COLLECTION, userId);
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       console.log("✅ Firebase'den yüklendi");
@@ -60,4 +63,29 @@ export const loadFromFirebase = async (): Promise<AppData | null> => {
     console.error("❌ Firebase yükleme hatası:", error);
   }
   return null;
+};
+
+export const updatePresence = async (userId: string) => {
+  if (!userId) return;
+  try {
+    const docRef = doc(db, "active_users", userId);
+    await setDoc(docRef, { lastActive: Date.now() }, { merge: true });
+  } catch (error) {
+    console.error("Presence update error:", error);
+  }
+};
+
+export const getOnlineUsersCount = async (): Promise<number> => {
+  try {
+    const fiveMinsAgo = Date.now() - 5 * 60 * 1000;
+    const q = query(
+      collection(db, "active_users"),
+      where("lastActive", ">", fiveMinsAgo)
+    );
+    const snapshot = await getDocs(q);
+    return Math.max(1, snapshot.size); // Always show at least 1 (themselves)
+  } catch (error) {
+    console.error("Online users fetch error:", error);
+    return 1;
+  }
 };

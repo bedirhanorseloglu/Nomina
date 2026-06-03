@@ -8,9 +8,18 @@ interface ProgressRingProps {
   size?: number
   strokeWidth?: number
   color?: string
+  hideText?: boolean
+  hideLabel?: boolean
 }
 
-export default function ProgressRing({ percentage, size = 120, strokeWidth = 8, color = "var(--accent)" }: ProgressRingProps) {
+export default function ProgressRing({ 
+  percentage, 
+  size = 120, 
+  strokeWidth = 8, 
+  color = "var(--accent)",
+  hideText = false,
+  hideLabel = false
+}: ProgressRingProps) {
   const [isMounted, setIsMounted] = useState(false)
   
   useEffect(() => {
@@ -20,6 +29,10 @@ export default function ProgressRing({ percentage, size = 120, strokeWidth = 8, 
   const radius = (size - strokeWidth) / 2
   const circumference = radius * 2 * Math.PI
   const strokeDashoffset = isMounted ? circumference - (percentage / 100) * circumference : circumference
+
+  // Dynamic font sizing
+  const percentageFontSize = size * 0.22;
+  const labelFontSize = size * 0.08;
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: size, height: size }}>
@@ -35,7 +48,10 @@ export default function ProgressRing({ percentage, size = 120, strokeWidth = 8, 
         />
         {/* Progress track */}
         <motion.circle
-          style={{ stroke: color }}
+          style={{ 
+            stroke: color,
+            filter: `drop-shadow(0 2px 6px ${color}60)`
+          }}
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           fill="transparent"
@@ -47,17 +63,27 @@ export default function ProgressRing({ percentage, size = 120, strokeWidth = 8, 
           transition={{ duration: 1.5, ease: [0.25, 0.1, 0.25, 1] }}
         />
       </svg>
-      <div className="absolute flex flex-col items-center justify-center">
-        <motion.span 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-          className="font-mono text-2xl font-bold text-text-main"
-        >
-          {percentage.toFixed(0)}%
-        </motion.span>
-        <span className="text-[10px] text-muted uppercase tracking-widest mt-1">Tamamlandı</span>
-      </div>
+      {!hideText && (
+        <div className="absolute flex flex-col items-center justify-center">
+          <motion.span 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+            className="font-mono font-black text-slate-800 dark:text-white"
+            style={{ fontSize: `${percentageFontSize}px`, lineHeight: 1 }}
+          >
+            {percentage.toFixed(0)}%
+          </motion.span>
+          {!hideLabel && size >= 100 && (
+            <span 
+              className="text-slate-400 dark:text-slate-500 uppercase font-bold tracking-widest mt-1"
+              style={{ fontSize: `${labelFontSize}px` }}
+            >
+              Tamamlandı
+            </span>
+          )}
+        </div>
+      )}
     </div>
   )
 }

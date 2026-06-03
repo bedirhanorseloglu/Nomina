@@ -57,6 +57,8 @@ export type AppData = {
   holidays?: string[] // Array of "YYYY-MM-DD"
   denemeler?: DenemeRecordData[]
   denemeTargetNet?: number
+  dailyGoals?: Record<string, number> // Key: "YYYY-MM-DD", Value: questions solved
+  dailyGoalTarget?: number
 }
 
 export type UniversityClass = {

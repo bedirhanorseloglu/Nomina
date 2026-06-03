@@ -69,14 +69,14 @@ function DroppableDayCell({
       ref={setNodeRef}
       onClick={onClick}
       className={`min-h-[110px] p-2 border rounded-2xl transition-all duration-300 cursor-pointer flex flex-col gap-1 relative group overflow-hidden ${
-        !isCurrentMonth ? 'opacity-20 pointer-events-none' : 'hover:bg-slate-50'
-      } ${isToday ? 'bg-accent/5 border-accent/30 shadow-sm' : 'border-slate-100 bg-white'} ${
+        !isCurrentMonth ? 'opacity-20 pointer-events-none' : 'hover:bg-slate-50 dark:hover:bg-slate-800'
+      } ${isToday ? 'bg-accent/5 border-accent/30 shadow-sm' : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-900'} ${
         isOver ? 'scale-105 z-20 ring-2 ring-accent bg-accent/10 border-transparent shadow-xl' : ''
       }`}
     >
       <div className="flex justify-between items-center mb-1">
         <span className={`text-xs font-black font-mono px-2 py-0.5 rounded-lg ${
-          isToday ? 'bg-accent text-white' : isExamDay ? 'bg-red-500 text-white' : 'text-slate-400 group-hover:text-slate-900'
+          isToday ? 'bg-accent text-white' : isExamDay ? 'bg-red-500 text-white' : 'text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100'
         }`}>
           {format(date, "d")}
         </span>
@@ -134,12 +134,12 @@ export default function MonthlyCalendar({ topics, subjects, slotNotes, completed
   return (
     <div className="glass rounded-[2rem] p-8">
       <div className="flex justify-between items-center mb-8 px-2">
-        <h2 className="text-2xl font-black font-heading capitalize text-slate-900 tracking-tight">
+        <h2 className="text-2xl font-black font-heading capitalize text-slate-900 dark:text-slate-100 tracking-tight">
           {format(currentDate, "MMMM yyyy", { locale: tr })}
         </h2>
-        <div className="flex gap-2 p-1 bg-slate-50 rounded-2xl border border-slate-100">
-          <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200">←</button>
-          <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="w-10 h-10 rounded-xl hover:bg-white flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200">→</button>
+        <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
+          <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none">←</button>
+          <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none">→</button>
         </div>
       </div>
 

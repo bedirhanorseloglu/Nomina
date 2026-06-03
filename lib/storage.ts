@@ -27,9 +27,10 @@ export const loadData = (): AppData => {
   return { subjects: initialData, streak: 0, lastActiveDate: null }
 }
 
-const mergeWithInitialData = (savedSubjects: Subject[]) => {
+const mergeWithInitialData = (savedSubjects: Subject[] = []) => {
+  const safeSubjects = savedSubjects || [];
   return initialData.map(initialSubject => {
-    const savedSubject = savedSubjects.find(s => s.id === initialSubject.id)
+    const savedSubject = safeSubjects.find(s => s.id === initialSubject.id)
     if (!savedSubject) return initialSubject
     
     return {

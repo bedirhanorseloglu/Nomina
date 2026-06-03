@@ -27,6 +27,7 @@ type Props = {
   targetNet: number;
   onTargetNetChange: (value: number) => void;
   onAdd: () => void;
+  isReadOnly?: boolean;
 };
 
 type Range = "all" | "5" | "10";
@@ -98,6 +99,7 @@ export default function DenemeAnalytics({
   targetNet,
   onTargetNetChange,
   onAdd,
+  isReadOnly = false,
 }: Props) {
   const [range, setRange] = useState<Range>("all");
   const [activeMetric, setActiveMetric] = useState<"total" | "gy" | "gk">("total");
@@ -237,9 +239,9 @@ export default function DenemeAnalytics({
       <div className="deneme-empty-state">
         <DenemeScoreRing value={0} max={120} size={130} label="Analiz Bekleniyor" />
         <p className="text-sm font-semibold text-slate-400 mt-6 max-w-xs leading-relaxed text-center">
-          Genel deneme analizlerini görmek için en az bir adet Genel Deneme kaydı girmelisiniz.
+          Genel deneme analizlerini görmek için en az bir adet Genel Deneme kaydı {isReadOnly ? "bulunmuyor" : "girmelisiniz"}.
         </p>
-        <button type="button" onClick={onAdd} className="deneme-btn-primary mt-6">Deneme Girişi Yap</button>
+        {!isReadOnly && <button type="button" onClick={onAdd} className="deneme-btn-primary mt-6">Deneme Girişi Yap</button>}
       </div>
     );
   }
@@ -249,9 +251,9 @@ export default function DenemeAnalytics({
       <div className="deneme-empty-state">
         <DenemeScoreRing value={0} max={30} size={130} label="Branş Analizi" />
         <p className="text-sm font-semibold text-slate-400 mt-6 max-w-xs leading-relaxed text-center">
-          Branş deneme grafiklerini ve analizlerini görmek için önce "Yeni Giriş" kısmından bir Branş Denemesi kaydetmelisiniz.
+          Branş deneme grafiklerini ve analizlerini görmek için önce "Yeni Giriş" kısmından bir Branş Denemesi {isReadOnly ? "bulunmuyor" : "kaydetmelisiniz"}.
         </p>
-        <button type="button" onClick={onAdd} className="deneme-btn-primary mt-6">Branş Denemesi Gir</button>
+        {!isReadOnly && <button type="button" onClick={onAdd} className="deneme-btn-primary mt-6">Branş Denemesi Gir</button>}
       </div>
     );
   }
@@ -280,8 +282,9 @@ export default function DenemeAnalytics({
       {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
           GENEL DENEME ANALİZ DETAYLARI
           ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {viewType === "genel" && stats && (
-        <>
+      <div className="space-y-10">
+          {viewType === "genel" && stats && (
+            <>
           {/* ━━━ 1 · Genel Bakış ━━━ */}
           <Section
             title="Genel Bakış"
@@ -366,35 +369,42 @@ export default function DenemeAnalytics({
                 const accColor = s.accuracy >= 70 ? "text-emerald-700 bg-emerald-50" : s.accuracy >= 45 ? "text-amber-700 bg-amber-50" : "text-red-700 bg-red-50";
                 return (
                   <motion.div key={s.id} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
-                    className="p-4 rounded-2xl bg-white border border-slate-200/30 hover:shadow-md transition-shadow">
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                      <div className="flex items-center gap-3 sm:w-44 shrink-0">
-                        <span className="text-2xl">{s.icon}</span>
+                    className="p-5 rounded-3xl bg-white/80 backdrop-blur-md border border-slate-200/50 hover:shadow-lg hover:shadow-slate-200/50 transition-all relative overflow-hidden group">
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity" style={{ backgroundColor: s.color }}></div>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 relative z-10">
+                      <div className="flex items-center gap-4 sm:w-48 shrink-0">
+                        <div className="w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm" style={{ backgroundColor: `${s.color}15`, color: s.color }}>
+                          <span className="text-2xl drop-shadow-sm">{s.icon}</span>
+                        </div>
                         <div>
-                          <p className="text-sm font-black text-slate-800">{s.title}</p>
-                          <p className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">{s.category} · {s.questionCount} soru</p>
+                          <p className="text-sm font-black text-slate-800 tracking-tight">{s.title}</p>
+                          <p className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">{s.category} · {s.questionCount} Soru</p>
                         </div>
                       </div>
 
                       <div className="flex-1">
-                        <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                          <motion.div className="h-full rounded-full" style={{ backgroundColor: s.color }}
+                        <div className="h-3 w-full bg-slate-100/80 rounded-full overflow-hidden shadow-inner border border-slate-200/50">
+                          <motion.div className="h-full rounded-full relative" style={{ backgroundColor: s.color }}
                             initial={{ width: 0 }} animate={{ width: `${Math.min(100, pct)}%` }}
-                            transition={{ duration: 0.7, delay: i * 0.04 }} />
+                            transition={{ duration: 0.7, delay: i * 0.04 }}>
+                            <div className="absolute inset-0 bg-white/20"></div>
+                          </motion.div>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="font-mono font-black text-lg w-14 text-right" style={{ color: s.color }}>
+                        <span className="font-mono font-black text-xl w-16 text-right drop-shadow-sm" style={{ color: s.color }}>
                           {formatNet(s.avgNet)}
                         </span>
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${accColor}`}>
+                        <span className={`text-[10px] font-black px-2.5 py-1 rounded-xl shadow-sm ${accColor}`}>
                           %{Math.round(s.accuracy)}
                         </span>
-                        <span className="text-[10px] font-mono font-bold text-slate-400 hidden md:inline w-28 text-right">
-                          <span className="text-emerald-600">{s.avgCorrect.toFixed(1)}D</span>{" · "}
-                          <span className="text-red-500">{s.avgWrong.toFixed(1)}Y</span>{" · "}
-                          <span>{s.avgEmpty.toFixed(1)}B</span>
+                        <span className="text-[10px] font-mono font-bold text-slate-400 hidden md:flex items-center justify-between w-32 text-right bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
+                          <span className="text-emerald-600" title="Doğru">{s.avgCorrect.toFixed(1)}D</span>
+                          <span className="text-slate-300">|</span>
+                          <span className="text-red-500" title="Yanlış">{s.avgWrong.toFixed(1)}Y</span>
+                          <span className="text-slate-300">|</span>
+                          <span className="text-slate-500" title="Boş">{s.avgEmpty.toFixed(1)}B</span>
                         </span>
                       </div>
                     </div>
@@ -404,75 +414,97 @@ export default function DenemeAnalytics({
             </div>
 
             {/* Güçlü / Zayıf özet */}
-            <div className="grid sm:grid-cols-2 gap-4 mt-5">
-              <div className="p-4 rounded-2xl bg-emerald-50/50 border border-emerald-100 shadow-sm">
-                <p className="text-[10px] font-black uppercase text-emerald-600 tracking-wider mb-1">En Güçlü Dersiniz</p>
-                <p className="text-sm font-black text-slate-800 flex items-center gap-2">
-                  <span className="text-xl">{stats.strongest.icon}</span>
-                  {stats.strongest.title}
-                  <span className="font-mono ml-auto" style={{ color: stats.strongest.color }}>{formatNet(stats.strongest.avgNet)} net</span>
-                </p>
+            <div className="grid sm:grid-cols-2 gap-4 mt-6">
+              <div className="relative overflow-hidden p-5 rounded-3xl bg-emerald-50/50 border border-emerald-100 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all group">
+                <div className="absolute -right-4 -top-4 text-6xl opacity-10 group-hover:scale-110 transition-transform">{stats.strongest.icon}</div>
+                <p className="text-[10px] font-black uppercase text-emerald-600 tracking-widest mb-2 relative z-10">En Güçlü Dersiniz</p>
+                <div className="flex flex-col relative z-10">
+                  <p className="text-lg font-black text-slate-800 tracking-tight flex items-center gap-2">
+                    <span className="text-2xl drop-shadow-sm">{stats.strongest.icon}</span>
+                    {stats.strongest.title}
+                  </p>
+                  <p className="text-2xl font-mono font-black mt-2 drop-shadow-sm" style={{ color: stats.strongest.color }}>{formatNet(stats.strongest.avgNet)} <span className="text-sm text-slate-400 font-sans">net</span></p>
+                </div>
               </div>
-              <div className="p-4 rounded-2xl bg-amber-50/50 border border-amber-100 shadow-sm">
-                <p className="text-[10px] font-black uppercase text-amber-600 tracking-wider mb-1">Öncelikli Çalışma Alanı</p>
-                <p className="text-sm font-black text-slate-800 flex items-center gap-2">
-                  <span className="text-xl">{stats.weakest.icon}</span>
-                  {stats.weakest.title}
-                  <span className="font-mono ml-auto" style={{ color: stats.weakest.color }}>{formatNet(stats.weakest.avgNet)} net</span>
-                </p>
+              <div className="relative overflow-hidden p-5 rounded-3xl bg-amber-50/50 border border-amber-100 shadow-sm hover:shadow-md hover:border-amber-200 transition-all group">
+                <div className="absolute -right-4 -top-4 text-6xl opacity-10 group-hover:scale-110 transition-transform">{stats.weakest.icon}</div>
+                <p className="text-[10px] font-black uppercase text-amber-600 tracking-widest mb-2 relative z-10">Öncelikli Çalışma Alanı</p>
+                <div className="flex flex-col relative z-10">
+                  <p className="text-lg font-black text-slate-800 tracking-tight flex items-center gap-2">
+                    <span className="text-2xl drop-shadow-sm">{stats.weakest.icon}</span>
+                    {stats.weakest.title}
+                  </p>
+                  <p className="text-2xl font-mono font-black mt-2 drop-shadow-sm" style={{ color: stats.weakest.color }}>{formatNet(stats.weakest.avgNet)} <span className="text-sm text-slate-400 font-sans">net</span></p>
+                </div>
               </div>
             </div>
           </Section>
 
           {/* ━━━ 4 · Hedef Belirleme ━━━ */}
-          <Section
-            title="Hedef Belirleme"
-            desc="Kendinize bir hedef net belirleyin. Mevcut net ortalamanızla hedefiniz arasındaki farkı ve bu hedefe ulaştığınızda alacağınız tahmini P3 puanını görebilirsiniz."
-          >
-            <div className="p-6 rounded-2xl bg-white border border-slate-200/30 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-5">
-                <div>
-                  <p className="text-xs font-bold text-slate-500">Hedef Netiniz</p>
-                  <p className="text-3xl font-black font-mono text-accent mt-1">
-                    {targetNet}
-                    <span className="text-sm font-bold text-slate-400 ml-2">net</span>
-                  </p>
+          {!isReadOnly && (
+            <Section
+              title="Hedef Belirleme"
+              desc="Kendinize bir hedef net belirleyin. Mevcut net ortalamanızla hedefiniz arasındaki farkı ve bu hedefe ulaştığınızda alacağınız tahmini P3 puanını görebilirsiniz."
+            >
+            <div className="relative overflow-hidden p-6 rounded-[2rem] bg-white/80 backdrop-blur-xl border border-slate-200/50 shadow-sm hover:shadow-md transition-shadow">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
+              
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-8 relative z-10">
+                <div className="flex items-center gap-5">
+                   <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/20 shrink-0">
+                     <span className="text-3xl drop-shadow-sm">🎯</span>
+                   </div>
+                   <div>
+                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Hedef Netiniz</p>
+                     <p className="text-4xl font-black font-mono text-slate-800 drop-shadow-sm tracking-tighter">
+                       {targetNet}
+                       <span className="text-base font-bold text-slate-400 ml-2 font-sans tracking-normal">net</span>
+                     </p>
+                   </div>
                 </div>
-                <div className="text-right">
-                  <p className="text-xs font-bold text-slate-500">Hedefteki P3 Puanı</p>
-                  <p className="text-xl font-black font-mono text-amber-700 mt-1">
+                
+                <div className="text-left sm:text-right bg-gradient-to-br from-slate-50 to-slate-100/50 px-5 py-3 rounded-2xl border border-slate-200/50 shadow-inner">
+                  <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">Hedefteki P3 Puanı</p>
+                  <p className="text-3xl font-black font-mono text-indigo-600 drop-shadow-sm tracking-tighter">
                     {estimateP3Score(targetNet).toFixed(3)}
                   </p>
                 </div>
               </div>
 
-              <input type="range" min={60} max={115} value={targetNet}
-                onChange={(e) => onTargetNetChange(parseInt(e.target.value, 10))}
-                className="premium-range w-full cursor-pointer mb-4" />
+              <div className="relative z-10 mb-6 group">
+                <input type="range" min={60} max={115} value={targetNet}
+                  onChange={(e) => onTargetNetChange(parseInt(e.target.value, 10))}
+                  className="premium-range w-full cursor-pointer" />
+              </div>
 
-              <div className="space-y-2">
-                <div className="flex justify-between text-[10px] font-bold text-slate-400">
-                  <span>Mevcut: {formatNet(stats.avg)} net</span>
-                  <span>Hedef: {targetNet} net</span>
+              <div className="space-y-3 relative z-10">
+                <div className="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500 shadow-sm"></span> Mevcut: {formatNet(stats.avg)} net</span>
+                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-300 shadow-inner"></span> Hedef: {targetNet} net</span>
                 </div>
-                <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
-                  <motion.div className="h-full bg-gradient-to-r from-accent to-emerald-400 rounded-full"
+                <div className="h-4 w-full bg-slate-100/80 backdrop-blur-sm rounded-full overflow-hidden shadow-inner border border-slate-200/50 p-0.5">
+                  <motion.div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full relative shadow-sm"
                     animate={{ width: `${Math.min(100, (stats.avg / targetNet) * 100)}%` }}
-                    transition={{ duration: 0.8 }} />
+                    transition={{ type: "spring", stiffness: 50, damping: 15 }} >
+                      <div className="absolute inset-0 bg-white/20 rounded-full"></div>
+                  </motion.div>
                 </div>
               </div>
 
-              <div className="mt-4 p-3 rounded-xl bg-slate-50 text-center">
+              <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-100/50 text-center relative z-10 shadow-sm">
                 {remaining > 0 ? (
-                  <p className="text-sm font-semibold text-slate-600">
-                    Hedefinize ulaşmak için <span className="font-black font-mono text-accent">{formatNet(remaining)} net</span> daha gerekiyor.
+                  <p className="text-sm font-bold text-slate-700 tracking-tight">
+                    Hedefinize ulaşmak için <span className="font-black font-mono text-indigo-600 text-lg mx-1 drop-shadow-sm">{formatNet(remaining)} net</span> daha gerekiyor.
                   </p>
                 ) : (
-                  <p className="text-sm font-black text-emerald-600">🎉 Hedefinize ulaştınız! Tebrikler!</p>
+                  <p className="text-sm font-black text-emerald-600 flex items-center justify-center gap-2 drop-shadow-sm">
+                    <span className="text-xl">🎉</span> Hedefinize ulaştınız! Tebrikler!
+                  </p>
                 )}
               </div>
             </div>
           </Section>
+          )}
 
           {/* ━━━ 6 · Çalışma Tavsiyeleri ━━━ */}
           <Section
@@ -501,14 +533,14 @@ export default function DenemeAnalytics({
               </Tip>
             </div>
           </Section>
-        </>
-      )}
+            </>
+          )}
 
-      {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-          BRANŞ DENEME ANALİZ DETAYLARI
-          ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
-      {viewType === "brans" && bransStats && (
-        <>
+          {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+              BRANŞ DENEME ANALİZ DETAYLARI
+              ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+          {viewType === "brans" && bransStats && (
+            <>
           {/* Apple-style Branş Seçici Sekmeler */}
           <div className="space-y-4">
             <span className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">İncelenecek Branş Seçin</span>
@@ -639,8 +671,9 @@ export default function DenemeAnalytics({
               </Tip>
             </div>
           </Section>
-        </>
-      )}
+            </>
+          )}
+      </div>
 
     </div>
   );
@@ -672,18 +705,21 @@ function SummaryCard({ label, value, sub, accent, highlight }: {
 }) {
   return (
     <motion.div 
-      whileHover={{ y: -4, scale: 1.01 }}
-      transition={{ duration: 0.2 }}
-      className={`p-5 rounded-2xl border transition-all ${
-      accent ? "bg-gradient-to-br from-white to-accent/5 border-accent/15 hover:shadow-lg hover:shadow-accent/5" :
-      highlight ? "bg-gradient-to-br from-white to-amber-50/30 border-amber-200/30 hover:shadow-lg hover:shadow-amber-500/5" :
-      "bg-white border-slate-200/30 hover:shadow-md"
+      whileHover={{ y: -4, scale: 1.02 }}
+      transition={{ type: "spring", stiffness: 300 }}
+      className={`relative overflow-hidden p-6 rounded-3xl border shadow-[0_8px_30px_rgb(0,0,0,0.04)] backdrop-blur-xl ${
+      accent ? "bg-gradient-to-br from-blue-500 to-indigo-600 border-indigo-400 text-white" :
+      highlight ? "bg-gradient-to-br from-amber-400 to-orange-500 border-amber-300 text-white" :
+      "bg-white/80 border-slate-200/60"
     }`}>
-      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">{label}</p>
-      <p className={`text-3xl font-black font-mono tracking-tight ${accent ? "text-accent" : highlight ? "text-amber-700" : "text-slate-900"}`}>
+      {(accent || highlight) && (
+         <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2"></div>
+      )}
+      <p className={`text-[10px] font-black uppercase tracking-widest mb-2 relative z-10 ${accent || highlight ? "text-white/80" : "text-slate-400"}`}>{label}</p>
+      <p className={`text-4xl font-black font-mono tracking-tight drop-shadow-sm relative z-10 ${accent || highlight ? "text-white" : "text-slate-800"}`}>
         {value}
       </p>
-      <p className="text-[11px] font-semibold text-slate-400 mt-2">{sub}</p>
+      <p className={`text-[11px] font-bold mt-2 relative z-10 ${accent || highlight ? "text-white/80" : "text-slate-400"}`}>{sub}</p>
     </motion.div>
   );
 }
@@ -692,15 +728,18 @@ function BalanceBar({ label, value, max, color, textColor }: {
   label: string; value: number; max: number; color: string; textColor: string;
 }) {
   return (
-    <div className="space-y-1.5">
-      <div className="flex justify-between text-xs font-bold text-slate-600">
+    <div className="space-y-2">
+      <div className="flex justify-between text-xs font-black text-slate-700 tracking-tight">
         <span>{label}</span>
         <span className={`font-mono ${textColor}`}>{formatNet(value)} / {max}</span>
       </div>
-      <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden">
-        <motion.div className={`h-full bg-gradient-to-r ${color} rounded-full`}
+      <div className="h-3 w-full bg-slate-100/80 rounded-full overflow-hidden shadow-inner border border-slate-200/50">
+        <motion.div className={`h-full bg-gradient-to-r ${color} rounded-full relative`}
           initial={{ width: 0 }} animate={{ width: `${(value / max) * 100}%` }}
-          transition={{ duration: 0.8, ease: "easeOut" }} />
+          transition={{ duration: 0.8, ease: "easeOut" }}
+        >
+          <div className="absolute inset-0 bg-white/20"></div>
+        </motion.div>
       </div>
     </div>
   );
@@ -711,14 +750,14 @@ function Tip({ icon, title, color, children }: {
 }) {
   return (
     <motion.div 
-      whileHover={{ x: 4 }}
-      transition={{ duration: 0.2 }}
-      className={`p-4 rounded-xl border flex gap-3 ${color}`}
+      whileHover={{ x: 4, scale: 1.01 }}
+      transition={{ type: "spring", stiffness: 300 }}
+      className={`p-5 rounded-3xl border flex gap-4 shadow-sm backdrop-blur-sm ${color}`}
     >
-      <span className="text-xl mt-0.5 shrink-0">{icon}</span>
+      <span className="text-2xl mt-0.5 shrink-0 drop-shadow-sm">{icon}</span>
       <div>
-        <p className="text-xs font-black text-slate-700 mb-1">{title}</p>
-        <p className="text-[12px] text-slate-600 leading-relaxed">{children}</p>
+        <p className="text-sm font-black text-slate-800 mb-1 tracking-tight">{title}</p>
+        <p className="text-xs font-medium text-slate-600 leading-relaxed">{children}</p>
       </div>
     </motion.div>
   );

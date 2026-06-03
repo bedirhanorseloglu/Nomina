@@ -39,29 +39,30 @@ export default function MotivationalQuote() {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: -20 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-accent/5 border border-accent/10 rounded-[2rem] p-6 md:p-8 relative overflow-hidden group shadow-sm shadow-accent/5"
+      transition={{ duration: 0.6, ease: "easeOut" }}
+      className="bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl p-8 md:p-10 relative overflow-hidden shadow-lg shadow-purple-500/20"
     >
       {/* Decorative Elements */}
-      <div className="absolute -top-6 -right-6 w-24 h-24 bg-accent/5 rounded-full blur-2xl group-hover:bg-accent/10 transition-colors" />
-      <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-accent/5 rounded-full blur-3xl" />
+      <div className="absolute -top-24 -right-24 w-64 h-64 bg-white/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-indigo-400/20 rounded-full blur-3xl pointer-events-none" />
       
-      <div className="relative z-10 flex flex-col gap-4">
+      <div className="relative z-10 flex flex-col gap-6">
         <div className="flex items-center gap-3">
-           <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center text-white shadow-lg shadow-accent/20">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H16.017C14.9124 8 14.017 7.10457 14.017 6V5C14.017 3.89543 14.9124 3 16.017 3H19.017C21.2261 3 23.017 4.79086 23.017 7V15C23.017 17.2091 21.2261 19 19.017 19H17.017L14.017 21ZM1.017 21L1.017 18C1.017 16.8954 1.91243 16 3.017 16H6.017C6.56928 16 7.017 15.5523 7.017 15V9C7.017 8.44772 6.56928 8 6.017 8H3.017C1.91243 8 1.017 7.10457 1.017 6V5C1.017 3.89543 1.91243 3 3.017 3H6.017C8.22614 3 10.017 4.79086 10.017 7V15C10.017 17.2091 8.22614 19 6.017 19H4.017L1.017 21Z"></path></svg>
+           <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-md flex items-center justify-center text-white shadow-sm border border-white/20">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H16.017C14.9124 8 14.017 7.10457 14.017 6V5C14.017 3.89543 14.9124 3 16.017 3H19.017C21.2261 3 23.017 4.79086 23.017 7V15C23.017 17.2091 21.2261 19 19.017 19H17.017L14.017 21ZM1.017 21L1.017 18C1.017 16.8954 1.91243 16 3.017 16H6.017C6.56928 16 7.017 15.5523 7.017 15V9C7.017 8.44772 6.56928 8 6.017 8H3.017C1.91243 8 1.017 7.10457 1.017 6V5C1.017 3.89543 1.91243 3 3.017 3H6.017C8.22614 3 10.017 4.79086 10.017 7V15C10.017 17.2091 8.22614 19 6.017 19H4.017L1.017 21Z"></path></svg>
            </div>
-           <span className="text-[10px] font-black uppercase tracking-[0.3em] text-accent">{wish}</span>
+           <span className="text-xs font-semibold text-indigo-100 uppercase tracking-widest">{wish}</span>
         </div>
 
-        <div className="flex flex-col gap-2">
-           <p className="text-xl md:text-2xl font-black text-slate-900 leading-tight tracking-tight italic">
+        <div className="flex flex-col gap-3 relative z-10 max-w-3xl">
+           <p className="text-2xl md:text-3xl font-bold text-white leading-tight tracking-tight">
              "{quote.text}"
            </p>
-           <div className="flex items-center gap-2 mt-1">
-              <div className="w-4 h-px bg-slate-200" />
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{quote.author}</span>
+           <div className="flex items-center gap-3 mt-2">
+              <div className="w-8 h-px bg-white/30" />
+              <span className="text-sm font-medium text-indigo-100 uppercase tracking-wider">{quote.author}</span>
            </div>
         </div>
       </div>
