@@ -6,6 +6,7 @@
     "indexes": "firestore.indexes.json"
   },
   "hosting": {
+    "site": "kpss-2026-87bd5",
     "public": "out",
     "ignore": [
       "firebase.json",

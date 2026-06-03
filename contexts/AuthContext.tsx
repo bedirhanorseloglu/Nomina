@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { User, signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { loadDenemeler, loadTargetNet, saveDenemeler } from "@/lib/denemeStorage";
-import { loadFromFirebase, saveDenemeDataToFirebase } from "@/lib/firebaseService";
+import { loadFromFirebase, saveDenemeDataToFirebase, updateUserProfile } from "@/lib/firebaseService";
 import { updateLeaderboard } from "@/lib/leaderboardService";
 import { evaluateDeneme, averageNet } from "@/lib/denemeUtils";
 interface AuthContextType {
@@ -36,6 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           try {
             const localDenemeler = loadDenemeler();
             const targetNet = loadTargetNet();
+            await updateUserProfile(currentUser.uid, currentUser.displayName, currentUser.email);
             const remote = await loadFromFirebase(currentUser.uid);
             
             let mergedDenemeler = localDenemeler;
@@ -82,6 +83,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("kpss_2026_data");
+        localStorage.removeItem("kpss_2026_denemeler");
+        localStorage.removeItem("kpss_2026_target_net");
+      }
+      // Reload to clear state fully
+      window.location.href = "/";
     } catch (error) {
       console.error("Sign out failed:", error);
     }

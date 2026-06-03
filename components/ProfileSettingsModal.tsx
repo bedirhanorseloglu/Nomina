@@ -20,7 +20,7 @@ import {
 import { useAuth } from "@/contexts/AuthContext";
 import { updateProfile, deleteUser, reauthenticateWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
-import { deleteUserAllData } from "@/lib/firebaseService";
+import { deleteUserAllData, updateUserProfile } from "@/lib/firebaseService";
 import { toast } from "sonner";
 
 /* ──────────────────────────────────────────────
@@ -118,6 +118,7 @@ export default function ProfileSettingsModal({
         displayName: displayName.trim() || null,
         photoURL: selectedPhotoURL,
       });
+      await updateUserProfile(auth.currentUser.uid, displayName.trim() || null, auth.currentUser.email);
       await refreshUser();
       setSaveStatus("saved");
       toast.success("Profil başarıyla güncellendi!");
@@ -339,6 +340,17 @@ export default function ProfileSettingsModal({
                       <p className="text-xs text-blue-600 dark:text-blue-400 font-medium">Google ile güvenli giriş aktif</p>
                     </div>
 
+                    {/* Delete Account */}
+                    <div className="pt-2 border-t border-gray-100 dark:border-white/5">
+                      <button
+                        onClick={() => { setShowDeleteConfirm(true); setDeleteConfirmText(""); }}
+                        className="w-full py-2.5 rounded-xl text-xs font-bold text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all flex items-center justify-center gap-2 border border-transparent hover:border-red-100 dark:hover:border-red-500/15"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Hesabı Kalıcı Olarak Sil
+                      </button>
+                    </div>
+
                     {/* Actions */}
                     <div className="flex items-center gap-3 pt-1">
                       <motion.button
@@ -365,17 +377,6 @@ export default function ProfileSettingsModal({
                         className="py-3 px-4 rounded-xl bg-red-50 dark:bg-red-500/10 text-red-500 hover:bg-red-100 dark:hover:bg-red-500/20 text-sm font-bold transition-all flex items-center gap-2 border border-red-100 dark:border-red-500/15"
                       >
                         <LogOut className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    {/* Delete Account */}
-                    <div className="pt-2 border-t border-gray-100 dark:border-white/5">
-                      <button
-                        onClick={() => { setShowDeleteConfirm(true); setDeleteConfirmText(""); }}
-                        className="w-full py-2.5 rounded-xl text-xs font-bold text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all flex items-center justify-center gap-2 border border-transparent hover:border-red-100 dark:hover:border-red-500/15"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        Hesabı Kalıcı Olarak Sil
                       </button>
                     </div>
 

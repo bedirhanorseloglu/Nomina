@@ -35,11 +35,17 @@ function HomeContent() {
   const pathname = usePathname()
   const [data, setData] = useState<AppData | null>(null)
   
-  const activeSubjectId = searchParams.get('subject') || "turkce"
+  const [activeSubjectId, setActiveSubjectIdState] = useState(searchParams.get('subject') || "turkce")
+  
+  useEffect(() => {
+    const subject = searchParams.get('subject');
+    if (subject && subject !== activeSubjectId) {
+      setActiveSubjectIdState(subject);
+    }
+  }, [searchParams]);
+
   const setActiveSubjectId = (id: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    params.set('subject', id)
-    router.replace(`${pathname}?${params.toString()}`, { scroll: false })
+    setActiveSubjectIdState(id)
   }
   const [activeId, setActiveId] = useState<string | null>(null)
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)

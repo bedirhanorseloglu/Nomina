@@ -31,6 +31,16 @@ export const saveToFirebase = async (userId: string, data: AppData) => {
   }
 };
 
+export const updateUserProfile = async (userId: string, displayName: string | null, email: string | null) => {
+  if (!userId) return;
+  try {
+    const docRef = doc(db, DATA_COLLECTION, userId);
+    await setDoc(docRef, { displayName, email }, { merge: true });
+  } catch (error) {
+    console.error("Profile update error:", error);
+  }
+};
+
 export const saveDenemeDataToFirebase = async (
   userId: string,
   denemeler: AppData["denemeler"],
@@ -126,7 +136,12 @@ export const getAllUsers = async (): Promise<FirestoreUser[]> => {
   const udSnap = await getDocs(collection(db, "user_data"));
   udSnap.forEach((d) => {
     if (!users.find((u) => u.docId === d.id)) {
-      users.push({ docId: d.id, displayName: d.id });
+      const data = d.data();
+      users.push({ 
+        docId: d.id, 
+        displayName: data.displayName || d.id,
+        email: data.email
+      });
     }
   });
   return users;
