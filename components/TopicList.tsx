@@ -139,12 +139,14 @@ export default function TopicList({ subjects, activeSubjectId, onSelectSubject, 
       <div className="flex items-center justify-between px-2 mb-2">
         <div className="flex items-center gap-2">
           <button
+            type="button"
             onClick={goToPrev}
             className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-accent dark:hover:border-accent transition-all flex items-center justify-center text-gray-400 hover:text-accent shadow-sm"
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
           <button
+            type="button"
             onClick={goToNext}
             className="w-8 h-8 rounded-xl bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700 hover:border-accent dark:hover:border-accent transition-all flex items-center justify-center text-gray-400 hover:text-accent shadow-sm"
           >
