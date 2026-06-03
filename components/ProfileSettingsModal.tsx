@@ -14,10 +14,13 @@ import {
   Clock,
   Sparkles,
   RefreshCw,
+  Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { updateProfile } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { updateProfile, deleteUser, reauthenticateWithPopup } from "firebase/auth";
+import { auth, googleProvider } from "@/lib/firebase";
+import { deleteUserAllData } from "@/lib/firebaseService";
 import { toast } from "sonner";
 
 /* ──────────────────────────────────────────────
@@ -65,6 +68,9 @@ export default function ProfileSettingsModal({
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [view, setView] = useState<View>("main");
   const [hasChanges, setHasChanges] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleteConfirmText, setDeleteConfirmText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Avatar picker state
   const [selectedStyle, setSelectedStyle] = useState<string>(AVATAR_STYLES[0].id);
@@ -133,6 +139,39 @@ export default function ProfileSettingsModal({
     await signOut();
   };
 
+  const handleDeleteAccount = async () => {
+    if (!auth.currentUser || deleteConfirmText !== "SİL") return;
+    setIsDeleting(true);
+    try {
+      const uid = auth.currentUser.uid;
+      // 1) Firestore verilerini sil
+      await deleteUserAllData(uid);
+      // 2) localStorage temizle
+      localStorage.clear();
+      // 3) Firebase Auth hesabını sil
+      try {
+        await deleteUser(auth.currentUser);
+      } catch (err: any) {
+        if (err.code === "auth/requires-recent-login") {
+          // Yeniden kimlik doğrulama gerekiyor
+          await reauthenticateWithPopup(auth.currentUser, googleProvider);
+          await deleteUser(auth.currentUser);
+        } else {
+          throw err;
+        }
+      }
+      toast.success("Hesabınız başarıyla silindi.");
+      onClose();
+    } catch (error) {
+      console.error("Hesap silme hatası:", error);
+      toast.error("Hesap silinirken bir hata oluştu. Lütfen tekrar deneyin.");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteConfirm(false);
+      setDeleteConfirmText("");
+    }
+  };
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -194,7 +233,7 @@ export default function ProfileSettingsModal({
               <X className="w-4 h-4" />
             </button>
 
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="wait" initial={false}>
               {view === "main" ? (
                 <motion.div
                   key="main"
@@ -202,7 +241,7 @@ export default function ProfileSettingsModal({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
                   transition={{ duration: 0.15 }}
-                  className="overflow-y-auto"
+                  className="overflow-y-auto flex-1 min-h-0"
                 >
                   {/* Hero */}
                   <div className="relative px-8 pt-8 pb-6 flex flex-col items-center">
@@ -328,6 +367,78 @@ export default function ProfileSettingsModal({
                         <LogOut className="w-4 h-4" />
                       </button>
                     </div>
+
+                    {/* Delete Account */}
+                    <div className="pt-2 border-t border-gray-100 dark:border-white/5">
+                      <button
+                        onClick={() => { setShowDeleteConfirm(true); setDeleteConfirmText(""); }}
+                        className="w-full py-2.5 rounded-xl text-xs font-bold text-red-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all flex items-center justify-center gap-2 border border-transparent hover:border-red-100 dark:hover:border-red-500/15"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Hesabı Kalıcı Olarak Sil
+                      </button>
+                    </div>
+
+                    {/* Delete Confirm Dialog */}
+                    <AnimatePresence>
+                      {showDeleteConfirm && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                          transition={{ duration: 0.18 }}
+                          className="rounded-2xl border border-red-200 dark:border-red-500/25 bg-red-50/80 dark:bg-red-500/10 p-4 flex flex-col gap-3"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-500/20 flex items-center justify-center shrink-0">
+                              <AlertTriangle className="w-4 h-4 text-red-500" />
+                            </div>
+                            <div>
+                              <p className="text-sm font-bold text-red-600 dark:text-red-400">Bu işlem geri alınamaz!</p>
+                              <p className="text-[11px] text-red-500/80 dark:text-red-400/70 mt-0.5 leading-relaxed">
+                                Tüm verileriniz, denemeleriniz ve ilerlemeniz kalıcı olarak silinecek.
+                              </p>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-red-500/80 mb-1.5 block">
+                              Onaylamak için <span className="font-black">SİL</span> yazın
+                            </label>
+                            <input
+                              type="text"
+                              value={deleteConfirmText}
+                              onChange={(e) => setDeleteConfirmText(e.target.value.toUpperCase())}
+                              placeholder="SİL"
+                              className="w-full px-3 py-2.5 rounded-xl bg-white dark:bg-white/5 border border-red-200 dark:border-red-500/25 text-red-600 dark:text-red-400 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-red-400/30 placeholder:text-red-300 dark:placeholder:text-red-500/40"
+                            />
+                          </div>
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => { setShowDeleteConfirm(false); setDeleteConfirmText(""); }}
+                              className="flex-1 py-2.5 rounded-xl text-xs font-bold bg-white dark:bg-white/5 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/10 border border-gray-200 dark:border-white/10 transition-all"
+                            >
+                              İptal
+                            </button>
+                            <motion.button
+                              onClick={handleDeleteAccount}
+                              disabled={deleteConfirmText !== "SİL" || isDeleting}
+                              whileTap={deleteConfirmText === "SİL" ? { scale: 0.97 } : {}}
+                              className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+                                deleteConfirmText === "SİL" && !isDeleting
+                                  ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/25"
+                                  : "bg-red-200/50 dark:bg-red-500/10 text-red-300 dark:text-red-500/40 cursor-not-allowed"
+                              }`}
+                            >
+                              {isDeleting ? (
+                                <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Siliniyor...</>
+                              ) : (
+                                <><Trash2 className="w-3.5 h-3.5" /> Hesabı Sil</>
+                              )}
+                            </motion.button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </motion.div>
               ) : (
@@ -338,7 +449,7 @@ export default function ProfileSettingsModal({
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.15 }}
-                  className="overflow-y-auto"
+                  className="overflow-y-auto flex-1 min-h-0"
                 >
                   <div className="px-8 pt-8 pb-2">
                     <div className="flex items-center justify-between mb-6">

@@ -55,10 +55,9 @@ export default function FloatingPomodoro() {
 
   // Real-time online user tracking
   useEffect(() => {
+    if (!user?.uid) return; // auth olmadan Firestore'a istek atma
     const trackPresence = async () => {
-      if (user?.uid) {
-        await updatePresence(user.uid);
-      }
+      await updatePresence(user.uid);
       const count = await getOnlineUsersCount();
       setOnlineUsers(count);
     };

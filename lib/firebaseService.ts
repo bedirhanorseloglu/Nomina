@@ -1,5 +1,5 @@
 import { db } from "./firebase";
-import { doc, getDoc, setDoc, collection, query, where, getDocs, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, query, where, getDocs, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
@@ -88,4 +88,46 @@ export const getOnlineUsersCount = async (): Promise<number> => {
     console.error("Online users fetch error:", error);
     return 1;
   }
+};
+
+export const deleteUserAllData = async (userId: string): Promise<void> => {
+  if (!userId) return;
+  const collections = ["user_data", "leaderboard", "active_users"];
+  await Promise.all(
+    collections.map((col) => deleteDoc(doc(db, col, userId)))
+  );
+  console.log("✅ Kullanıcı verileri Firestore'dan silindi.");
+};
+
+export interface FirestoreUser {
+  docId: string;
+  displayName: string;
+  email?: string;
+  averageNet?: number;
+  totalTrials?: number;
+  updatedAt?: string;
+}
+
+export const getAllUsers = async (): Promise<FirestoreUser[]> => {
+  const users: FirestoreUser[] = [];
+  // leaderboard koleksiyonundan kullanıcıları çek (displayName var)
+  const lbSnap = await getDocs(collection(db, "leaderboard"));
+  lbSnap.forEach((d) => {
+    const data = d.data();
+    users.push({
+      docId: d.id,
+      displayName: data.displayName || d.id,
+      averageNet: data.averageNet,
+      totalTrials: data.totalTrials,
+      updatedAt: data.updatedAt,
+    });
+  });
+  // leaderboard'da olmayan user_data belgelerini de ekle
+  const udSnap = await getDocs(collection(db, "user_data"));
+  udSnap.forEach((d) => {
+    if (!users.find((u) => u.docId === d.id)) {
+      users.push({ docId: d.id, displayName: d.id });
+    }
+  });
+  return users;
 };

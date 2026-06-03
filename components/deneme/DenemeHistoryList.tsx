@@ -279,8 +279,11 @@ export default function DenemeHistoryList({
                 <div className="flex items-center gap-5 flex-1 min-w-0">
                   {/* Apple Style Score Display */}
                   <div className="flex-shrink-0 text-center w-20">
-                    <span className="text-3xl font-black font-mono text-slate-800 tracking-tight tabular-nums block">
+                    <span className="text-3xl font-black font-mono text-slate-800 tracking-tight tabular-nums block leading-none">
                       {formatNet(result.totalNet)}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 block">
+                      net
                     </span>
                     <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mt-2 border border-slate-200/20 shadow-inner">
                       <motion.div

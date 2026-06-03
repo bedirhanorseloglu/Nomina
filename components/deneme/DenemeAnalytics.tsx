@@ -472,23 +472,73 @@ export default function DenemeAnalytics({
               </div>
 
               <div className="relative z-10 mb-6 group">
-                <input type="range" min={60} max={115} value={targetNet}
+                <input
+                  type="range"
+                  min={60}
+                  max={115}
+                  value={targetNet}
                   onChange={(e) => onTargetNetChange(parseInt(e.target.value, 10))}
-                  className="premium-range w-full cursor-pointer" />
+                  style={{ ["--val" as string]: `${((targetNet - 60) / (115 - 60)) * 100}%` }}
+                  className="premium-range w-full cursor-pointer"
+                />
               </div>
 
               <div className="space-y-3 relative z-10">
-                <div className="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase tracking-widest">
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-blue-500 shadow-sm"></span> Mevcut: {formatNet(stats.avg)} net</span>
-                  <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-full bg-slate-300 shadow-inner"></span> Hedef: {targetNet} net</span>
-                </div>
-                <div className="h-4 w-full bg-slate-100/80 backdrop-blur-sm rounded-full overflow-hidden shadow-inner border border-slate-200/50 p-0.5">
-                  <motion.div className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full relative shadow-sm"
-                    animate={{ width: `${Math.min(100, (stats.avg / targetNet) * 100)}%` }}
-                    transition={{ type: "spring", stiffness: 50, damping: 15 }} >
-                      <div className="absolute inset-0 bg-white/20 rounded-full"></div>
-                  </motion.div>
-                </div>
+                {(() => {
+                  const ratio = stats.avg / targetNet; // 0..1+
+                  const pct = Math.min(100, ratio * 100);
+                  // Renk: %0-49 kırmızı, %50-79 turuncu, %80-99 mavi, %100+ yeşil
+                  const barColor =
+                    ratio >= 1
+                      ? "from-emerald-500 to-green-400"
+                      : ratio >= 0.8
+                      ? "from-blue-500 to-indigo-500"
+                      : ratio >= 0.5
+                      ? "from-amber-400 to-orange-400"
+                      : "from-red-500 to-rose-400";
+                  const dotColor =
+                    ratio >= 1
+                      ? "bg-emerald-500"
+                      : ratio >= 0.8
+                      ? "bg-blue-500"
+                      : ratio >= 0.5
+                      ? "bg-amber-400"
+                      : "bg-red-400";
+                  const targetDotColor =
+                    ratio >= 1 ? "bg-emerald-400" : "bg-slate-300";
+
+                  return (
+                    <>
+                      <div className="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                        <span className="flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full shadow-sm transition-colors duration-500 ${dotColor}`} />
+                          Mevcut: {formatNet(stats.avg)} net
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full shadow-inner transition-colors duration-500 ${targetDotColor}`} />
+                          Hedef: {targetNet} net
+                        </span>
+                      </div>
+                      <div className="h-4 w-full bg-slate-100/80 backdrop-blur-sm rounded-full overflow-hidden shadow-inner border border-slate-200/50 p-0.5">
+                        <motion.div
+                          className={`h-full bg-gradient-to-r ${barColor} rounded-full relative shadow-sm transition-all duration-500`}
+                          animate={{ width: `${pct}%` }}
+                          transition={{ type: "spring", stiffness: 50, damping: 15 }}
+                        >
+                          <div className="absolute inset-0 bg-white/20 rounded-full" />
+                        </motion.div>
+                      </div>
+                      {/* Yüzde göstergesi */}
+                      <div className="flex justify-end">
+                        <span className={`text-[10px] font-black tracking-wider transition-colors duration-500 ${
+                          ratio >= 1 ? "text-emerald-600" : ratio >= 0.8 ? "text-blue-500" : ratio >= 0.5 ? "text-amber-500" : "text-red-400"
+                        }`}>
+                          %{Math.round(pct)} tamamlandı
+                        </span>
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
 
               <div className="mt-6 p-4 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50/50 border border-blue-100/50 text-center relative z-10 shadow-sm">

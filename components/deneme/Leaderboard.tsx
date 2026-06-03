@@ -14,15 +14,16 @@ export default function Leaderboard() {
   const [selectedUser, setSelectedUser] = useState<LeaderboardEntry | null>(null);
 
   useEffect(() => {
+    if (!user) return; // auth olmadan istek atma
     const fetchLeaders = async () => {
-      const data = await getLeaderboard(50); // Fetch top 50
+      const data = await getLeaderboard(50);
       setLeaders(data);
       setLoading(false);
     };
     fetchLeaders();
-  }, []);
+  }, [user]);
 
-  if (loading) {
+  if (!user || loading) {
     return (
       <div className="flex justify-center items-center py-12">
         <Loader2 className="w-8 h-8 text-accent animate-spin opacity-50" />
