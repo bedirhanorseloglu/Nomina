@@ -179,10 +179,15 @@ export default function FlashcardGame({ topic }: { topic: MapTopic }) {
             <h2 className="text-3xl md:text-4xl font-black text-white leading-tight mb-2 drop-shadow-sm">
               {formatName(currentCard.name)}
             </h2>
-            <div className="bg-white/20 backdrop-blur-md px-6 py-2 rounded-full mt-6 shadow-inner border border-white/30">
-              <span className="text-lg font-bold text-white uppercase tracking-widest drop-shadow-sm">
+            <div className="bg-white/20 backdrop-blur-md px-6 py-3 rounded-2xl mt-6 shadow-inner border border-white/30 text-center min-w-[200px]">
+              <span className="block text-lg font-bold text-white uppercase tracking-widest drop-shadow-sm">
                 {currentCard.type}
               </span>
+              {currentCard.description && (
+                <span className="block text-sm text-white/90 mt-1.5 font-semibold bg-black/10 rounded-full py-1 px-3">
+                  📍 {currentCard.description}
+                </span>
+              )}
             </div>
           </div>
         </motion.div>
