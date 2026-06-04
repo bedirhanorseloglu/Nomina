@@ -18,13 +18,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/components/ThemeProvider";
 import ProfileSettingsModal from "@/components/ProfileSettingsModal";
 
-import { Trophy, Timer } from "lucide-react";
+import { Trophy, Timer, MapPin } from "lucide-react";
 
 const NAV_LINKS = [
   { name: "Gösterge Paneli", href: "/dashboard", icon: LayoutDashboard },
   { name: "Deneme Merkezi", href: "/deneme", icon: BarChart3 },
   { name: "Simülatör", href: "/simulator", icon: Timer },
   { name: "Liderlik", href: "/liderlik", icon: Trophy },
+  { name: "Etkinlikler", href: "/etkinlik", icon: MapPin },
 ];
 
 export default function FloatingNavbar() {
@@ -84,7 +85,9 @@ export default function FloatingNavbar() {
         {/* Navigation Links */}
         <nav className="hidden md:flex items-center gap-1">
           {NAV_LINKS.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive = link.href === "/dashboard" || link.href === "/deneme" || link.href === "/simulator" || link.href === "/liderlik" 
+              ? pathname === link.href 
+              : pathname?.startsWith(link.href.split('/')[1] ? `/${link.href.split('/')[1]}` : link.href);
             const Icon = link.icon;
             
             return (
