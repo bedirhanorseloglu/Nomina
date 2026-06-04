@@ -1,7 +1,9 @@
 import { db } from "./firebase";
-import { collection, doc, getDocs, limit, orderBy, query, setDoc } from "firebase/firestore";
+import { collection, doc, getDocs, limit, orderBy, query, setDoc, where, deleteDoc } from "firebase/firestore";
 
 const LEADERBOARD_COLLECTION = "leaderboard";
+
+const isLocalhost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
 
 export interface LeaderboardEntry {
   userId: string;
@@ -22,6 +24,7 @@ export const updateLeaderboard = async (
   totalTrials: number
 ) => {
   if (!userId) return;
+  if (isLocalhost) return;
   try {
     const docRef = doc(db, LEADERBOARD_COLLECTION, userId);
     const data: LeaderboardEntry = {
@@ -56,5 +59,87 @@ export const getLeaderboard = async (limitCount: number = 10): Promise<Leaderboa
   } catch (error) {
     console.error("❌ Liderlik tablosu yükleme hatası:", error);
     return [];
+  }
+};
+
+export const removeFromLeaderboard = async (userId: string) => {
+  if (!userId) return;
+  if (isLocalhost) return;
+  try {
+    const docRef = doc(db, LEADERBOARD_COLLECTION, userId);
+    await deleteDoc(docRef);
+    console.log("✅ Liderlik tablosundan silindi");
+  } catch (error) {
+    console.error("❌ Liderlik tablosundan silme hatası:", error);
+  }
+};
+
+const BRANCH_LEADERBOARD_COLLECTION = "branch_leaderboards";
+
+export interface BranchLeaderboardEntry extends LeaderboardEntry {
+  subjectId: string;
+}
+
+export const updateBranchLeaderboard = async (
+  userId: string,
+  displayName: string | null,
+  photoURL: string | null,
+  subjectId: string,
+  averageNet: number,
+  maxNet: number,
+  totalTrials: number
+) => {
+  if (!userId || !subjectId) return;
+  if (isLocalhost) return;
+  try {
+    const docId = `${userId}_${subjectId}`;
+    const docRef = doc(db, BRANCH_LEADERBOARD_COLLECTION, docId);
+    const data: BranchLeaderboardEntry = {
+      userId,
+      subjectId,
+      displayName: displayName || "Kpss Uzmanı",
+      photoURL: photoURL || "",
+      averageNet,
+      maxNet,
+      totalTrials,
+      updatedAt: new Date().toISOString(),
+    };
+    await setDoc(docRef, data, { merge: true });
+    console.log(`✅ Branş liderlik tablosu güncellendi (${subjectId})`);
+  } catch (error) {
+    console.error(`❌ Branş liderlik tablosu güncelleme hatası (${subjectId}):`, error);
+  }
+};
+
+export const getBranchLeaderboard = async (subjectId: string, limitCount: number = 10): Promise<BranchLeaderboardEntry[]> => {
+  try {
+    const q = query(
+      collection(db, BRANCH_LEADERBOARD_COLLECTION),
+      where("subjectId", "==", subjectId),
+      orderBy("averageNet", "desc"),
+      limit(limitCount)
+    );
+    const querySnapshot = await getDocs(q);
+    const results: BranchLeaderboardEntry[] = [];
+    querySnapshot.forEach((doc) => {
+      results.push(doc.data() as BranchLeaderboardEntry);
+    });
+    return results;
+  } catch (error) {
+    console.error("❌ Branş liderlik tablosu yükleme hatası:", error);
+    return [];
+  }
+};
+
+export const removeFromBranchLeaderboard = async (userId: string, subjectId: string) => {
+  if (!userId || !subjectId) return;
+  if (isLocalhost) return;
+  try {
+    const docId = `${userId}_${subjectId}`;
+    const docRef = doc(db, BRANCH_LEADERBOARD_COLLECTION, docId);
+    await deleteDoc(docRef);
+    console.log(`✅ Branş liderlik tablosundan silindi (${subjectId})`);
+  } catch (error) {
+    console.error("❌ Branş liderlik tablosundan silme hatası:", error);
   }
 };

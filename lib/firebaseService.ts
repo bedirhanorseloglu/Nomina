@@ -4,6 +4,9 @@ import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
 
+// Helper to check if we are in local development mode
+const isLocalhost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
 // Firestore doesn't allow undefined values — strip them recursively
 function stripUndefined(obj: unknown): unknown {
   if (Array.isArray(obj)) {
@@ -21,6 +24,10 @@ function stripUndefined(obj: unknown): unknown {
 
 export const saveToFirebase = async (userId: string, data: AppData) => {
   if (!userId) return;
+  if (isLocalhost) {
+    console.log("🛠️ Lokal ortamdasınız: Firebase'e (user_data) kayıt yapılmadı.");
+    return;
+  }
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const sanitized = stripUndefined(data) as AppData;
@@ -33,6 +40,7 @@ export const saveToFirebase = async (userId: string, data: AppData) => {
 
 export const updateUserProfile = async (userId: string, displayName: string | null, email: string | null) => {
   if (!userId) return;
+  if (isLocalhost) return;
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     await setDoc(docRef, { displayName, email }, { merge: true });
@@ -47,6 +55,10 @@ export const saveDenemeDataToFirebase = async (
   denemeTargetNet?: number
 ) => {
   if (!userId) return;
+  if (isLocalhost) {
+    console.log("🛠️ Lokal ortamdasınız: Deneme verisi Firebase'e kaydedilmedi.");
+    return;
+  }
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const payload = stripUndefined({
@@ -77,6 +89,7 @@ export const loadFromFirebase = async (userId: string): Promise<AppData | null> 
 
 export const updatePresence = async (userId: string) => {
   if (!userId) return;
+  if (isLocalhost) return;
   try {
     const docRef = doc(db, "active_users", userId);
     await setDoc(docRef, { lastActive: Date.now() }, { merge: true });
@@ -102,6 +115,10 @@ export const getOnlineUsersCount = async (): Promise<number> => {
 
 export const deleteUserAllData = async (userId: string): Promise<void> => {
   if (!userId) return;
+  if (isLocalhost) {
+    console.log("🛠️ Lokal ortamdasınız: Silme işlemi iptal edildi.");
+    return;
+  }
   const collections = ["user_data", "leaderboard", "active_users"];
   await Promise.all(
     collections.map((col) => deleteDoc(doc(db, col, userId)))

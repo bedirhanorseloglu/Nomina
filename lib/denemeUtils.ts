@@ -98,12 +98,6 @@ export function evaluateDeneme(scores: SubjectScoreInput[], examType?: "genel" |
   const subjects = DENEME_SUBJECTS.map((config) => {
     const existing = scores.find((s) => s.subjectId === config.id);
     let qCount = config.questionCount;
-    if (examType === "brans" && config.id === "matematik") {
-      qCount = 30;
-    }
-    if (examType === "brans" && config.id === "geometri") {
-      qCount = 0;
-    }
 
     return evaluateSubjectScore(
       existing ?? {
@@ -178,6 +172,39 @@ export function subjectAverageNet(
     return acc + calculateNet(score.correct, score.wrong);
   }, 0);
   return Math.round((sum / denemeler.length) * 100) / 100;
+}
+
+export function migrateDenemeler(denemeler: DenemeRecord[]): DenemeRecord[] {
+  return denemeler.map(d => {
+    const geometriScore = d.scores.find(s => s.subjectId === "geometri");
+    if (!geometriScore) return d;
+
+    // Remove geometri, merge into matematik
+    const newScores = d.scores.filter(s => s.subjectId !== "geometri");
+    const matematikScoreIndex = newScores.findIndex(s => s.subjectId === "matematik");
+    
+    if (matematikScoreIndex !== -1) {
+      newScores[matematikScoreIndex] = {
+        ...newScores[matematikScoreIndex],
+        correct: newScores[matematikScoreIndex].correct + geometriScore.correct,
+        wrong: newScores[matematikScoreIndex].wrong + geometriScore.wrong,
+        empty: newScores[matematikScoreIndex].empty + geometriScore.empty,
+      };
+    } else {
+      // If for some reason there is geometri but no matematik
+      newScores.push({
+        subjectId: "matematik",
+        correct: geometriScore.correct,
+        wrong: geometriScore.wrong,
+        empty: geometriScore.empty + 23, // Fallback
+      });
+    }
+
+    return {
+      ...d,
+      scores: newScores
+    };
+  });
 }
 
 /** 

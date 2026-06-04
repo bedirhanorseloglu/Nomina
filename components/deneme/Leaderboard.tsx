@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Medal, Award, Loader2, Shield, Gem, BookOpen } from "lucide-react";
-import { getLeaderboard, LeaderboardEntry } from "@/lib/leaderboardService";
+import { getLeaderboard, getBranchLeaderboard, LeaderboardEntry } from "@/lib/leaderboardService";
+import { DENEME_SUBJECTS } from "@/lib/denemeConfig";
 import { useAuth } from "@/contexts/AuthContext";
 import UserProfileModal from "./UserProfileModal";
 
@@ -13,28 +14,29 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState<LeaderboardEntry | null>(null);
 
+  const [leaderboardType, setLeaderboardType] = useState<"genel" | "brans">("genel");
+  const [selectedBranch, setSelectedBranch] = useState<string>("turkce");
+
   useEffect(() => {
     if (!user) return; // auth olmadan istek atma
     const fetchLeaders = async () => {
-      const data = await getLeaderboard(50);
+      setLoading(true);
+      let data = [];
+      if (leaderboardType === "genel") {
+        data = await getLeaderboard(50);
+      } else {
+        data = await getBranchLeaderboard(selectedBranch, 50);
+      }
       setLeaders(data);
       setLoading(false);
     };
     fetchLeaders();
-  }, [user]);
+  }, [user, leaderboardType, selectedBranch]);
 
-  if (!user || loading) {
+  if (!user) {
     return (
       <div className="flex justify-center items-center py-12">
         <Loader2 className="w-8 h-8 text-accent animate-spin opacity-50" />
-      </div>
-    );
-  }
-
-  if (leaders.length === 0) {
-    return (
-      <div className="text-center py-8 text-slate-400 text-sm font-semibold">
-        Henüz liderlik tablosunda kimse yok. İlk denemeni çöz ve listeye gir!
       </div>
     );
   }
@@ -91,70 +93,132 @@ export default function Leaderboard() {
             </div>
             <div>
               <h3 className="text-3xl font-black text-slate-800 tracking-tight">Sıralama</h3>
-              <p className="text-xs font-bold uppercase tracking-widest text-blue-500 mt-1">Türkiye Geneli Net Ortalaması</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-blue-500 mt-1">
+                {leaderboardType === "genel" ? "Türkiye Geneli Net Ortalaması" : "Branş Bazlı Net Ortalaması"}
+              </p>
+            </div>
+          </div>
+          
+          <div className="shrink-0 flex flex-col gap-2">
+            <div className="relative flex bg-gray-100 dark:bg-slate-800 rounded-full p-1 border border-gray-200/50 dark:border-white/5">
+              <motion.div
+                className="absolute top-1 bottom-1 w-[calc(50%-2px)] rounded-full bg-blue-500 shadow-md"
+                animate={{ x: leaderboardType === "genel" ? 0 : "calc(100% + 4px)" }}
+                transition={{ type: "spring", stiffness: 500, damping: 35 }}
+              />
+              <button
+                type="button"
+                onClick={() => setLeaderboardType("genel")}
+                className={`relative z-10 w-28 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors duration-200 cursor-pointer text-center ${
+                  leaderboardType === "genel" ? "text-white" : "text-gray-500"
+                }`}
+              >
+                Genel
+              </button>
+              <button
+                type="button"
+                onClick={() => setLeaderboardType("brans")}
+                className={`relative z-10 w-28 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors duration-200 cursor-pointer text-center ${
+                  leaderboardType === "brans" ? "text-white" : "text-gray-500"
+                }`}
+              >
+                Branş
+              </button>
             </div>
           </div>
         </div>
 
-        {/* Top 3 Podium */}
-        {top3.length > 0 && (
-          <div className="relative z-10 flex justify-center items-end gap-2 sm:gap-6 mb-16 mt-12 h-56 px-2">
-            {top3[1] && <PodiumBlock leader={top3[1]} rank={2} height="h-32" color="bg-slate-400" delay={0.2} />}
-            {top3[0] && <PodiumBlock leader={top3[0]} rank={1} height="h-44" color="bg-amber-400" delay={0.1} />}
-            {top3[2] && <PodiumBlock leader={top3[2]} rank={3} height="h-28" color="bg-orange-500" delay={0.3} />}
+        {leaderboardType === "brans" && (
+          <div className="mb-8 flex flex-wrap gap-2 relative z-10 justify-center">
+            {DENEME_SUBJECTS.map((subject) => (
+              <button
+                type="button"
+                key={subject.id}
+                onClick={() => setSelectedBranch(subject.id)}
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  selectedBranch === subject.id
+                    ? "bg-blue-500 text-white border-blue-500 shadow-md shadow-blue-500/20"
+                    : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
+                }`}
+              >
+                {subject.title}
+              </button>
+            ))}
           </div>
         )}
 
-        <div className="relative z-10 space-y-3">
-          {others.map((leader, idx) => {
-            const isCurrentUser = user?.uid === leader.userId;
-            const rankInGlobal = idx + 4; // Because top 3 is separated
+        {loading ? (
+          <div className="flex justify-center items-center py-20 min-h-[300px] relative z-10">
+            <Loader2 className="w-10 h-10 text-blue-500 animate-spin opacity-50" />
+          </div>
+        ) : leaders.length === 0 ? (
+          <div className="text-center py-12 text-slate-400 text-sm font-semibold relative z-10 bg-white/50 backdrop-blur-sm rounded-2xl border border-slate-200/50 mt-8">
+            <div className="text-4xl mb-3">📭</div>
+            Henüz bu alanda kimse yok. İlk denemeni çöz ve liderlik tablosuna adını yazdır!
+          </div>
+        ) : (
+          <>
+            {/* Top 3 Podium */}
+            {top3.length > 0 && (
+              <div className="relative z-10 flex justify-center items-end gap-2 sm:gap-6 mb-16 mt-12 h-56 px-2">
+                {top3[1] && <PodiumBlock leader={top3[1]} rank={2} height="h-32" color="bg-slate-400" delay={0.2} />}
+                {top3[0] && <PodiumBlock leader={top3[0]} rank={1} height="h-44" color="bg-amber-400" delay={0.1} />}
+                {top3[2] && <PodiumBlock leader={top3[2]} rank={3} height="h-28" color="bg-orange-500" delay={0.3} />}
+              </div>
+            )}
             
-            let bgClass = "bg-white border-slate-200/60 hover:border-slate-300 hover:shadow-md";
-            if (isCurrentUser) {
-              bgClass = `bg-blue-50 border-blue-200 shadow-md ring-2 ring-blue-500/20`;
-            }
-
-            return (
-              <motion.div
-                key={leader.userId}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: (idx * 0.05) + 0.4 }}
-                onClick={() => setSelectedUser(leader)}
-                className={`flex items-center gap-3 sm:gap-4 p-4 rounded-2xl border transition-all cursor-pointer group ${bgClass}`}
-              >
-                <div className={`w-10 text-center shrink-0`}>
-                    <span className={`text-lg font-black ${isCurrentUser ? 'text-blue-500' : 'text-slate-400'}`}>#{rankInGlobal}</span>
-                </div>
+            <div className="relative z-10 space-y-3">
+              {others.map((leader, idx) => {
+                const isCurrentUser = user?.uid === leader.userId;
+                const rankInGlobal = idx + 4; // Because top 3 is separated
                 
-                {leader.photoURL ? (
-                  <img src={leader.photoURL} alt={leader.displayName} className={`w-12 h-12 rounded-full border-2 border-white shadow-sm object-cover group-hover:scale-105 transition-transform`} />
-                ) : (
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-black border-2 border-white shadow-sm bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 group-hover:scale-105 transition-transform`}>
-                    {leader.displayName.charAt(0).toUpperCase()}
-                  </div>
-                )}
+                let bgClass = "bg-white border-slate-200/60 hover:border-slate-300 hover:shadow-md";
+                if (isCurrentUser) {
+                  bgClass = `bg-blue-50 border-blue-200 shadow-md ring-2 ring-blue-500/20`;
+                }
 
-                <div className="flex-1 min-w-0">
-                  <p className={`font-black text-slate-800 text-base truncate`}>
-                    {leader.displayName}
-                    {isCurrentUser && <span className="ml-2 text-[10px] font-black uppercase text-white bg-blue-500 px-2 py-0.5 rounded-lg shadow-sm">Sen</span>}
-                  </p>
-                  <p className="text-xs font-bold text-slate-400 mt-0.5 flex items-center gap-1">
-                    <BookOpen className="w-3 h-3" /> {leader.totalTrials} Deneme
-                  </p>
-                </div>
+                return (
+                  <motion.div
+                    key={leader.userId}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: (idx * 0.05) + 0.4 }}
+                    onClick={() => setSelectedUser(leader)}
+                    className={`flex items-center gap-3 sm:gap-4 p-4 rounded-2xl border transition-all cursor-pointer group ${bgClass}`}
+                  >
+                    <div className={`w-10 text-center shrink-0`}>
+                        <span className={`text-lg font-black ${isCurrentUser ? 'text-blue-500' : 'text-slate-400'}`}>#{rankInGlobal}</span>
+                    </div>
+                    
+                    {leader.photoURL ? (
+                      <img src={leader.photoURL} alt={leader.displayName} className={`w-12 h-12 rounded-full border-2 border-white shadow-sm object-cover group-hover:scale-105 transition-transform`} />
+                    ) : (
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-black border-2 border-white shadow-sm bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 group-hover:scale-105 transition-transform`}>
+                        {leader.displayName.charAt(0).toUpperCase()}
+                      </div>
+                    )}
 
-                <div className="text-right shrink-0">
-                  <p className={`text-xl sm:text-2xl font-black font-mono tracking-tighter ${isCurrentUser ? 'text-blue-500' : 'text-slate-800'}`}>
-                    {leader.averageNet.toFixed(2)}
-                  </p>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`font-black text-slate-800 text-base truncate`}>
+                        {leader.displayName}
+                        {isCurrentUser && <span className="ml-2 text-[10px] font-black uppercase text-white bg-blue-500 px-2 py-0.5 rounded-lg shadow-sm">Sen</span>}
+                      </p>
+                      <p className="text-xs font-bold text-slate-400 mt-0.5 flex items-center gap-1">
+                        <BookOpen className="w-3 h-3" /> {leader.totalTrials} Deneme
+                      </p>
+                    </div>
+
+                    <div className="text-right shrink-0">
+                      <p className={`text-xl sm:text-2xl font-black font-mono tracking-tighter ${isCurrentUser ? 'text-blue-500' : 'text-slate-800'}`}>
+                        {leader.averageNet.toFixed(2)}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
       <AnimatePresence>
         {selectedUser && (

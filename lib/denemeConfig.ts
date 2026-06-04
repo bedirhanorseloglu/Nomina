@@ -25,15 +25,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     icon: "🔢",
     color: "#f59e0b",
     category: "Genel Yetenek",
-    questionCount: 23,
-  },
-  {
-    id: "geometri",
-    title: "Geometri",
-    icon: "📐",
-    color: "#10b981",
-    category: "Genel Yetenek",
-    questionCount: 7,
+    questionCount: 30,
   },
   {
     id: "tarih",

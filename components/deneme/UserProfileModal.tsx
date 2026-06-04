@@ -14,6 +14,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { BADGES, getEarnedBadges } from "@/lib/badgesConfig";
 import DenemeAnalytics from "./DenemeAnalytics";
 import { DenemeRecord } from "@/lib/denemeUtils";
+import { DENEME_SUBJECTS } from "@/lib/denemeConfig";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -32,12 +33,17 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const calculateSubjectAverages = (denemeler: DenemeRecord[]) => {
-  const genel = denemeler.filter(d => d.examType !== "brans");
+const calculateSubjectAverages = (denemeler: DenemeRecord[], type: "genel" | "brans") => {
+  const filtered = denemeler.filter(d => type === "genel" ? d.examType !== "brans" : d.examType === "brans");
   const subjectTotals: Record<string, { net: number; count: number }> = {};
 
-  genel.forEach(d => {
+  filtered.forEach(d => {
+    // For brans exams, only consider the score object that matches bransSubjectId,
+    // OR if we just iterate scores, ensure we only count the one that was taken.
+    // Wait, old brans exams have empty 0 for other subjects.
+    // Actually, for brans exams, it's safer to only count `s.subjectId === d.bransSubjectId` if it exists.
     d.scores.forEach(s => {
+      if (type === "brans" && d.bransSubjectId && s.subjectId !== d.bransSubjectId) return;
       if (!subjectTotals[s.subjectId]) {
         subjectTotals[s.subjectId] = { net: 0, count: 0 };
       }
@@ -67,7 +73,12 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
   const [stats, setStats] = useState({ 
     gkgyNet: 0, 
     egitimNet: 0,
+    totalGenel: 0,
+    avgNetGenel: 0,
+    maxNetGenel: 0,
     totalBrans: 0,
+    avgNetBrans: 0,
+    maxNetBrans: 0,
     bestBransName: "",
     bestBransScore: 0,
     bestGenelSubj: "",
@@ -78,8 +89,12 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
   const [userTargetNet, setUserTargetNet] = useState<number>(108);
   
   const [currentUserStats, setCurrentUserStats] = useState<any>(null);
-  const [userSubjectAverages, setUserSubjectAverages] = useState<Record<string, number>>({});
+  const [currentUserDenemeler, setCurrentUserDenemeler] = useState<DenemeRecord[]>([]);
+  const [userGenelSubjectAverages, setUserGenelSubjectAverages] = useState<Record<string, number>>({});
+  const [userBransSubjectAverages, setUserBransSubjectAverages] = useState<Record<string, number>>({});
   const [activeTab, setActiveTab] = useState<"genel" | "brans" | "kiyasla" | "rozetler">("kiyasla");
+  const [kiyasType, setKiyasType] = useState<"genel" | "brans">("genel");
+  const [kiyasBransSubject, setKiyasBransSubject] = useState<string>("turkce");
   const { user } = useAuth();
 
   useEffect(() => {
@@ -91,7 +106,8 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
         if (data) {
           if (data.denemeler) {
             setUserDenemeler(data.denemeler);
-            setUserSubjectAverages(calculateSubjectAverages(data.denemeler));
+            setUserGenelSubjectAverages(calculateSubjectAverages(data.denemeler, "genel"));
+            setUserBransSubjectAverages(calculateSubjectAverages(data.denemeler, "brans"));
           }
           if (data.denemeTargetNet !== undefined) {
             setUserTargetNet(data.denemeTargetNet);
@@ -164,10 +180,35 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
             bestBransName = bestBransName.charAt(0).toUpperCase() + bestBransName.slice(1);
           }
 
+          let avgGenel = 0;
+          let maxGenel = 0;
+          if (genel.length > 0) {
+            const nets = genel.map(d => evaluateDeneme(d.scores).totalNet);
+            avgGenel = nets.reduce((a, b) => a + b, 0) / nets.length;
+            maxGenel = Math.max(...nets);
+          }
+
+          let avgBrans = 0;
+          let maxBrans = 0;
+          if (brans.length > 0) {
+            const bransNets = brans.map(d => {
+              if (!d.bransSubjectId) return 0;
+              const s = d.scores.find((x: any) => x.subjectId === d.bransSubjectId);
+              return s ? s.correct - (s.wrong / 4) : 0;
+            });
+            avgBrans = bransNets.reduce((a, b) => a + b, 0) / bransNets.length;
+            maxBrans = Math.max(...bransNets);
+          }
+
           setStats({
             gkgyNet: gkgyCount ? gkgyTotal / gkgyCount : 0,
             egitimNet: 0,
+            totalGenel: genel.length,
+            avgNetGenel: avgGenel,
+            maxNetGenel: maxGenel,
             totalBrans: brans.length,
+            avgNetBrans: avgBrans,
+            maxNetBrans: maxBrans,
             bestBransName,
             bestBransScore,
             bestGenelSubj: bestSubj,
@@ -185,25 +226,39 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
 
     const fetchCurrentUserStats = () => {
       const local = loadDenemeler();
+      setCurrentUserDenemeler(local);
       const genel = local.filter(d => d.examType !== "brans");
       const brans = local.filter(d => d.examType === "brans");
       
-      let avg = 0;
-      let max = 0;
+      let avgGenel = 0;
+      let maxGenel = 0;
       if (genel.length > 0) {
         const nets = genel.map(d => evaluateDeneme(d.scores).totalNet);
-        avg = nets.reduce((a, b) => a + b, 0) / nets.length;
-        max = Math.max(...nets);
+        avgGenel = nets.reduce((a, b) => a + b, 0) / nets.length;
+        maxGenel = Math.max(...nets);
       }
       
-      const averages = calculateSubjectAverages(local);
-
+      let avgBrans = 0;
+      let maxBrans = 0;
+      if (brans.length > 0) {
+        const bransNets = brans.map(d => {
+          if (!d.bransSubjectId) return 0;
+          const s = d.scores.find((x: any) => x.subjectId === d.bransSubjectId);
+          return s ? s.correct - (s.wrong / 4) : 0;
+        });
+        avgBrans = bransNets.reduce((a, b) => a + b, 0) / bransNets.length;
+        maxBrans = Math.max(...bransNets);
+      }
+      
       setCurrentUserStats({
          totalGenel: genel.length,
-         avgNet: avg,
-         maxNet: max,
+         avgNetGenel: avgGenel,
+         maxNetGenel: maxGenel,
          totalBrans: brans.length,
-         subjectAverages: averages,
+         avgNetBrans: avgBrans,
+         maxNetBrans: maxBrans,
+         genelSubjectAverages: calculateSubjectAverages(local, "genel"),
+         bransSubjectAverages: calculateSubjectAverages(local, "brans"),
       });
     };
 
@@ -272,215 +327,201 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                   </div>
                 </div>
 
-                <div className="text-center sm:text-right bg-gradient-to-br from-blue-50 to-indigo-50/50 px-6 py-4 rounded-2xl border border-blue-100/50 shrink-0 shadow-sm">
-                   <p className="text-[10px] font-black uppercase text-blue-600/70 tracking-widest mb-0.5">En Yüksek Net</p>
-                   <p className={`text-3xl font-black font-mono tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-indigo-600 drop-shadow-sm`}>
-                     {userEntry.maxNet.toFixed(2)}
-                   </p>
-                </div>
+                {(() => {
+                  const headerAvgRakip = (() => {
+                    if (kiyasType === "genel") return stats.avgNetGenel || 0;
+                    const rakipBransList = userDenemeler.filter(d => d.examType === "brans" && d.bransSubjectId === kiyasBransSubject);
+                    if (!rakipBransList.length) return 0;
+                    const nets = rakipBransList.map(d => {
+                      const s = d.scores.find((x: any) => x.subjectId === kiyasBransSubject);
+                      return s ? s.correct - (s.wrong / 4) : 0;
+                    });
+                    return nets.reduce((a, b) => a + b, 0) / nets.length;
+                  })();
+
+                  const getHeaderColors = () => {
+                    if (kiyasType === "genel") return { bg: "from-indigo-50 to-indigo-100/50", text: "text-indigo-600/80", gradient: "from-indigo-600 to-indigo-800", border: "border-indigo-200/50" };
+                    switch(kiyasBransSubject) {
+                      case "turkce": return { bg: "from-blue-50 to-sky-50/50", text: "text-blue-600/70", gradient: "from-blue-600 to-sky-500", border: "border-blue-200/50" };
+                      case "matematik": return { bg: "from-amber-50 to-orange-50/50", text: "text-amber-600/70", gradient: "from-amber-600 to-orange-500", border: "border-amber-100/50" };
+                      case "tarih": return { bg: "from-red-50 to-rose-50/50", text: "text-red-600/70", gradient: "from-red-600 to-rose-600", border: "border-red-100/50" };
+                      case "cografya": return { bg: "from-violet-50 to-purple-50/50", text: "text-violet-600/70", gradient: "from-violet-600 to-purple-600", border: "border-violet-100/50" };
+                      case "vatandaslik": return { bg: "from-pink-50 to-rose-50/50", text: "text-pink-600/70", gradient: "from-pink-600 to-rose-500", border: "border-pink-100/50" };
+                      case "guncel": return { bg: "from-emerald-50 to-teal-50/50", text: "text-emerald-600/70", gradient: "from-emerald-600 to-teal-500", border: "border-emerald-100/50" };
+                      default: return { bg: "from-slate-50 to-slate-50/50", text: "text-slate-600/70", gradient: "from-slate-600 to-slate-600", border: "border-slate-100/50" };
+                    }
+                  };
+                  const colors = getHeaderColors();
+                  
+                  return (
+                    <div className={`text-center sm:text-right bg-gradient-to-br ${colors.bg} px-6 py-4 rounded-2xl border ${colors.border} shrink-0 shadow-sm transition-colors duration-300`}>
+                       <p className={`text-[10px] font-black uppercase ${colors.text} tracking-widest mb-0.5 transition-colors duration-300`}>Net Ortalaması</p>
+                       <p className={`text-3xl font-black font-mono tracking-tighter bg-clip-text text-transparent bg-gradient-to-r ${colors.gradient} drop-shadow-sm transition-colors duration-300`}>
+                         {headerAvgRakip.toFixed(2)}
+                       </p>
+                    </div>
+                  );
+                })()}
 
              </div>
           </div>
           
-          {/* Tab Selection (Duolingo Style) */}
-          <div className="px-6 flex gap-3 bg-white pt-4 pb-4 border-b-2 border-slate-100 overflow-x-auto custom-scrollbar shrink-0">
-             <button 
-                onClick={() => setActiveTab("genel")}
-                className={`px-5 py-3 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all shrink-0 border-2 ${
-                  activeTab === "genel" 
-                  ? "bg-blue-50 text-blue-500 border-blue-500 border-b-4 active:border-b-2 active:translate-y-[2px]" 
-                  : "bg-white text-slate-400 border-slate-200 border-b-4 hover:bg-slate-50 active:border-b-2 active:translate-y-[2px]"
-                }`}
-             >
-                Genel Sınavlar
-             </button>
-             <button 
-                onClick={() => setActiveTab("brans")}
-                className={`px-5 py-3 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all shrink-0 border-2 ${
-                  activeTab === "brans" 
-                  ? "bg-purple-50 text-purple-500 border-purple-500 border-b-4 active:border-b-2 active:translate-y-[2px]" 
-                  : "bg-white text-slate-400 border-slate-200 border-b-4 hover:bg-slate-50 active:border-b-2 active:translate-y-[2px]"
-                }`}
-             >
-                Branş
-             </button>
-             <button 
-                onClick={() => setActiveTab("rozetler")}
-                className={`px-5 py-3 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all shrink-0 border-2 ${
-                  activeTab === "rozetler" 
-                  ? "bg-orange-50 text-orange-500 border-orange-500 border-b-4 active:border-b-2 active:translate-y-[2px]" 
-                  : "bg-white text-slate-400 border-slate-200 border-b-4 hover:bg-slate-50 active:border-b-2 active:translate-y-[2px]"
-                }`}
-             >
-                Rozetler
-             </button>
-             {user && user.uid !== userEntry.userId && (
-               <button 
-                  onClick={() => setActiveTab("kiyasla")}
-                  className={`px-5 py-3 text-[11px] font-black uppercase tracking-widest rounded-2xl transition-all shrink-0 ml-auto border-2 ${
-                    activeTab === "kiyasla" 
-                    ? "bg-amber-50 text-amber-500 border-amber-500 border-b-4 active:border-b-2 active:translate-y-[2px]" 
-                    : "bg-white text-slate-400 border-slate-200 border-b-4 hover:bg-slate-50 active:border-b-2 active:translate-y-[2px]"
-                  }`}
-               >
-                  Kıyasla ⚔️
-               </button>
-             )}
-          </div>
+          {/* Removed Tab Selection as requested */}
 
           <div className="bg-white flex-1 overflow-y-auto custom-scrollbar">
-            {activeTab === "genel" && (
-              <div className="p-6 space-y-6">
-                 {/* Top Stats */}
-                 <div className="grid grid-cols-2 gap-4">
-                   <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 flex items-center gap-4 hover:border-blue-200 transition-colors">
-                     <div className="w-12 h-12 rounded-xl bg-blue-100 text-blue-500 flex items-center justify-center shrink-0">
-                       <Calendar className="w-6 h-6" />
-                     </div>
-                     <div>
-                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Çözülen Sınav</p>
-                       <p className="text-xl font-black text-slate-800">{userEntry.totalTrials}</p>
-                     </div>
-                   </div>
-                   
-                   <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 flex items-center gap-4 hover:border-emerald-200 transition-colors">
-                     <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-500 flex items-center justify-center shrink-0">
-                       <TrendingUp className="w-6 h-6" />
-                     </div>
-                     <div>
-                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Net Ortalaması</p>
-                       <p className="text-xl font-black text-slate-800">{userEntry.averageNet.toFixed(2)}</p>
-                     </div>
-                   </div>
-                 </div>
-
-                 {/* Detailed Section Breakdown */}
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 hover:border-blue-200 transition-colors">
-                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">Genel Yetenek (GY)</p>
-                       <div className="flex items-end gap-2">
-                          <p className="text-2xl font-black font-mono text-blue-500">{stats.gkgyNet > 0 ? (stats.gkgyNet / 2).toFixed(1) : "-"}</p>
-                          <p className="text-xs font-bold text-slate-400 mb-1">/ 60</p>
-                       </div>
+            {currentUserStats && (
+              <div className="p-6 space-y-6 border-t-2 border-slate-100">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
+                  <div className="flex items-center gap-4">
+                    <h3 className="text-sm font-black text-slate-800">Detaylı Karşılaştırma</h3>
+                    <div className="flex bg-slate-100/80 rounded-xl p-1 border border-slate-200/60 shadow-inner">
+                      <button 
+                        onClick={() => setKiyasType("genel")}
+                        className={`px-3 py-1 text-[10px] font-black tracking-widest uppercase rounded-lg transition-colors ${kiyasType === "genel" ? "bg-white text-blue-600 shadow-sm border border-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
+                      >
+                        Genel
+                      </button>
+                      <button 
+                        onClick={() => setKiyasType("brans")}
+                        className={`px-3 py-1 text-[10px] font-black tracking-widest uppercase rounded-lg transition-colors ${kiyasType === "brans" ? "bg-white text-purple-600 shadow-sm border border-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
+                      >
+                        Branş
+                      </button>
                     </div>
-                    <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 hover:border-purple-200 transition-colors">
-                       <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider mb-2">Genel Kültür (GK)</p>
-                       <div className="flex items-end gap-2">
-                          <p className="text-2xl font-black font-mono text-purple-500">{stats.gkgyNet > 0 ? (stats.gkgyNet / 2).toFixed(1) : "-"}</p>
-                          <p className="text-xs font-bold text-slate-400 mb-1">/ 60</p>
-                       </div>
-                    </div>
-                 </div>
-                 
-                 {/* Best and Worst */}
-                 <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-white p-4 rounded-2xl border-2 border-emerald-200 border-b-4">
-                       <p className="text-[10px] font-black uppercase text-emerald-500 tracking-wider mb-1">En Başarılı Ders</p>
-                       <p className="text-sm font-black text-slate-800 truncate">{stats.bestGenelSubj || "Yeterli Veri Yok"}</p>
-                    </div>
-                    <div className="bg-white p-4 rounded-2xl border-2 border-rose-200 border-b-4">
-                       <p className="text-[10px] font-black uppercase text-rose-500 tracking-wider mb-1">Gelişim Alanı</p>
-                       <p className="text-sm font-black text-slate-800 truncate">{stats.worstGenelSubj || "Yeterli Veri Yok"}</p>
-                    </div>
-                 </div>
-              </div>
-            )}
-
-            {activeTab === "brans" && (
-              <div className="p-6 grid grid-cols-2 gap-4">
-                 <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 flex items-center gap-4 hover:border-purple-200 transition-colors">
-                   <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-500 flex items-center justify-center shrink-0">
-                     <BookOpen className="w-6 h-6" />
-                   </div>
-                   <div>
-                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Branş Denemesi</p>
-                     <p className="text-xl font-black text-slate-800">{stats.totalBrans}</p>
-                   </div>
-                 </div>
-                 
-                 <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 flex items-center gap-4 hover:border-amber-200 transition-colors">
-                   <div className="w-12 h-12 rounded-xl bg-amber-100 text-amber-500 flex items-center justify-center shrink-0">
-                     <Award className="w-6 h-6" />
-                   </div>
-                   <div>
-                     <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">En İyi Branş</p>
-                     <p className="text-sm font-black text-slate-800 truncate">{stats.bestBransName || "-"}</p>
-                     <p className="text-xs font-mono font-bold text-amber-500">{stats.bestBransScore.toFixed(2)} Net</p>
-                   </div>
-                 </div>
-              </div>
-            )}
-
-            {activeTab === "kiyasla" && currentUserStats && (
-              <div className="p-6 space-y-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-black text-slate-800">Detaylı Karşılaştırma</h3>
-                  <span className="text-[10px] font-black text-white bg-blue-500 px-3 py-1.5 rounded-xl uppercase tracking-wider shadow-sm">Sen vs {userEntry.displayName}</span>
+                  </div>
+                  <span className="text-[10px] font-black text-white bg-slate-800 px-3 py-1.5 rounded-xl uppercase tracking-widest shadow-sm">Sen ⚔️ {userEntry.displayName}</span>
                 </div>
                 
+                {kiyasType === "brans" && (
+                  <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+                    {DENEME_SUBJECTS.map(subj => {
+                      const isActive = kiyasBransSubject === subj.id;
+                      let activeClass = "bg-purple-50 text-purple-600 border-purple-400 shadow-sm";
+                      if (isActive) {
+                        switch (subj.id) {
+                          case "turkce": activeClass = "bg-blue-50 text-blue-600 border-blue-400 shadow-sm"; break;
+                          case "matematik": activeClass = "bg-amber-50 text-amber-600 border-amber-400 shadow-sm"; break;
+                          case "tarih": activeClass = "bg-red-50 text-red-600 border-red-400 shadow-sm"; break;
+                          case "cografya": activeClass = "bg-violet-50 text-violet-600 border-violet-400 shadow-sm"; break;
+                          case "vatandaslik": activeClass = "bg-pink-50 text-pink-600 border-pink-400 shadow-sm"; break;
+                          case "guncel": activeClass = "bg-emerald-50 text-emerald-600 border-emerald-400 shadow-sm"; break;
+                        }
+                      }
+                      
+                      return (
+                        <button
+                          key={subj.id}
+                          onClick={() => setKiyasBransSubject(subj.id)}
+                          className={`px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all whitespace-nowrap border-2 ${isActive ? activeClass : "bg-white text-slate-400 border-slate-200 hover:border-slate-300 hover:bg-slate-50"}`}
+                        >
+                          {subj.title}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                
+                {(() => {
+                  let kiyasAvgSen = 0, kiyasAvgRakip = 0, kiyasMaxSen = 0, kiyasMaxRakip = 0, kiyasTotalSen = 0, kiyasTotalRakip = 0;
+                  const typeLabel = kiyasType === "genel" ? "Genel" : "Branş";
+                  const senSbjAvg = kiyasType === "genel" ? currentUserStats.genelSubjectAverages : currentUserStats.bransSubjectAverages;
+                  const rakipSbjAvg = kiyasType === "genel" ? userGenelSubjectAverages : userBransSubjectAverages;
+
+                  if (kiyasType === "genel") {
+                    kiyasAvgSen = currentUserStats.avgNetGenel;
+                    kiyasAvgRakip = stats.avgNetGenel;
+                    kiyasMaxSen = currentUserStats.maxNetGenel;
+                    kiyasMaxRakip = stats.maxNetGenel;
+                    kiyasTotalSen = currentUserStats.totalGenel;
+                    kiyasTotalRakip = stats.totalGenel;
+                  } else {
+                    // Calculate specifically for kiyasBransSubject
+                    const senBransList = currentUserDenemeler.filter(d => d.examType === "brans" && d.bransSubjectId === kiyasBransSubject);
+                    const rakipBransList = userDenemeler.filter(d => d.examType === "brans" && d.bransSubjectId === kiyasBransSubject);
+                    
+                    const getBransStats = (list: DenemeRecord[]) => {
+                      if (!list.length) return { avg: 0, max: 0, count: 0 };
+                      const nets = list.map(d => {
+                        const s = d.scores.find((x: any) => x.subjectId === kiyasBransSubject);
+                        return s ? s.correct - (s.wrong / 4) : 0;
+                      });
+                      return {
+                        avg: nets.reduce((a, b) => a + b, 0) / nets.length,
+                        max: Math.max(...nets),
+                        count: nets.length
+                      };
+                    };
+                    
+                    const senStats = getBransStats(senBransList);
+                    const rakipBransStatsObj = getBransStats(rakipBransList);
+                    
+                    kiyasAvgSen = senStats.avg;
+                    kiyasAvgRakip = rakipBransStatsObj.avg;
+                    kiyasMaxSen = senStats.max;
+                    kiyasMaxRakip = rakipBransStatsObj.max;
+                    kiyasTotalSen = senStats.count;
+                    kiyasTotalRakip = rakipBransStatsObj.count;
+                  }
+                  
+                  return (
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Left Column: Averages & Stats */}
                   <div className="space-y-6">
                     {/* Ortalamalar */}
                     <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 hover:border-blue-200 transition-colors">
                       <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
-                         <span className={currentUserStats.avgNet >= userEntry.averageNet ? "text-blue-500" : ""}>Sen ({currentUserStats.avgNet.toFixed(1)})</span>
-                         <span className="text-slate-500">Net Ortalaması</span>
-                         <span className={userEntry.averageNet > currentUserStats.avgNet ? "text-purple-500" : ""}>Rakip ({userEntry.averageNet.toFixed(1)})</span>
+                         <span className={kiyasAvgSen >= kiyasAvgRakip ? "text-blue-500" : ""}>Sen ({kiyasAvgSen.toFixed(1)}) {kiyasAvgSen >= kiyasAvgRakip && kiyasAvgSen > 0 && "👑"}</span>
+                         <span className="text-slate-500">{typeLabel} Net Ortalaması</span>
+                         <span className={kiyasAvgRakip > kiyasAvgSen ? "text-red-500" : ""}>{kiyasAvgRakip > kiyasAvgSen && "👑"} Rakip ({kiyasAvgRakip.toFixed(1)})</span>
                       </div>
                       <div className="flex h-4 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 relative">
-                         <div className="bg-blue-400 h-full transition-all" style={{ width: `${(currentUserStats.avgNet / (currentUserStats.avgNet + userEntry.averageNet || 1)) * 100}%` }}></div>
-                         <div className="bg-purple-400 h-full transition-all" style={{ width: `${(userEntry.averageNet / (currentUserStats.avgNet + userEntry.averageNet || 1)) * 100}%` }}></div>
+                         <div className="bg-blue-400 h-full transition-all" style={{ width: `${(kiyasAvgSen / (kiyasAvgSen + kiyasAvgRakip || 1)) * 100}%` }}></div>
+                         <div className="bg-red-400 h-full transition-all" style={{ width: `${(kiyasAvgRakip / (kiyasAvgSen + kiyasAvgRakip || 1)) * 100}%` }}></div>
                       </div>
                     </div>
 
                     {/* En Yüksek Net */}
                     <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 hover:border-blue-200 transition-colors">
                       <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
-                         <span className={currentUserStats.maxNet >= userEntry.maxNet ? "text-blue-500" : ""}>Sen ({currentUserStats.maxNet.toFixed(1)})</span>
-                         <span className="text-slate-500">En Yüksek Net</span>
-                         <span className={userEntry.maxNet > currentUserStats.maxNet ? "text-purple-500" : ""}>Rakip ({userEntry.maxNet.toFixed(1)})</span>
+                         <span className={kiyasMaxSen >= kiyasMaxRakip ? "text-blue-500" : ""}>Sen ({kiyasMaxSen.toFixed(1)}) {kiyasMaxSen >= kiyasMaxRakip && kiyasMaxSen > 0 && "👑"}</span>
+                         <span className="text-slate-500">En Yüksek {typeLabel} Net</span>
+                         <span className={kiyasMaxRakip > kiyasMaxSen ? "text-red-500" : ""}>{kiyasMaxRakip > kiyasMaxSen && "👑"} Rakip ({kiyasMaxRakip.toFixed(1)})</span>
                       </div>
                       <div className="flex h-4 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 relative">
-                         <div className="bg-blue-400 h-full transition-all" style={{ width: `${(currentUserStats.maxNet / (currentUserStats.maxNet + userEntry.maxNet || 1)) * 100}%` }}></div>
-                         <div className="bg-purple-400 h-full transition-all" style={{ width: `${(userEntry.maxNet / (currentUserStats.maxNet + userEntry.maxNet || 1)) * 100}%` }}></div>
+                         <div className="bg-blue-400 h-full transition-all" style={{ width: `${(kiyasMaxSen / (kiyasMaxSen + kiyasMaxRakip || 1)) * 100}%` }}></div>
+                         <div className="bg-red-400 h-full transition-all" style={{ width: `${(kiyasMaxRakip / (kiyasMaxSen + kiyasMaxRakip || 1)) * 100}%` }}></div>
                       </div>
                     </div>
 
                     {/* Çözülen Denemeler (Genel + Branş) */}
                     <div className="flex justify-between gap-4">
-                       <div className="flex-1 bg-blue-50 p-4 rounded-2xl border-2 border-blue-200 border-b-4 text-center">
+                       <div className={`flex-1 bg-blue-50 p-4 rounded-2xl border-2 border-blue-200 border-b-4 text-center ${kiyasTotalSen >= kiyasTotalRakip && kiyasTotalSen > 0 ? "ring-2 ring-blue-400 ring-offset-2" : ""}`}>
                           <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-2">Sen</p>
-                          <p className="text-3xl font-black text-blue-500">{currentUserStats.totalGenel}</p>
-                          <p className="text-xs font-bold text-blue-600/70">Genel</p>
-                          <div className="my-3 border-b-2 border-blue-200/50"></div>
-                          <p className="text-xl font-black text-blue-500/80">{currentUserStats.totalBrans}</p>
-                          <p className="text-[10px] font-bold text-blue-600/70">Branş</p>
+                          <p className="text-3xl font-black text-blue-500">{kiyasTotalSen}</p>
+                          <p className="text-[10px] font-bold text-blue-600/70 leading-tight mt-1">Tane {kiyasType === "brans" ? DENEME_SUBJECTS.find(s=>s.id===kiyasBransSubject)?.title + " Branş Denemesi" : "Genel Deneme"} Çözüldü</p>
                        </div>
                        <div className="flex-1 flex items-center justify-center text-4xl opacity-50 drop-shadow-sm">⚔️</div>
-                       <div className="flex-1 bg-purple-50 p-4 rounded-2xl border-2 border-purple-200 border-b-4 text-center">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-purple-600 mb-2">Rakip</p>
-                          <p className="text-3xl font-black text-purple-500">{userEntry.totalTrials}</p>
-                          <p className="text-xs font-bold text-purple-600/70">Genel</p>
-                          <div className="my-3 border-b-2 border-purple-200/50"></div>
-                          <p className="text-xl font-black text-purple-500/80">{stats.totalBrans}</p>
-                          <p className="text-[10px] font-bold text-purple-600/70">Branş</p>
+                       <div className={`flex-1 bg-red-50 p-4 rounded-2xl border-2 border-red-200 border-b-4 text-center ${kiyasTotalRakip > kiyasTotalSen ? "ring-2 ring-red-400 ring-offset-2" : ""}`}>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-2">Rakip</p>
+                          <p className="text-3xl font-black text-red-500">{kiyasTotalRakip}</p>
+                          <p className="text-[10px] font-bold text-red-600/70 leading-tight mt-1">Tane {kiyasType === "brans" ? DENEME_SUBJECTS.find(s=>s.id===kiyasBransSubject)?.title + " Branş Denemesi" : "Genel Deneme"} Çözüldü</p>
                        </div>
                     </div>
                   </div>
 
                   {/* Right Column: Subject Chart */}
                   <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 flex flex-col h-[400px]">
-                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 text-center">Ders Bazlı Net Ortalamaları</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 text-center">{typeLabel} - Ders Bazlı Net Ortalamaları</p>
                     <div className="flex-1">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart
                           data={[
-                            { subject: 'Türkçe', sen: currentUserStats.subjectAverages?.['turkce'] || 0, rakip: userSubjectAverages['turkce'] || 0 },
-                            { subject: 'Matematik', sen: currentUserStats.subjectAverages?.['matematik'] || 0, rakip: userSubjectAverages['matematik'] || 0 },
-                            { subject: 'Tarih', sen: currentUserStats.subjectAverages?.['tarih'] || 0, rakip: userSubjectAverages['tarih'] || 0 },
-                            { subject: 'Coğrafya', sen: currentUserStats.subjectAverages?.['cografya'] || 0, rakip: userSubjectAverages['cografya'] || 0 },
-                            { subject: 'Vatandaşlık', sen: currentUserStats.subjectAverages?.['vatandaslik'] || 0, rakip: userSubjectAverages['vatandaslik'] || 0 },
+                            { subject: 'Türkçe', sen: senSbjAvg?.['turkce'] || 0, rakip: rakipSbjAvg['turkce'] || 0 },
+                            { subject: 'Matematik', sen: senSbjAvg?.['matematik'] || 0, rakip: rakipSbjAvg['matematik'] || 0 },
+                            { subject: 'Tarih', sen: senSbjAvg?.['tarih'] || 0, rakip: rakipSbjAvg['tarih'] || 0 },
+                            { subject: 'Coğrafya', sen: senSbjAvg?.['cografya'] || 0, rakip: rakipSbjAvg['cografya'] || 0 },
+                            { subject: 'Vatandaşlık', sen: senSbjAvg?.['vatandaslik'] || 0, rakip: rakipSbjAvg['vatandaslik'] || 0 },
+                            { subject: 'Güncel', sen: senSbjAvg?.['guncel'] || 0, rakip: rakipSbjAvg['guncel'] || 0 },
                           ]}
                           layout="vertical"
                           margin={{ top: 5, right: 10, left: 20, bottom: 5 }}
@@ -495,60 +536,20 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                           />
                           <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: 'bold' }} />
                           <Bar dataKey="sen" name="Sen" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={12} />
-                          <Bar dataKey="rakip" name="Rakip" fill="#a855f7" radius={[0, 4, 4, 0]} barSize={12} />
+                          <Bar dataKey="rakip" name="Rakip" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={12} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
                 </div>
+                );
+                })()}
               </div>
             )}
-
-            {/* Chart Section */}
-            {(activeTab === "genel" || activeTab === "brans") && (
-              <div className="p-4 sm:p-6 border-t-2 border-slate-100 bg-slate-50 overflow-y-auto custom-scrollbar">
-                 {!loading ? (
-                    <DenemeAnalytics 
-                       denemeler={userDenemeler.filter(d => activeTab === "genel" ? d.examType !== "brans" : d.examType === "brans")} 
-                       allDenemeler={userDenemeler} 
-                       viewType={activeTab} 
-                       targetNet={userTargetNet} 
-                       onTargetNetChange={() => {}} 
-                       onAdd={() => {}} 
-                       isReadOnly={true}
-                    />
-                 ) : (
-                    <div className="h-64 flex items-center justify-center bg-white border-2 border-slate-200 border-b-4 rounded-2xl m-6">
-                      <Loader2 className="w-8 h-8 animate-spin text-slate-300" />
-                    </div>
-                 )}
+            {!currentUserStats && (
+              <div className="p-12 text-center text-slate-400">
+                <p className="text-sm font-bold">Kıyaslama yapılabilmesi için sisteme giriş yapmış olmalısınız.</p>
               </div>
-            )}
-
-            {activeTab === "rozetler" && (
-               <div className="p-6 border-t-2 border-slate-100 bg-slate-50">
-                 <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-6 text-center">Başarım Koleksiyonu</h3>
-                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                   {BADGES.map((badge) => {
-                     const isEarned = earnedBadges.includes(badge.id);
-                     const colorMap: any = {
-                       emerald: "bg-emerald-50 border-emerald-200 text-emerald-500",
-                       orange: "bg-orange-50 border-orange-200 text-orange-500",
-                       blue: "bg-blue-50 border-blue-200 text-blue-500",
-                       amber: "bg-amber-50 border-amber-200 text-amber-500",
-                       purple: "bg-purple-50 border-purple-200 text-purple-500",
-                     };
-                     
-                     return (
-                       <div key={badge.id} className={`p-4 rounded-3xl border-2 border-b-4 flex flex-col items-center justify-center text-center transition-all ${isEarned ? colorMap[badge.color] + ' scale-100' : 'bg-slate-50 border-slate-200 text-slate-400 scale-95 opacity-60 grayscale'}`}>
-                          <div className={`text-4xl mb-3 drop-shadow-sm ${isEarned ? 'animate-bounce-slow' : ''}`}>{badge.icon}</div>
-                          <p className="text-[10px] font-black uppercase tracking-widest mb-1">{badge.title}</p>
-                          <p className="text-[9px] font-bold opacity-70 leading-tight">{badge.description}</p>
-                       </div>
-                     );
-                   })}
-                 </div>
-               </div>
             )}
           </div>
         </motion.div>

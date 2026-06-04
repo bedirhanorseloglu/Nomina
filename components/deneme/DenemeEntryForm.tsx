@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { FileText, Brain, Compass, Calendar, Tag, Check, ArrowRight, ArrowLeft } from "lucide-react";
+import { FileText, Brain, Compass, Calendar, Tag, Check, ArrowRight, ArrowLeft, ChevronDown } from "lucide-react";
 import SubjectScoreRow from "./SubjectScoreRow";
 import DenemeScoreRing from "./DenemeScoreRing";
 import {
@@ -14,7 +14,7 @@ import {
   SubjectScoreInput,
   estimateP3Score,
 } from "@/lib/denemeUtils";
-import { TOTAL_QUESTIONS, getSubjectConfig } from "@/lib/denemeConfig";
+import { TOTAL_QUESTIONS, getSubjectConfig, DENEME_SUBJECTS } from "@/lib/denemeConfig";
 import DenemeAlert from "./DenemeAlert";
 
 type Props = {
@@ -44,6 +44,8 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [examType, setExamType] = useState<"genel" | "brans">(initial?.examType ?? "genel");
   const [bransSubjectId, setBransSubjectId] = useState<string>(initial?.bransSubjectId ?? "");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [hoveredSubjectId, setHoveredSubjectId] = useState<string | null>(null);
   const [name, setName] = useState(initial?.name ?? "");
   const [date, setDate] = useState(initial?.date ?? format(new Date(), "yyyy-MM-dd"));
   const [publisher, setPublisher] = useState(initial?.publisher ?? "");
@@ -58,9 +60,6 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
         if (s.subjectId !== subjectId) return s;
         const config = getSubjectConfig(subjectId);
         let questionCount = config?.questionCount ?? 0;
-        if (examType === "brans" && subjectId === "matematik") {
-          questionCount = 30;
-        }
 
         if (field === "correct") {
           const newCorrect = value;
@@ -189,21 +188,67 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
 
                 <div className="grid sm:grid-cols-2 gap-x-6 gap-y-7">
                   {examType === "brans" && (
-                    <div className="sm:col-span-2 space-y-2">
+                    <div className="sm:col-span-2 space-y-2 relative">
                       <span className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Branş Seçimi *</span>
-                      <select 
-                        value={bransSubjectId} 
-                        onChange={(e) => setBransSubjectId(e.target.value)}
-                        className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 outline-none focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all cursor-pointer appearance-none"
-                        required
-                      >
-                        <option value="" disabled>Lütfen bir branş seçin...</option>
-                        {result.subjects.filter(s => s.subjectId !== "geometri").map(s => (
-                          <option key={s.subjectId} value={s.subjectId}>
-                            {s.title} ({s.subjectId === "matematik" ? 30 : s.questionCount} Soru)
-                          </option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                          className="w-full flex items-center justify-between bg-slate-50 border border-slate-200/60 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 outline-none hover:bg-slate-100/80 focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all text-left"
+                        >
+                          <span className={bransSubjectId ? "text-slate-800" : "text-slate-400"}>
+                            {bransSubjectId 
+                              ? result.subjects.find(s => s.subjectId === bransSubjectId)?.title + ` (${result.subjects.find(s => s.subjectId === bransSubjectId)?.subjectId === "matematik" ? 30 : result.subjects.find(s => s.subjectId === bransSubjectId)?.questionCount} Soru)`
+                              : "Lütfen bir branş seçin..."}
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
+                        
+                        <AnimatePresence>
+                          {isDropdownOpen && (
+                            <>
+                              <div 
+                                className="fixed inset-0 z-40" 
+                                onClick={() => setIsDropdownOpen(false)}
+                              />
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute top-full mt-2 w-full bg-white border border-slate-200 shadow-2xl rounded-2xl overflow-hidden z-50 py-1"
+                              >
+                                {result.subjects.filter(s => s.subjectId !== "geometri").map((s) => {
+                                  const subjectColor = DENEME_SUBJECTS.find(ds => ds.id === s.subjectId)?.color || "#3b82f6";
+                                  const isSelected = bransSubjectId === s.subjectId;
+                                  const isHovered = hoveredSubjectId === s.subjectId;
+                                  
+                                  return (
+                                    <button
+                                      key={s.subjectId}
+                                      type="button"
+                                      onClick={() => {
+                                        setBransSubjectId(s.subjectId);
+                                        setIsDropdownOpen(false);
+                                      }}
+                                      onMouseEnter={() => setHoveredSubjectId(s.subjectId)}
+                                      onMouseLeave={() => setHoveredSubjectId(null)}
+                                      className="w-full text-left px-5 py-3 text-sm font-bold transition-all"
+                                      style={{
+                                        backgroundColor: isSelected || isHovered ? `${subjectColor}15` : "transparent",
+                                        color: isSelected || isHovered ? subjectColor : undefined
+                                      }}
+                                    >
+                                      {s.title} ({s.subjectId === "matematik" ? 30 : s.questionCount} Soru)
+                                      {isSelected && <Check className="w-4 h-4 inline-block float-right mt-0.5" style={{ color: subjectColor }} />}
+                                    </button>
+                                  );
+                                })}
+                              </motion.div>
+                            </>
+                          )}
+                        </AnimatePresence>
+                      </div>
                     </div>
                   )}
 

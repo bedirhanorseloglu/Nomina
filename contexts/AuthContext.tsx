@@ -5,7 +5,7 @@ import { User, signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged }
 import { auth, googleProvider } from "@/lib/firebase";
 import { loadDenemeler, loadTargetNet, saveDenemeler } from "@/lib/denemeStorage";
 import { loadFromFirebase, saveDenemeDataToFirebase, updateUserProfile } from "@/lib/firebaseService";
-import { updateLeaderboard } from "@/lib/leaderboardService";
+import { updateLeaderboard, updateBranchLeaderboard } from "@/lib/leaderboardService";
 import { evaluateDeneme, averageNet } from "@/lib/denemeUtils";
 interface AuthContextType {
   user: User | null;
@@ -54,6 +54,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               const avg = averageNet(genelDenemeler);
               const max = Math.max(...nets);
               updateLeaderboard(currentUser.uid, currentUser.displayName, currentUser.photoURL, avg, max, genelDenemeler.length);
+            }
+
+            // Update branch leaderboards
+            const bransDenemeler = mergedDenemeler.filter((d: any) => d.examType === "brans" && d.bransSubjectId);
+            const bransGroups = bransDenemeler.reduce((acc: any, d: any) => {
+              if (!acc[d.bransSubjectId]) acc[d.bransSubjectId] = [];
+              acc[d.bransSubjectId].push(d);
+              return acc;
+            }, {});
+
+            for (const subjectId in bransGroups) {
+              const subjectDenemeler = bransGroups[subjectId];
+              const nets = subjectDenemeler.map((d: any) => {
+                const score = d.scores.find((s: any) => s.subjectId === subjectId);
+                return score ? score.correct - (score.wrong / 4) : 0;
+              });
+              const avg = nets.reduce((a: number, b: number) => a + b, 0) / nets.length;
+              const max = Math.max(...nets);
+              updateBranchLeaderboard(currentUser.uid, currentUser.displayName, currentUser.photoURL, subjectId, avg, max, subjectDenemeler.length);
             }
           } catch (error) {
             console.error("Global sync failed:", error);

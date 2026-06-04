@@ -70,8 +70,39 @@ function HomeContent() {
       if (user?.uid) {
         const remote = await loadFromFirebase(user.uid)
         if (remote) {
-          setData(remote)
-          saveData(remote)
+          const merged = { ...local, ...remote }
+          
+          // Deep merge subjects to preserve progress if one side was wiped
+          if (local.subjects && remote.subjects) {
+            merged.subjects = local.subjects.map(localSub => {
+              const remoteSub = remote.subjects!.find((s: any) => s.id === localSub.id)
+              if (!remoteSub) return localSub
+              return {
+                ...localSub,
+                topics: localSub.topics.map(localTopic => {
+                  const remoteTopic = remoteSub.topics.find((t: any) => t.id === localTopic.id)
+                  return {
+                    ...localTopic,
+                    done: localTopic.done || (remoteTopic ? remoteTopic.done : false)
+                  }
+                })
+              }
+            })
+          } else if (!remote.subjects) {
+            merged.subjects = local.subjects
+          }
+          
+          if (!remote.denemeler) merged.denemeler = local.denemeler
+          if (!remote.dailyGoals) merged.dailyGoals = local.dailyGoals
+          if (!remote.slotNotes) merged.slotNotes = local.slotNotes
+          if (!remote.completedNotes) merged.completedNotes = local.completedNotes
+          if (!remote.holidays) merged.holidays = local.holidays
+          if (remote.dailyGoalTarget === undefined) merged.dailyGoalTarget = local.dailyGoalTarget
+          if (remote.streak === undefined) merged.streak = local.streak
+          if (!remote.lastActiveDate) merged.lastActiveDate = local.lastActiveDate
+          
+          setData(merged)
+          saveData(merged)
         }
       }
       isInitialLoad.current = false

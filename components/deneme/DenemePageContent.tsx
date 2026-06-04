@@ -21,9 +21,10 @@ import {
 } from "@/lib/denemeStorage";
 import { DenemeRecord } from "@/lib/denemeUtils";
 import { loadFromFirebase, saveDenemeDataToFirebase } from "@/lib/firebaseService";
-import { averageNet, evaluateDeneme, formatNet } from "@/lib/denemeUtils";
+import { averageNet, evaluateDeneme, formatNet, migrateDenemeler } from "@/lib/denemeUtils";
 import { useAuth } from "@/contexts/AuthContext";
-import { updateLeaderboard } from "@/lib/leaderboardService";
+import { updateLeaderboard, updateBranchLeaderboard, removeFromLeaderboard, removeFromBranchLeaderboard } from "@/lib/leaderboardService";
+import { DENEME_SUBJECTS } from "@/lib/denemeConfig";
 
 type Tab = "yeni" | "gecmis" | "analiz";
 
@@ -45,15 +46,16 @@ export default function DenemePageContent() {
 
   useEffect(() => {
     const init = async () => {
-      const localDenemeler = loadDenemeler();
+      const localDenemeler = migrateDenemeler(loadDenemeler());
       const localTarget = loadTargetNet();
       setDenemeler(localDenemeler);
+      saveDenemeler(localDenemeler);
       setTargetNet(localTarget);
 
       if (user?.uid) {
         const remote = await loadFromFirebase(user.uid);
-        if (remote?.denemeler && remote.denemeler.length > 0) {
-          const remoteDenemeler = remote.denemeler as DenemeRecord[];
+        if (remote?.denemeler !== undefined) {
+          const remoteDenemeler = migrateDenemeler(remote.denemeler as DenemeRecord[]);
           setDenemeler(remoteDenemeler);
           saveDenemeler(remoteDenemeler);
         }
@@ -83,6 +85,33 @@ export default function DenemePageContent() {
         const avg = averageNet(genelDenemeler);
         const max = Math.max(...nets);
         updateLeaderboard(user.uid, user.displayName, user.photoURL, avg, max, genelDenemeler.length);
+      } else {
+        removeFromLeaderboard(user.uid);
+      }
+
+      // Update branch leaderboards
+      const bransDenemeler = denemeler.filter((d) => d.examType === "brans" && d.bransSubjectId);
+      const bransGroups = bransDenemeler.reduce((acc: any, d: any) => {
+        if (!acc[d.bransSubjectId]) acc[d.bransSubjectId] = [];
+        acc[d.bransSubjectId].push(d);
+        return acc;
+      }, {});
+
+      for (const subject of DENEME_SUBJECTS) {
+        const subjectId = subject.id;
+        const subjectDenemeler = bransGroups[subjectId];
+        
+        if (subjectDenemeler && subjectDenemeler.length > 0) {
+          const nets = subjectDenemeler.map((d: any) => {
+            const score = d.scores.find((s: any) => s.subjectId === subjectId);
+            return score ? score.correct - (score.wrong / 4) : 0;
+          });
+          const avg = nets.reduce((a: number, b: number) => a + b, 0) / nets.length;
+          const max = Math.max(...nets);
+          updateBranchLeaderboard(user.uid, user.displayName, user.photoURL, subjectId, avg, max, subjectDenemeler.length);
+        } else {
+          removeFromBranchLeaderboard(user.uid, subjectId);
+        }
       }
     }
   }, [denemeler, targetNet, loaded, user]);
@@ -210,34 +239,6 @@ export default function DenemePageContent() {
               </p>
             </div>
 
-            {/* View Toggle */}
-            <div className="shrink-0">
-              <div className="relative flex bg-gray-100 dark:bg-[#1e293b] rounded-full p-1 border border-gray-200/50 dark:border-white/5">
-                <motion.div
-                  className="absolute top-1 bottom-1 w-[calc(50%-2px)] rounded-full bg-gray-900 dark:bg-blue-500 shadow-md"
-                  animate={{ x: viewType === "genel" ? 0 : "calc(100% + 4px)" }}
-                  transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                />
-                <button
-                  type="button"
-                  onClick={() => setViewType("genel")}
-                  className={`relative z-10 w-28 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors duration-200 cursor-pointer text-center ${
-                    viewType === "genel" ? "text-white" : "text-gray-500"
-                  }`}
-                >
-                  Genel
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setViewType("brans")}
-                  className={`relative z-10 w-28 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-colors duration-200 cursor-pointer text-center ${
-                    viewType === "brans" ? "text-white" : "text-gray-500"
-                  }`}
-                >
-                  Branş
-                </button>
-              </div>
-            </div>
           </div>
         </motion.section>
 
