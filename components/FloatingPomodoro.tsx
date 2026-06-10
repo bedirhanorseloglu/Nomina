@@ -101,28 +101,26 @@ export default function FloatingPomodoro() {
     // Restore timer state
     const savedIsActive = localStorage.getItem("pomodoro_is_active") === "true";
     const savedMode = localStorage.getItem("pomodoro_mode") as Mode;
-    if (savedMode) {
-      // "focus" modunu kaldırıyoruz, eski kullanıcılar için "stopwatch"a yönlendiriyoruz
-      if (savedMode === "focus") {
-        setMode("stopwatch");
-      } else {
-        setMode(savedMode);
-      }
-    } else {
-      setMode("stopwatch");
-    }
+    const actualMode = savedMode === "focus" ? "stopwatch" : (savedMode || "stopwatch");
+    setMode(actualMode);
     
     // Set time left based on the resolved mode
-    const actualMode = savedMode === "focus" ? "stopwatch" : (savedMode || "stopwatch");
     const savedTime = localStorage.getItem("pomodoro_time_left");
-    if (savedTime) {
-      setTimeLeft(parseInt(savedTime, 10));
-    } else if (actualMode === "stopwatch") {
-      setTimeLeft(0);
-    } else if (actualMode === "break") {
-      setTimeLeft(parseInt(savedBreak || "5") * 60);
+    let initialTimeLeft = savedTime ? parseInt(savedTime, 10) : (actualMode === "stopwatch" ? 0 : parseInt(savedBreak || "5") * 60);
+
+    if (savedIsActive) {
+      const savedLastTick = localStorage.getItem("pomodoro_last_tick");
+      if (savedLastTick) {
+        const elapsedSeconds = Math.floor((Date.now() - parseInt(savedLastTick)) / 1000);
+        if (actualMode === "stopwatch") {
+          initialTimeLeft += elapsedSeconds;
+        } else {
+          initialTimeLeft = Math.max(0, initialTimeLeft - elapsedSeconds);
+        }
+      }
     }
-    
+
+    setTimeLeft(initialTimeLeft);
     setIsActive(savedIsActive);
     lastTickRef.current = Date.now();
     setIsRestored(true); 
@@ -160,43 +158,54 @@ export default function FloatingPomodoro() {
   useEffect(() => {
     if (isActive && (timeLeft > 0 || mode === "stopwatch")) {
       timerRef.current = setInterval(() => {
-        // Gece yarısı / Yeni gün kontrolü (Sekme açıkken saat 04:00'ı geçerse)
-        const currentDay = getStudyDay();
-        if (currentDay !== currentStudyDayRef.current) {
-           currentStudyDayRef.current = currentDay;
-           localStorage.setItem("pomodoro_last_date", currentDay);
-           localStorage.setItem("pomodoro_total_focus", "0");
-           localStorage.setItem("pomodoro_total_break", "0");
-           localStorage.setItem("pomodoro_laps", "0");
-           setTotalFocusMinutes(0);
-           setTotalBreakMinutes(0);
-           setLapsCompleted(0);
-        }
+        const now = Date.now();
+        const deltaMs = now - lastTickRef.current;
+        const deltaSeconds = Math.floor(deltaMs / 1000);
 
-        secondsElapsedRef.current += 1;
-        if (secondsElapsedRef.current >= 60) {
-           secondsElapsedRef.current = 0;
-           if (mode === "stopwatch") {
-              setTotalFocusMinutes(prev => {
-                const newVal = prev + 1;
-                localStorage.setItem("pomodoro_total_focus", newVal.toString());
-                return newVal;
-              });
-           } else {
-              setTotalBreakMinutes(prev => {
-                const newVal = prev + 1;
-                localStorage.setItem("pomodoro_total_break", newVal.toString());
-                return newVal;
-              });
-           }
+        if (deltaSeconds >= 1) {
+          // Gece yarısı / Yeni gün kontrolü
+          const currentDay = getStudyDay();
+          if (currentDay !== currentStudyDayRef.current) {
+             currentStudyDayRef.current = currentDay;
+             localStorage.setItem("pomodoro_last_date", currentDay);
+             localStorage.setItem("pomodoro_total_focus", "0");
+             localStorage.setItem("pomodoro_total_break", "0");
+             localStorage.setItem("pomodoro_laps", "0");
+             setTotalFocusMinutes(0);
+             setTotalBreakMinutes(0);
+             setLapsCompleted(0);
+          }
+
+          secondsElapsedRef.current += deltaSeconds;
+          if (secondsElapsedRef.current >= 60) {
+             const earnedMins = Math.floor(secondsElapsedRef.current / 60);
+             secondsElapsedRef.current = secondsElapsedRef.current % 60;
+             if (mode === "stopwatch") {
+                setTotalFocusMinutes(prev => {
+                  const newVal = prev + earnedMins;
+                  localStorage.setItem("pomodoro_total_focus", newVal.toString());
+                  return newVal;
+                });
+             } else {
+                setTotalBreakMinutes(prev => {
+                  const newVal = prev + earnedMins;
+                  localStorage.setItem("pomodoro_total_break", newVal.toString());
+                  return newVal;
+                });
+             }
+          }
+          
+          lastTickRef.current = now - (deltaMs % 1000);
+
+          setTimeLeft(prev => {
+             if (mode === "stopwatch") {
+                 return prev + deltaSeconds;
+             } else {
+                 return prev > deltaSeconds ? prev - deltaSeconds : 0;
+             }
+          });
         }
-        
-        if (mode === "stopwatch") {
-          setTimeLeft(prev => prev + 1);
-        } else {
-          setTimeLeft(prev => prev - 1);
-        }
-      }, 1000);
+      }, 500);
     } else if (timeLeft === 0 && isActive && mode !== "stopwatch") {
       const audio = new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg");
       audio.volume = 1.0; 
@@ -293,7 +302,7 @@ export default function FloatingPomodoro() {
   
   let progress = 0;
   if (mode === "stopwatch") {
-    progress = (timeLeft % 60) / 60 * 100;
+    progress = (timeLeft % 3600) / 3600 * 100; // 1 saatte tamamlanır
   } else {
     const totalSeconds = breakDuration * 60;
     progress = ((totalSeconds - timeLeft) / totalSeconds) * 100;
