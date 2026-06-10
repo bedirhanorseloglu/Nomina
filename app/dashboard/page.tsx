@@ -70,10 +70,11 @@ function HomeContent() {
       if (user?.uid) {
         const remote = await loadFromFirebase(user.uid)
         if (remote) {
-          const merged = { ...local, ...remote }
-          
-          // Deep merge subjects to preserve progress if one side was wiped
-          if (local.subjects && remote.subjects) {
+          // Start with local as base, only overwrite fields where remote has REAL data
+          const merged: AppData = { ...local }
+
+          // subjects: deep merge, local.done OR remote.done (her ikisinden de ilerleme korunur)
+          if (remote.subjects && remote.subjects.length > 0) {
             merged.subjects = local.subjects.map(localSub => {
               const remoteSub = remote.subjects!.find((s: any) => s.id === localSub.id)
               if (!remoteSub) return localSub
@@ -83,24 +84,59 @@ function HomeContent() {
                   const remoteTopic = remoteSub.topics.find((t: any) => t.id === localTopic.id)
                   return {
                     ...localTopic,
-                    done: localTopic.done || (remoteTopic ? remoteTopic.done : false)
+                    done: localTopic.done || (remoteTopic ? remoteTopic.done : false),
+                    schedules: (remoteTopic?.schedules?.length ?? 0) > (localTopic.schedules?.length ?? 0)
+                      ? remoteTopic!.schedules
+                      : localTopic.schedules,
                   }
                 })
               }
             })
-          } else if (!remote.subjects) {
-            merged.subjects = local.subjects
           }
-          
-          if (!remote.denemeler) merged.denemeler = local.denemeler
-          if (!remote.dailyGoals) merged.dailyGoals = local.dailyGoals
-          if (!remote.slotNotes) merged.slotNotes = local.slotNotes
-          if (!remote.completedNotes) merged.completedNotes = local.completedNotes
-          if (!remote.holidays) merged.holidays = local.holidays
-          if (remote.dailyGoalTarget === undefined) merged.dailyGoalTarget = local.dailyGoalTarget
-          if (remote.streak === undefined) merged.streak = local.streak
-          if (!remote.lastActiveDate) merged.lastActiveDate = local.lastActiveDate
-          
+
+          // denemeler: en uzun listeyi kullan (daha fazla deneme = daha doğru)
+          const remoteDenemeler = remote.denemeler ?? []
+          const localDenemeler = local.denemeler ?? []
+          merged.denemeler = remoteDenemeler.length >= localDenemeler.length
+            ? remoteDenemeler
+            : localDenemeler
+
+          // denemeTargetNet: remote varsa kullan
+          if (remote.denemeTargetNet !== undefined) {
+            merged.denemeTargetNet = remote.denemeTargetNet
+          }
+
+          // dailyGoals: her iki taraftaki günleri birleştir
+          merged.dailyGoals = { ...(local.dailyGoals || {}), ...(remote.dailyGoals || {}) }
+
+          // slotNotes: her iki taraftaki notları birleştir
+          merged.slotNotes = { ...(local.slotNotes || {}), ...(remote.slotNotes || {}) }
+
+          // completedNotes: her iki taraftaki tamamlananları birleştir
+          merged.completedNotes = { ...(local.completedNotes || {}), ...(remote.completedNotes || {}) }
+
+          // holidays: en uzun listeyi kullan
+          const remoteHolidays = remote.holidays ?? []
+          const localHolidays = local.holidays ?? []
+          merged.holidays = remoteHolidays.length >= localHolidays.length ? remoteHolidays : localHolidays
+
+          // streak: büyük olan değeri koru
+          merged.streak = Math.max(local.streak ?? 0, remote.streak ?? 0)
+
+          // dailyGoalTarget: remote varsa kullan, yoksa local
+          if (remote.dailyGoalTarget !== undefined) {
+            merged.dailyGoalTarget = remote.dailyGoalTarget
+          }
+
+          // lastActiveDate: en güncel tarihi kullan
+          if (remote.lastActiveDate && local.lastActiveDate) {
+            merged.lastActiveDate = remote.lastActiveDate > local.lastActiveDate
+              ? remote.lastActiveDate
+              : local.lastActiveDate
+          } else {
+            merged.lastActiveDate = remote.lastActiveDate || local.lastActiveDate
+          }
+
           setData(merged)
           saveData(merged)
         }
