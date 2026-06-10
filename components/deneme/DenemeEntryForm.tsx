@@ -23,7 +23,6 @@ type Props = {
     name: string;
     date: string;
     publisher?: string;
-    note?: string;
     scores: SubjectScoreInput[];
     examType?: "genel" | "brans";
     bransSubjectId?: string;
@@ -33,7 +32,6 @@ type Props = {
     name: string;
     date: string;
     publisher?: string;
-    note?: string;
     scores: SubjectScoreInput[];
     examType?: "genel" | "brans";
     bransSubjectId?: string;
@@ -49,7 +47,6 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
   const [name, setName] = useState(initial?.name ?? "");
   const [date, setDate] = useState(initial?.date ?? format(new Date(), "yyyy-MM-dd"));
   const [publisher, setPublisher] = useState(initial?.publisher ?? "");
-  const [note, setNote] = useState(initial?.note ?? "");
   const [scores, setScores] = useState<SubjectScoreInput[]>(initial?.scores ?? createEmptyScores());
 
   const result = useMemo(() => evaluateDeneme(scores, examType), [scores, examType]);
@@ -89,7 +86,6 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
       name: name.trim(),
       date,
       publisher: publisher.trim() || undefined,
-      note: note.trim() || undefined,
       scores,
       examType,
       bransSubjectId: examType === "brans" ? bransSubjectId : undefined,
@@ -98,7 +94,6 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
     if (!initial) {
       setName("");
       setPublisher("");
-      setNote("");
       setScores(createEmptyScores());
       setStep(1);
     }
@@ -285,12 +280,12 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                   </div>
 
                   <div className="sm:col-span-2 space-y-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Notlar (Opsiyonel)</span>
-                    <textarea
-                      value={note}
-                      onChange={(e) => setNote(e.target.value)}
-                      placeholder="Bu deneme ile ilgili tespitlerinizi buraya not alabilirsiniz..."
-                      className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-5 py-4 text-sm font-semibold text-slate-700 placeholder:text-slate-400 outline-none focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all resize-none min-h-[100px]"
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-1.5"><Tag className="w-3.5 h-3.5"/> Yayınevi</span>
+                    <input
+                      value={publisher}
+                      onChange={(e) => setPublisher(e.target.value)}
+                      placeholder="Örn: Yargı, Yediiklim"
+                      className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all"
                     />
                   </div>
                 </div>
