@@ -253,8 +253,14 @@ export default function FloatingPomodoro() {
   const requestModeChange = (newMode: Mode) => {
     if (mode === newMode) return;
     
-    if (mode === "stopwatch") {
-      if (newMode === "break") {
+    let isAborting = false;
+    if (mode === "break" && timeLeft > 0) isAborting = true;
+    if (mode === "stopwatch" && timeLeft > 0) isAborting = true;
+
+    if (isAborting && !isFinishedAlert) {
+      setPendingMode(newMode);
+    } else {
+      if (mode === "stopwatch" && newMode === "break") {
          const workedMins = Math.floor(timeLeft / 60);
          if (workedMins >= 1) {
             const earnedMins = Math.max(1, Math.round(workedMins * (breakDuration / focusDuration)));
@@ -263,26 +269,16 @@ export default function FloatingPomodoro() {
          }
       }
       changeMode(newMode);
-      return;
-    }
-
-    let isAborting = false;
-    if (mode === "break" && timeLeft < breakDuration * 60) isAborting = true;
-
-    if (isAborting && !isFinishedAlert) {
-      setPendingMode(newMode);
-    } else {
-      changeMode(newMode);
     }
   };
 
   const getStopwatchColor = (seconds: number) => {
     const m = Math.floor(seconds / 60);
-    if (m < 5) return { text: "text-blue-500", textDark: "dark:text-blue-400", bg: "bg-blue-500", glow: "bg-blue-500/50", shadow: "shadow-blue-500/40" };
-    if (m < 15) return { text: "text-emerald-500", textDark: "dark:text-emerald-400", bg: "bg-emerald-500", glow: "bg-emerald-500/50", shadow: "shadow-emerald-500/40" };
+    if (m < 15) return { text: "text-rose-500", textDark: "dark:text-rose-400", bg: "bg-rose-500", glow: "bg-rose-500/50", shadow: "shadow-rose-500/40" };
     if (m < 30) return { text: "text-amber-500", textDark: "dark:text-amber-400", bg: "bg-amber-500", glow: "bg-amber-500/50", shadow: "shadow-amber-500/40" };
-    if (m < 60) return { text: "text-rose-500", textDark: "dark:text-rose-400", bg: "bg-rose-500", glow: "bg-rose-500/50", shadow: "shadow-rose-500/40" };
-    return { text: "text-purple-500", textDark: "dark:text-purple-400", bg: "bg-purple-500", glow: "bg-purple-500/50", shadow: "shadow-purple-500/40" };
+    if (m < 45) return { text: "text-lime-500", textDark: "dark:text-lime-400", bg: "bg-lime-500", glow: "bg-lime-500/50", shadow: "shadow-lime-500/40" };
+    if (m < 60) return { text: "text-emerald-500", textDark: "dark:text-emerald-400", bg: "bg-emerald-500", glow: "bg-emerald-500/50", shadow: "shadow-emerald-500/40" };
+    return { text: "text-teal-500", textDark: "dark:text-teal-400", bg: "bg-teal-500", glow: "bg-teal-500/50", shadow: "shadow-teal-500/40" };
   };
 
   const swColor = getStopwatchColor(mode === "stopwatch" ? timeLeft : 0);
@@ -434,8 +430,12 @@ export default function FloatingPomodoro() {
                           <RotateCcw className="w-5 h-5 text-rose-500" />
                         </div>
                         <div>
-                          <h4 className="text-sm font-black text-slate-800 dark:text-slate-200 mb-1">Seansı İptal Et?</h4>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">Mevcut seansınız henüz tamamlanmadı. Yeni moda geçerseniz bu seans iptal edilecek.</p>
+                          <h4 className="text-sm font-black text-slate-800 dark:text-slate-200 mb-1">
+                             {mode === "stopwatch" ? "Dersi bitirmek ister misin?" : "Seansı İptal Et?"}
+                          </h4>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                             {mode === "stopwatch" ? "Mevcut çalışmanız sonlandırılıp molaya geçilecek." : "Mevcut seansınız henüz tamamlanmadı. Yeni moda geçerseniz bu seans iptal edilecek."}
+                          </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 mt-5">
@@ -446,8 +446,20 @@ export default function FloatingPomodoro() {
                           İptal
                         </button>
                         <button 
-                          onClick={() => { changeMode(pendingMode); setPendingMode(null); }}
-                          className="flex-1 py-2.5 text-xs font-bold text-white bg-rose-500 rounded-xl hover:bg-rose-600 transition-colors shadow-md shadow-rose-500/20"
+                          onClick={() => {
+                            if (mode === "stopwatch" && pendingMode === "break") {
+                                const workedMins = Math.floor(timeLeft / 60);
+                                if (workedMins >= 1) {
+                                    const earnedMins = Math.max(1, Math.round(workedMins * (breakDuration / focusDuration)));
+                                    setEarnedBreakData({ workedMins, earnedMins });
+                                    setPendingMode(null);
+                                    return;
+                                }
+                            }
+                            if (pendingMode) changeMode(pendingMode);
+                            setPendingMode(null);
+                          }}
+                          className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-amber-500 hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/30"
                         >
                           Yine de Geç
                         </button>
