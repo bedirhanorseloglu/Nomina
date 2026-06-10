@@ -272,12 +272,7 @@ export default function FloatingPomodoro() {
   };
 
   const getStopwatchColor = (seconds: number) => {
-    const m = Math.floor(seconds / 60);
-    if (m < 15) return { text: "text-rose-500", textDark: "dark:text-rose-400", bg: "bg-rose-500", glow: "bg-rose-500/50", shadow: "shadow-rose-500/40" };
-    if (m < 30) return { text: "text-amber-500", textDark: "dark:text-amber-400", bg: "bg-amber-500", glow: "bg-amber-500/50", shadow: "shadow-amber-500/40" };
-    if (m < 45) return { text: "text-lime-500", textDark: "dark:text-lime-400", bg: "bg-lime-500", glow: "bg-lime-500/50", shadow: "shadow-lime-500/40" };
-    if (m < 60) return { text: "text-emerald-500", textDark: "dark:text-emerald-400", bg: "bg-emerald-500", glow: "bg-emerald-500/50", shadow: "shadow-emerald-500/40" };
-    return { text: "text-teal-500", textDark: "dark:text-teal-400", bg: "bg-teal-500", glow: "bg-teal-500/50", shadow: "shadow-teal-500/40" };
+    return { text: "text-[#1cb0f6]", textDark: "dark:text-[#1cb0f6]", bg: "bg-[#1cb0f6]", glow: "bg-[#1cb0f6]/50", shadow: "shadow-[#1cb0f6]/40" };
   };
 
   const swColor = getStopwatchColor(mode === "stopwatch" ? timeLeft : 0);
@@ -344,7 +339,7 @@ export default function FloatingPomodoro() {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0, opacity: 0, y: 20 }}
             onClick={() => { setIsOpen(true); setIsFinishedAlert(false); }}
-            className="fixed bottom-6 right-6 z-50 overflow-hidden flex items-center gap-3 bg-white dark:bg-slate-900 text-slate-800 dark:text-white px-5 py-4 rounded-full shadow-2xl hover:scale-105 transition-all border border-slate-200/50 dark:border-slate-800/50 group backdrop-blur-md"
+            className="fixed bottom-6 right-6 z-50 overflow-hidden flex items-center gap-3 bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-6 py-4 rounded-[1.5rem] shadow-xl hover:scale-105 transition-all border-2 border-slate-200 dark:border-slate-700 border-b-[6px] group"
           >
             {isActive && (
                <div 
@@ -354,10 +349,10 @@ export default function FloatingPomodoro() {
             )}
 
             <div className="relative flex items-center justify-center z-10">
-              <div className={`absolute inset-0 rounded-full blur-md ${isActive ? (mode === 'stopwatch' ? swColor.glow : 'bg-orange-500/50') : 'bg-accent/30'} group-hover:blur-xl transition-all`} />
-              <Timer className={`w-5 h-5 relative z-10 ${isActive ? (mode === 'stopwatch' ? swColor.text : 'text-orange-500') : 'text-accent'}`} />
+              <div className={`absolute inset-0 rounded-full blur-md ${isActive ? (mode === 'stopwatch' ? swColor.glow : 'bg-[#58cc02]/50') : 'bg-accent/30'} group-hover:blur-xl transition-all`} />
+              <Timer className={`w-5 h-5 relative z-10 ${isActive ? (mode === 'stopwatch' ? swColor.text : 'text-[#58cc02]') : 'text-accent'}`} />
               {isActive && (
-                <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full animate-ping z-20 ${mode === 'stopwatch' ? swColor.bg : 'bg-orange-500'}`} />
+                <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full animate-ping z-20 ${mode === 'stopwatch' ? swColor.bg : 'bg-[#58cc02]'}`} />
               )}
             </div>
             
@@ -383,15 +378,15 @@ export default function FloatingPomodoro() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-6 right-6 z-50 w-[360px] bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/50 dark:border-slate-800/50 rounded-[2.5rem] shadow-2xl overflow-hidden"
+            className="fixed bottom-6 right-6 z-50 w-[360px] bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 border-b-[8px] rounded-[2rem] shadow-2xl overflow-hidden"
           >
-            <div className="flex items-center justify-between p-5 pb-0">
-              <div className="flex items-center gap-3 bg-slate-100 dark:bg-slate-800/50 px-3 py-1.5 rounded-full border border-slate-200/50 dark:border-slate-700/50">
+            <div className="flex items-center justify-between p-6 pb-2">
+              <div className="flex items-center gap-2 bg-slate-50 dark:bg-slate-900 px-4 py-2 rounded-2xl border-2 border-slate-200 dark:border-slate-700 border-b-4">
                 <div className="relative flex items-center justify-center">
-                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse absolute" />
-                  <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
+                  <div className="w-3 h-3 bg-[#58cc02] rounded-full animate-pulse absolute" />
+                  <div className="w-3 h-3 bg-[#58cc02] rounded-full" />
                 </div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-slate-600 dark:text-slate-300">
+                <span className="text-[11px] font-black uppercase tracking-widest text-slate-700 dark:text-slate-200">
                   Canlı Çalışma
                 </span>
               </div>
@@ -420,24 +415,24 @@ export default function FloatingPomodoro() {
                     exit={{ opacity: 0 }}
                     className="absolute inset-0 z-50 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-5"
                   >
-                    <div className="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-2xl border border-rose-100 dark:border-rose-900/50 w-full transform transition-all">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-full bg-rose-100 dark:bg-rose-500/20 flex items-center justify-center shrink-0">
-                          <RotateCcw className="w-5 h-5 text-rose-500" />
+                    <div className="bg-white dark:bg-slate-800 p-6 rounded-[2rem] border-2 border-slate-200 dark:border-slate-700 border-b-[6px] shadow-2xl w-full transform transition-all">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-[#ff4b4b]/10 flex items-center justify-center shrink-0 border-2 border-[#ff4b4b]/20">
+                          <RotateCcw className="w-6 h-6 text-[#ff4b4b]" />
                         </div>
-                        <div>
-                          <h4 className="text-sm font-black text-slate-800 dark:text-slate-200 mb-1">
+                        <div className="pt-1">
+                          <h4 className="text-base font-black text-slate-700 dark:text-slate-100 mb-1.5 leading-tight">
                              {mode === "stopwatch" ? "Dersi bitirmek ister misin?" : "Seansı İptal Et?"}
                           </h4>
-                          <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
+                          <p className="text-[11px] font-bold text-slate-400 dark:text-slate-500 leading-relaxed">
                              {mode === "stopwatch" ? "Mevcut çalışmanız sonlandırılıp molaya geçilecek." : "Mevcut seansınız henüz tamamlanmadı. Yeni moda geçerseniz bu seans iptal edilecek."}
                           </p>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2 mt-5">
+                      <div className="flex items-center gap-3 mt-6">
                         <button 
                           onClick={() => setPendingMode(null)}
-                          className="flex-1 py-3 px-4 text-sm font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
+                          className="flex-1 py-3.5 px-2 text-[13px] font-black text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-800 rounded-2xl border-2 border-slate-200 dark:border-slate-700 border-b-4 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:border-b-2 active:translate-y-[2px]"
                         >
                           {mode === "stopwatch" ? "Derse Devam Et 🚀" : "Vazgeç"}
                         </button>
@@ -455,7 +450,7 @@ export default function FloatingPomodoro() {
                             if (pendingMode) changeMode(pendingMode);
                             setPendingMode(null);
                           }}
-                          className="flex-1 py-3 px-4 text-sm font-bold text-white bg-amber-500 hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/30 rounded-xl"
+                          className="flex-1 py-3.5 px-2 text-[13px] font-black text-white bg-[#ff9600] rounded-2xl border-2 border-[#cc7800] border-b-4 hover:bg-[#e68700] transition-all active:border-b-2 active:translate-y-[2px]"
                         >
                           {mode === "stopwatch" ? "Molaya Çık ☕" : "Yine de Geç"}
                         </button>
@@ -543,18 +538,18 @@ export default function FloatingPomodoro() {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.2 }}
                   >
-                      <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 relative overflow-hidden group">
-                         <div className="absolute right-0 top-0 opacity-5">
-                            <Target className="w-24 h-24 -mr-4 -mt-4 text-emerald-500" />
+                      <div className="mb-6 p-5 bg-white dark:bg-slate-800 rounded-3xl border-2 border-slate-200 dark:border-slate-700 border-b-[6px] relative overflow-hidden group">
+                         <div className="absolute right-0 top-0 opacity-[0.03]">
+                            <Target className="w-32 h-32 -mr-8 -mt-8 text-emerald-500" />
                          </div>
-                         <div className="flex justify-between items-end mb-3 relative z-10">
+                         <div className="flex justify-between items-end mb-4 relative z-10">
                             <div>
-                              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Günlük Hedef</div>
-                              <div className="text-sm font-black text-slate-800 dark:text-slate-100">
-                                 {Math.floor(displayTotalFocus/60)}s {displayTotalFocus%60}dk <span className="text-slate-400 text-xs">/ {Math.floor(dailyGoalMinutes/60)}s {dailyGoalMinutes%60 > 0 ? `${dailyGoalMinutes%60}dk` : ''}</span>
+                              <div className="text-[11px] font-black uppercase tracking-widest text-slate-400 mb-1">Günlük Hedef</div>
+                              <div className="text-base font-black text-slate-700 dark:text-slate-100">
+                                 {Math.floor(displayTotalFocus/60)}s {displayTotalFocus%60}dk <span className="text-slate-400 text-sm">/ {Math.floor(dailyGoalMinutes/60)}s {dailyGoalMinutes%60 > 0 ? `${dailyGoalMinutes%60}dk` : ''}</span>
                               </div>
                             </div>
-                            <div className="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/20 px-2.5 py-1.5 rounded-lg shadow-sm border border-emerald-200/50 dark:border-emerald-500/30 relative">
+                            <div className="text-sm font-black text-[#58cc02] bg-[#58cc02]/10 px-3 py-1.5 rounded-xl border-2 border-[#58cc02]/20 relative">
                                %{Math.min(100, Math.round((displayTotalFocus / dailyGoalMinutes) * 100))}
                                
                                <AnimatePresence>
@@ -564,7 +559,7 @@ export default function FloatingPomodoro() {
                                       animate={{ opacity: 1, y: -25, scale: 1.5 }}
                                       exit={{ opacity: 0, y: -35 }}
                                       transition={{ duration: 1.2, ease: "easeOut" }}
-                                      className="absolute -top-2 right-0 text-emerald-500 dark:text-emerald-400 font-black drop-shadow-md z-50 whitespace-nowrap"
+                                      className="absolute -top-2 right-0 text-[#58cc02] font-black drop-shadow-md z-50 whitespace-nowrap"
                                     >
                                       +{earnedBreakData.workedMins} dk
                                     </motion.div>
@@ -572,12 +567,12 @@ export default function FloatingPomodoro() {
                                </AnimatePresence>
                             </div>
                          </div>
-                         <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner">
+                         <div className="w-full h-4 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
                             <div 
-                               className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-1000 rounded-full relative"
+                               className="h-full bg-[#58cc02] transition-all duration-1000 rounded-full relative"
                                style={{ width: `${Math.min(100, (displayTotalFocus / dailyGoalMinutes) * 100)}%` }}
                             >
-                               <div className="absolute inset-0 bg-white/20 w-full h-full animate-[shimmer_2s_infinite]" />
+                               <div className="absolute inset-x-0 top-0 h-1/3 bg-white/20 rounded-full" />
                             </div>
                          </div>
                       </div>
@@ -643,23 +638,23 @@ export default function FloatingPomodoro() {
                       </AnimatePresence>
 
                     {/* Mode Tabs */}
-                    <div className="flex p-1.5 bg-slate-100/80 dark:bg-slate-800/80 rounded-2xl mb-8 border border-slate-200/50 dark:border-slate-700/50">
+                    <div className="flex p-2 bg-slate-50 dark:bg-slate-900 rounded-[1.5rem] mb-8 border-2 border-slate-200 dark:border-slate-700">
                       <button
                         onClick={() => requestModeChange("stopwatch")}
-                        className={`flex-1 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl transition-all ${
+                        className={`flex-1 py-3 text-sm font-black uppercase tracking-wider rounded-xl transition-all border-2 ${
                           mode === "stopwatch" 
-                            ? "bg-white dark:bg-slate-700 text-emerald-500 dark:text-emerald-400 shadow-sm" 
-                            : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                            ? "bg-white dark:bg-slate-800 text-[#1cb0f6] border-[#1cb0f6] border-b-4" 
+                            : "bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 border-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800"
                         }`}
                       >
                         Krono
                       </button>
                       <button
                         onClick={() => requestModeChange("break")}
-                        className={`flex-1 py-2 text-[11px] font-black uppercase tracking-wider rounded-xl transition-all ${
+                        className={`flex-1 py-3 text-sm font-black uppercase tracking-wider rounded-xl transition-all border-2 ${
                           mode === "break" 
-                            ? "bg-white dark:bg-slate-700 text-teal-500 dark:text-teal-400 shadow-sm" 
-                            : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+                            ? "bg-white dark:bg-slate-800 text-[#58cc02] border-[#58cc02] border-b-4" 
+                            : "bg-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 border-transparent hover:bg-slate-200/50 dark:hover:bg-slate-800"
                         }`}
                       >
                         Mola
@@ -690,60 +685,37 @@ export default function FloatingPomodoro() {
                       
                       {/* Timer Text Inside */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                         <p className={`text-5xl font-black font-mono tracking-tighter transition-colors duration-1000 ${mode === "focus" ? "text-emerald-500 dark:text-emerald-400" : (mode === "stopwatch" ? `${swColor.text} ${swColor.textDark}` : "text-orange-500 dark:text-orange-400")}`}>
+                         <p className={`${formatTime.length > 5 ? 'text-4xl' : 'text-5xl'} font-black font-mono tracking-tighter transition-colors duration-1000 ${mode === "focus" ? "text-emerald-500 dark:text-emerald-400" : (mode === "stopwatch" ? `${swColor.text} ${swColor.textDark}` : "text-[#58cc02] dark:text-[#58cc02]")}`}>
                            {formatTime}
                          </p>
-                         <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mt-2">
+                         <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mt-2">
                            {mode === "focus" ? "Kesintisiz Odak" : (mode === "stopwatch" ? "Serbest Çalışma" : "Dinlenme Vakti")}
                          </p>
                       </div>
                     </div>
 
                     {/* Controls */}
-                    <div className="flex items-center justify-center gap-6 mb-6">
+                    <div className="flex items-center justify-center gap-6 mb-4">
                        <button 
                          onClick={resetTimer}
-                         className="w-12 h-12 flex items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700 hover:text-slate-800 dark:hover:text-slate-200 transition-colors shadow-sm"
+                         className="w-16 h-16 flex items-center justify-center rounded-3xl bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-2 border-slate-200 dark:border-slate-700 border-b-4 hover:bg-slate-100 dark:hover:bg-slate-700 transition-all active:border-b-2 active:translate-y-[2px]"
                          title="Sıfırla"
                        >
-                         <RotateCcw className="w-5 h-5" />
+                         <RotateCcw className="w-6 h-6" />
                        </button>
                        <button 
                          onClick={toggleTimer}
-                         className={`w-16 h-16 flex items-center justify-center rounded-[2rem] text-white shadow-xl hover:scale-105 active:scale-95 transition-all ${
+                         className={`w-20 h-20 flex items-center justify-center rounded-[2.5rem] text-white border-2 border-b-[6px] hover:scale-105 active:border-b-2 active:translate-y-[4px] transition-all ${
                            isActive 
-                             ? "bg-slate-900 dark:bg-slate-100 dark:text-slate-900 shadow-slate-900/30 dark:shadow-slate-100/30" 
-                             : (mode === "focus" ? "bg-emerald-500 shadow-emerald-500/40" : (mode === "stopwatch" ? `${swColor.bg} ${swColor.shadow}` : "bg-orange-500 shadow-orange-500/40"))
+                             ? "bg-slate-800 border-slate-900 dark:bg-slate-100 dark:border-slate-300 dark:text-slate-900" 
+                             : (mode === "stopwatch" ? `bg-[#1cb0f6] border-[#1899d6]` : `bg-[#58cc02] border-[#58a700]`)
                          }`}
                        >
-                         {isActive ? <Pause className="w-7 h-7" fill="currentColor" /> : <Play className="w-7 h-7 ml-1" fill="currentColor" />}
+                         {isActive ? <Pause className="w-8 h-8" fill="currentColor" /> : <Play className="w-8 h-8 ml-1.5" fill="currentColor" />}
                        </button>
                     </div>
 
-                    {/* Visual Laps (Turlar) */}
-                    <div className="pt-5 mt-2 border-t border-slate-100 dark:border-slate-800/50">
-                      <div className="flex items-center justify-between mb-3">
-                         <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Tamamlanan Turlar</h4>
-                         <span className="text-xs font-black text-slate-700 dark:text-slate-300">{lapsCompleted} Tur</span>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                         {Array.from({ length: Math.ceil((lapsCompleted + 1) / 5) * 5 }).map((_, i) => (
-                            <div 
-                              key={i} 
-                              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all ${
-                                i < lapsCompleted 
-                                  ? 'bg-orange-100 dark:bg-orange-500/20 text-orange-500 shadow-sm border border-orange-200/50 dark:border-orange-500/30 scale-110' 
-                                  : 'bg-slate-100 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 border border-transparent'
-                              }`}
-                            >
-                               {i < lapsCompleted ? '🔥' : ''}
-                            </div>
-                         ))}
-                      </div>
-                       <p className="text-[8px] sm:text-[9px] text-slate-400 dark:text-slate-500 mt-4 leading-tight border-t border-slate-100 dark:border-slate-800/50 pt-2">
-                         * <span className="font-bold">Not:</span> Kronometre (serbest çalışma) modunda tur kazanılmaz; ancak çalışılan her dakika üstteki Günlük Hedefinize yansır.
-                       </p>
-                    </div>
+
 
                   </motion.div>
                 )}

@@ -385,7 +385,8 @@ export default function DenemeAnalytics({
                       cornerRadius: 16,
                       callbacks: {
                         label: (context) => {
-                          const val = context.datasetIndex === 0 ? context.parsed.y.toFixed(2) : context.parsed.y.toString();
+                          const yVal = context.parsed.y || 0;
+                          const val = context.datasetIndex === 0 ? yVal.toFixed(2) : yVal.toString();
                           return ` ${context.dataset.label}: ${val}`;
                         }
                       }
@@ -758,7 +759,8 @@ export default function DenemeAnalytics({
                       cornerRadius: 16,
                       callbacks: {
                         label: (context) => {
-                          const val = context.datasetIndex === 0 ? context.parsed.y.toFixed(2) : context.parsed.y.toString();
+                          const yVal = context.parsed.y || 0;
+                          const val = context.datasetIndex === 0 ? yVal.toFixed(2) : yVal.toString();
                           return ` ${context.dataset.label}: ${val}`;
                         }
                       }

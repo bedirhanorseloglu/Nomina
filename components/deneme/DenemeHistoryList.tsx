@@ -138,7 +138,7 @@ export default function DenemeHistoryList({
                               )}
                             </div>
                           </div>
-                          <div className="px-3 py-1.5 rounded-xl text-center shrink-0 ring-1" style={{ backgroundColor: `${subConfig.color}10`, ringColor: `${subConfig.color}20` }}>
+                          <div className="px-3 py-1.5 rounded-xl text-center shrink-0 border" style={{ backgroundColor: `${subConfig.color}10`, borderColor: `${subConfig.color}20` }}>
                             <span className="text-[10px] font-black uppercase block leading-tight opacity-80" style={{ color: subConfig.color }}>Net</span>
                             <span className="text-lg font-black font-mono leading-none" style={{ color: subConfig.color }}>
                               {formatNet(subRes.net)}
