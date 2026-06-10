@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { FileText, Brain, Compass, Calendar, Tag, Check, ArrowRight, ArrowLeft, ChevronDown } from "lucide-react";
+import { FileText, Brain, Compass, Calendar, Tag, Check, ArrowRight, ArrowLeft, ChevronDown, Globe, Target } from "lucide-react";
 import SubjectScoreRow from "./SubjectScoreRow";
 import DenemeScoreRing from "./DenemeScoreRing";
 import {
@@ -169,19 +169,94 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                   <p className="text-xs font-semibold text-slate-400 mt-1">Deneme türünü ve detaylarını belirleyin.</p>
                 </div>
 
-                {/* Apple Style Segmented Picker for Exam Type */}
+                {/* Clean Apple Style Exam Type Cards using Site Palette */}
                 <div className="space-y-3">
                   <span className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1">Deneme Türü</span>
-                  <div className="flex p-1 bg-slate-50 rounded-2xl border border-slate-200/50">
-                    <button type="button" onClick={() => setExamType("genel")}
-                      className={`relative flex-1 py-3 text-xs font-bold transition-colors rounded-xl ${examType === "genel" ? "text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>
-                      {examType === "genel" && <motion.div layoutId="examTypeBg" className="absolute inset-0 bg-white rounded-xl shadow-sm border border-slate-200/50" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-                      <span className="relative z-10">Genel Deneme</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    {/* Genel Deneme Kartı */}
+                    <button
+                      type="button"
+                      onClick={() => setExamType("genel")}
+                      className={`relative group flex flex-col items-start gap-3 p-4 rounded-2xl border-2 transition-all duration-200 text-left focus:outline-none
+                        ${examType === "genel"
+                          ? "border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 shadow-[0_0_0_4px_rgba(59,130,246,0.12)]"
+                          : "border-slate-200/70 bg-slate-50/80 hover:border-slate-300 hover:bg-white dark:border-slate-700 dark:bg-slate-800"
+                        }`}
+                    >
+                      {/* Seçili işareti */}
+                      <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
+                        ${examType === "genel" ? "border-blue-500 bg-blue-500" : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-700"}`}>
+                        {examType === "genel" && (
+                          <motion.svg initial={{ scale: 0 }} animate={{ scale: 1 }} width="10" height="10" viewBox="0 0 10 10" fill="none">
+                            <polyline points="1.5,5 4,7.5 8.5,2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                          </motion.svg>
+                        )}
+                      </div>
+
+                      {/* İkon */}
+                      <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center transition-all shadow-sm
+                        ${examType === "genel" ? "bg-blue-500 text-white shadow-blue-500/30" : "bg-white text-slate-400 border border-slate-200 dark:bg-slate-800 dark:border-slate-700"}`}>
+                        <Globe className="w-5 h-5" />
+                      </div>
+
+                      {/* Başlık + Açıklama */}
+                      <div>
+                        <p className={`text-sm font-black tracking-tight transition-colors ${examType === "genel" ? "text-blue-600 dark:text-blue-400" : "text-slate-700 dark:text-slate-300"}`}>
+                          Genel Deneme
+                        </p>
+                        <p className="text-[11px] font-semibold text-slate-400 mt-0.5 leading-snug">
+                          120 Soru • GY + GK
+                        </p>
+                      </div>
+
+                      {/* Alt etiket */}
+                      <div className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full transition-all
+                        ${examType === "genel" ? "bg-blue-100 text-blue-600 dark:bg-blue-900/40 dark:text-blue-300" : "bg-slate-200/60 text-slate-400 dark:bg-slate-800"}`}>
+                        Türkiye Geneli
+                      </div>
                     </button>
-                    <button type="button" onClick={() => { setExamType("brans"); setStep(1); }}
-                      className={`relative flex-1 py-3 text-xs font-bold transition-colors rounded-xl ${examType === "brans" ? "text-slate-900" : "text-slate-500 hover:text-slate-700"}`}>
-                      {examType === "brans" && <motion.div layoutId="examTypeBg" className="absolute inset-0 bg-white rounded-xl shadow-sm border border-slate-200/50" transition={{ type: "spring", stiffness: 400, damping: 30 }} />}
-                      <span className="relative z-10">Branş Denemesi</span>
+
+                    {/* Branş Denemesi Kartı */}
+                    <button
+                      type="button"
+                      onClick={() => { setExamType("brans"); setStep(1); }}
+                      className={`relative group flex flex-col items-start gap-3 p-4 rounded-2xl border-2 transition-all duration-200 text-left focus:outline-none
+                        ${examType === "brans"
+                          ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 shadow-[0_0_0_4px_rgba(99,102,241,0.12)]"
+                          : "border-slate-200/70 bg-slate-50/80 hover:border-slate-300 hover:bg-white dark:border-slate-700 dark:bg-slate-800"
+                        }`}
+                    >
+                      {/* Seçili işareti */}
+                      <div className={`absolute top-3 right-3 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all
+                        ${examType === "brans" ? "border-indigo-500 bg-indigo-500" : "border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-700"}`}>
+                        {examType === "brans" && (
+                          <motion.svg initial={{ scale: 0 }} animate={{ scale: 1 }} width="10" height="10" viewBox="0 0 10 10" fill="none">
+                            <polyline points="1.5,5 4,7.5 8.5,2.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+                          </motion.svg>
+                        )}
+                      </div>
+
+                      {/* İkon */}
+                      <div className={`w-11 h-11 rounded-[14px] flex items-center justify-center transition-all shadow-sm
+                        ${examType === "brans" ? "bg-indigo-500 text-white shadow-indigo-500/30" : "bg-white text-slate-400 border border-slate-200 dark:bg-slate-800 dark:border-slate-700"}`}>
+                        <Target className="w-5 h-5" />
+                      </div>
+
+                      {/* Başlık + Açıklama */}
+                      <div>
+                        <p className={`text-sm font-black tracking-tight transition-colors ${examType === "brans" ? "text-indigo-600 dark:text-indigo-400" : "text-slate-700 dark:text-slate-300"}`}>
+                          Branş Denemesi
+                        </p>
+                        <p className="text-[11px] font-semibold text-slate-400 mt-0.5 leading-snug">
+                          Tek ders odaklı
+                        </p>
+                      </div>
+
+                      {/* Alt etiket */}
+                      <div className={`text-[10px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full transition-all
+                        ${examType === "brans" ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/40 dark:text-indigo-300" : "bg-slate-200/60 text-slate-400 dark:bg-slate-800"}`}>
+                        Ders Bazlı
+                      </div>
                     </button>
                   </div>
                 </div>
