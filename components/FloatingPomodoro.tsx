@@ -254,7 +254,6 @@ export default function FloatingPomodoro() {
     if (mode === newMode) return;
     
     let isAborting = false;
-    if (mode === "break" && timeLeft > 0) isAborting = true;
     if (mode === "stopwatch" && timeLeft > 0) isAborting = true;
 
     if (isAborting && !isFinishedAlert) {
