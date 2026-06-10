@@ -443,7 +443,7 @@ export default function FloatingPomodoro() {
                           onClick={() => setPendingMode(null)}
                           className="flex-1 py-2.5 text-xs font-bold text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-700/50 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors"
                         >
-                          İptal
+                          {mode === "stopwatch" ? "Derse Devam Et 🚀" : "Vazgeç"}
                         </button>
                         <button 
                           onClick={() => {
@@ -461,7 +461,7 @@ export default function FloatingPomodoro() {
                           }}
                           className="flex-1 py-3 px-4 rounded-xl font-bold text-white bg-amber-500 hover:bg-amber-600 transition-colors shadow-lg shadow-amber-500/30"
                         >
-                          Yine de Geç
+                          {mode === "stopwatch" ? "Molaya Çık ☕" : "Yine de Geç"}
                         </button>
                       </div>
                     </div>
