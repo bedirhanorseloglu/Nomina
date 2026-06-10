@@ -59,11 +59,11 @@ export default function DenemePageContent() {
         const remote = await loadFromFirebase(user.uid);
         if (remote?.denemeler !== undefined) {
           const remoteDenemeler = migrateDenemeler(remote.denemeler as DenemeRecord[]);
-          let mergedDenemeler = local;
-          if (isLocalhost && local.length > 0) {
-             const localIds = new Set(local.map(d => d.id));
+          let mergedDenemeler = localDenemeler;
+          if (isLocalhost && localDenemeler.length > 0) {
+             const localIds = new Set(localDenemeler.map(d => d.id));
              const newRemotes = remoteDenemeler.filter(r => !localIds.has(r.id));
-             mergedDenemeler = [...local, ...newRemotes];
+             mergedDenemeler = [...localDenemeler, ...newRemotes];
           } else {
              mergedDenemeler = remoteDenemeler;
           }
