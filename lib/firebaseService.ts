@@ -1,5 +1,5 @@
 import { db } from "./firebase";
-import { doc, getDoc, getDocFromServer, setDoc, collection, query, where, getDocs, serverTimestamp, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, getDocFromServer, getDocFromCache, setDoc, collection, query, where, getDocs, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
@@ -19,6 +19,9 @@ function stripUndefined(obj: unknown): unknown {
     return obj.map(stripUndefined);
   }
   if (obj !== null && typeof obj === "object") {
+    if (obj.constructor && obj.constructor.name !== "Object" && obj.constructor.name !== "Array") {
+      return obj;
+    }
     return Object.fromEntries(
       Object.entries(obj as Record<string, unknown>)
         .filter(([, v]) => v !== undefined)
@@ -107,7 +110,7 @@ export const loadFromFirebase = async (userId: string): Promise<AppData | null> 
     // Sunucu erişimi başarısız olursa cache'den dene
     try {
       const docRef = doc(db, DATA_COLLECTION, userId);
-      const docSnap = await getDoc(docRef);
+      const docSnap = await getDocFromCache(docRef);
       if (docSnap.exists()) {
         console.log("✅ Firebase'den yüklendi (cache)");
         return docSnap.data() as AppData;
@@ -152,46 +155,12 @@ export const deleteUserAllData = async (userId: string): Promise<void> => {
     return;
   }
   const collections = ["user_data", "leaderboard", "active_users"];
-  await Promise.all(
-    collections.map((col) => deleteDoc(doc(db, col, userId)))
-  );
+  const branchSubjects = ["turkce", "matematik", "tarih", "cografya", "vatandaslik", "guncel"];
+
+  await Promise.all([
+    ...collections.map((col) => deleteDoc(doc(db, col, userId))),
+    ...branchSubjects.map((s) => deleteDoc(doc(db, "branch_leaderboards", `${userId}_${s}`)))
+  ]);
   console.log("✅ Kullanıcı verileri Firestore'dan silindi.");
 };
 
-export interface FirestoreUser {
-  docId: string;
-  displayName: string;
-  email?: string;
-  averageNet?: number;
-  totalTrials?: number;
-  updatedAt?: string;
-}
-
-export const getAllUsers = async (): Promise<FirestoreUser[]> => {
-  const users: FirestoreUser[] = [];
-  // leaderboard koleksiyonundan kullanıcıları çek (displayName var)
-  const lbSnap = await getDocs(collection(db, "leaderboard"));
-  lbSnap.forEach((d) => {
-    const data = d.data();
-    users.push({
-      docId: d.id,
-      displayName: data.displayName || d.id,
-      averageNet: data.averageNet,
-      totalTrials: data.totalTrials,
-      updatedAt: data.updatedAt,
-    });
-  });
-  // leaderboard'da olmayan user_data belgelerini de ekle
-  const udSnap = await getDocs(collection(db, "user_data"));
-  udSnap.forEach((d) => {
-    if (!users.find((u) => u.docId === d.id)) {
-      const data = d.data();
-      users.push({ 
-        docId: d.id, 
-        displayName: data.displayName || d.id,
-        email: data.email
-      });
-    }
-  });
-  return users;
-};

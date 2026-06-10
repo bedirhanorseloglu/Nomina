@@ -7,7 +7,9 @@ import { getLeaderboard, getBranchLeaderboard, LeaderboardEntry } from "@/lib/le
 import { DENEME_SUBJECTS } from "@/lib/denemeConfig";
 import { estimateP3Score } from "@/lib/denemeUtils";
 import { useAuth } from "@/contexts/AuthContext";
-import UserProfileModal from "./UserProfileModal";
+import dynamic from "next/dynamic";
+
+const UserProfileModal = dynamic(() => import("./UserProfileModal"), { ssr: false });
 
 export default function Leaderboard() {
   const { user } = useAuth();

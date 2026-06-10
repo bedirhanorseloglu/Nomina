@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
@@ -16,6 +16,18 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const db = getFirestore(app);
+
+// Enable offline persistence (sadece tarayıcıda çalışır)
+if (typeof window !== "undefined") {
+  enableIndexedDbPersistence(db).catch((err) => {
+    if (err.code === 'failed-precondition') {
+      console.warn("Birden fazla sekme açık olduğu için offline persistence aktif edilemedi.");
+    } else if (err.code === 'unimplemented') {
+      console.warn("Tarayıcınız offline persistence desteklemiyor.");
+    }
+  });
+}
+
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 

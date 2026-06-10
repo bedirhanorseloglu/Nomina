@@ -43,7 +43,8 @@ const calculateSubjectAverages = (denemeler: DenemeRecord[], type: "genel" | "br
     // Wait, old brans exams have empty 0 for other subjects.
     // Actually, for brans exams, it's safer to only count `s.subjectId === d.bransSubjectId` if it exists.
     d.scores.forEach(s => {
-      if (type === "brans" && d.bransSubjectId && s.subjectId !== d.bransSubjectId) return;
+      const bId = d.bransSubjectId || d.scores[0]?.subjectId;
+      if (type === "brans" && bId && s.subjectId !== bId) return;
       if (!subjectTotals[s.subjectId]) {
         subjectTotals[s.subjectId] = { net: 0, count: 0 };
       }
@@ -192,8 +193,9 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
           let maxBrans = 0;
           if (brans.length > 0) {
             const bransNets = brans.map(d => {
-              if (!d.bransSubjectId) return 0;
-              const s = d.scores.find((x: any) => x.subjectId === d.bransSubjectId);
+              const bId = d.bransSubjectId || d.scores[0]?.subjectId;
+              if (!bId) return 0;
+              const s = d.scores.find((x: any) => x.subjectId === bId);
               return s ? s.correct - (s.wrong / 4) : 0;
             });
             avgBrans = bransNets.reduce((a, b) => a + b, 0) / bransNets.length;
@@ -242,8 +244,9 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
       let maxBrans = 0;
       if (brans.length > 0) {
         const bransNets = brans.map(d => {
-          if (!d.bransSubjectId) return 0;
-          const s = d.scores.find((x: any) => x.subjectId === d.bransSubjectId);
+          const bId = d.bransSubjectId || d.scores[0]?.subjectId;
+          if (!bId) return 0;
+          const s = d.scores.find((x: any) => x.subjectId === bId);
           return s ? s.correct - (s.wrong / 4) : 0;
         });
         avgBrans = bransNets.reduce((a, b) => a + b, 0) / bransNets.length;
@@ -321,7 +324,7 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
             {(() => {
               const headerAvgRakip = (() => {
                 if (kiyasType === "genel") return stats.avgNetGenel || 0;
-                const rakipBransList = userDenemeler.filter(d => d.examType === "brans" && d.bransSubjectId === kiyasBransSubject);
+                const rakipBransList = userDenemeler.filter(d => d.examType === "brans" && (d.bransSubjectId || d.scores[0]?.subjectId) === kiyasBransSubject);
                 if (!rakipBransList.length) return 0;
                 const nets = rakipBransList.map(d => {
                   const s = d.scores.find((x: any) => x.subjectId === kiyasBransSubject);
@@ -408,8 +411,8 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                     kiyasTotalRakip = stats.totalGenel;
                   } else {
                     // Calculate specifically for kiyasBransSubject
-                    const senBransList = currentUserDenemeler.filter(d => d.examType === "brans" && d.bransSubjectId === kiyasBransSubject);
-                    const rakipBransList = userDenemeler.filter(d => d.examType === "brans" && d.bransSubjectId === kiyasBransSubject);
+                    const senBransList = currentUserDenemeler.filter(d => d.examType === "brans" && (d.bransSubjectId || d.scores[0]?.subjectId) === kiyasBransSubject);
+                    const rakipBransList = userDenemeler.filter(d => d.examType === "brans" && (d.bransSubjectId || d.scores[0]?.subjectId) === kiyasBransSubject);
                     
                     const getBransStats = (list: DenemeRecord[]) => {
                       if (!list.length) return { avg: 0, max: 0, count: 0 };

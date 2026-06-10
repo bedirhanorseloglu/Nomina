@@ -8,7 +8,9 @@ import { PlusCircle, ClipboardList, BarChart3, BookOpen, TrendingUp, Zap, Gradua
 import DenemeNav from "./DenemeNav";
 import DenemeEntryForm from "./DenemeEntryForm";
 import DenemeHistoryList from "./DenemeHistoryList";
-import DenemeAnalytics from "./DenemeAnalytics";
+import dynamic from "next/dynamic";
+
+const DenemeAnalytics = dynamic(() => import("./DenemeAnalytics"), { ssr: false });
 import DenemeAlert from "./DenemeAlert";
 import AppleEmoji from "../AppleEmoji";
 import {
