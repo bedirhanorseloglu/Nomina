@@ -89,9 +89,11 @@ export const saveDenemeDataToFirebase = async (
       ...(denemeTargetNet !== undefined ? { denemeTargetNet } : {}),
     }) as Pick<AppData, "denemeler" | "denemeTargetNet">;
     await setDoc(docRef, payload, { merge: true });
-
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Deneme Firebase kayıt hatası:", error);
+    if (typeof window !== "undefined") {
+      alert("Sunucuya kayıt yapılamadı: " + error.message);
+    }
   }
 };
 
@@ -99,8 +101,8 @@ export const loadFromFirebase = async (userId: string): Promise<AppData | null> 
   if (!userId) return null;
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
-    // getDocFromServer: cache'i bypass edip her zaman sunucudan taze veri çeker
-    const docSnap = await getDocFromServer(docRef);
+    // getDocFromServer yerine getDoc kullanıyoruz, böylece offline cache'deki bekleyen veriler de alınır.
+    const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
 
       return docSnap.data() as AppData;
