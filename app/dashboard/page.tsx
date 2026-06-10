@@ -53,7 +53,10 @@ function HomeContent() {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [activeView, setActiveView] = useState<'daily'|'monthly'>('daily')
   const [isSaving, setIsSaving] = useState(false)
-  const isInitialLoad = useRef(true)
+  // isSyncing: Firebase'den ilk yükleme tamamlanana kadar geri kaydetmeyi engeller
+  const isSyncing = useRef(false)
+  // syncedUserId: hangi kullanıcı için sync yapıldığını takip eder
+  const syncedUserId = useRef<string | null>(null)
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const dailyPlanRef = useRef<HTMLDivElement>(null)
 
@@ -65,6 +68,7 @@ function HomeContent() {
 
   useEffect(() => {
     const initData = async () => {
+      isSyncing.current = true
       const local = loadData()
       
       if (user?.uid) {
@@ -74,24 +78,19 @@ function HomeContent() {
             const localTime = local.lastUpdated || 0
             const remoteTime = remote.lastUpdated || 0
             
-            // Eğer Firebase verisi Lokalden daha yeniyse
             if (remoteTime > localTime) {
-              console.log("Bulut verisi daha güncel. Ekrana yükleniyor...")
+              // Bulut verisi daha güncel
               setData(remote)
               saveData(remote)
-            } 
-            // Eğer Lokal veri Firebase'den daha yeniyse
-            else if (localTime > remoteTime) {
-              console.log("Lokal veri daha güncel. Buluta eşitleniyor...")
+            } else if (localTime > remoteTime) {
+              // Lokal veri daha güncel — buluta eşitle
               setData(local)
               saveToFirebase(user.uid, local)
-            } 
-            // İkisi de aynıysa
-            else {
+            } else {
               setData(local)
             }
           } else {
-            // Firebase'de henüz hiç veri yoksa
+            // Firebase'de henüz hiç veri yok
             setData(local)
             saveToFirebase(user.uid, local)
           }
@@ -99,37 +98,38 @@ function HomeContent() {
           console.error("Sync error:", e)
           setData(local)
         }
+        updateUserProfile(user.uid, user.displayName, user.email)
       } else {
         setData(local)
       }
-      
-      if (user?.uid) {
-        updateUserProfile(user.uid, user.displayName, user.email)
-      }
-      isInitialLoad.current = false
+
+      syncedUserId.current = user?.uid ?? null
+      isSyncing.current = false
     }
     initData()
-  }, [user])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]) // Sadece UID değişince yeniden çalış — token yenilenince tetiklenme
 
   useEffect(() => {
-    if (data && !isInitialLoad.current) {
-      // 1. Her zaman lokale kaydet
-      saveData(data)
-      setIsSaving(true)
-      
-      // 2. Debounce ile Firebase'e aktar (Sürekli sunucuyu yormamak için 1.5 sn bekle)
-      const timeoutId = setTimeout(() => {
-        if (user?.uid) {
-          saveToFirebase(user.uid, data).then(() => {
-            setIsSaving(false)
-          }).catch(() => setIsSaving(false))
-        } else {
+    // İlk async yükleme bitene kadar veya kullanıcı değişene kadar geri yazma yapma
+    if (!data || isSyncing.current) return
+    if (user?.uid && user.uid !== syncedUserId.current) return
+
+    saveData(data)
+    setIsSaving(true)
+
+    // Debounce: 1.5 sn bekle, sürekli sunucuyu yormamak için
+    const timeoutId = setTimeout(() => {
+      if (user?.uid) {
+        saveToFirebase(user.uid, data).then(() => {
           setIsSaving(false)
-        }
-      }, 1500)
-      
-      return () => clearTimeout(timeoutId)
-    }
+        }).catch(() => setIsSaving(false))
+      } else {
+        setIsSaving(false)
+      }
+    }, 1500)
+
+    return () => clearTimeout(timeoutId)
   }, [data, user])
 
   if (!data) return (

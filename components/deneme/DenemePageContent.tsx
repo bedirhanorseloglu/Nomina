@@ -45,10 +45,18 @@ export default function DenemePageContent() {
   const [tab, setTab] = useState<Tab>("yeni");
   const [viewType, setViewType] = useState<"genel" | "brans">("genel");
   const [editing, setEditing] = useState<DenemeRecord | null>(null);
-  const isInitialLoad = useRef(true);
+  // Tracks whether the initial async load (including Firebase merge) is still in progress.
+  // While true, the "save back" effect is suppressed to prevent overwriting cloud data
+  // with a stale/incomplete local snapshot.
+  const isSyncing = useRef(false);
+  // Remembers the userId that was used during the last completed sync so that
+  // a user-object refresh (token renewal, profile update) doesn't trigger an
+  // unintended Firebase write.
+  const syncedUserId = useRef<string | null>(null);
 
   useEffect(() => {
     const init = async () => {
+      isSyncing.current = true;
       const localDenemeler = migrateDenemeler(loadDenemeler());
       const localTarget = loadTargetNet();
       setDenemeler(localDenemeler);
@@ -56,71 +64,77 @@ export default function DenemePageContent() {
       setTargetNet(localTarget);
 
       if (user?.uid) {
-        const remote = await loadFromFirebase(user.uid);
-        if (remote?.denemeler !== undefined) {
-          const remoteDenemeler = migrateDenemeler(remote.denemeler as DenemeRecord[]);
-          // Her zaman lokal ve remote'u id'ye göre birleştir (veri kaybını önler)
-          const localIds = new Set(localDenemeler.map(d => d.id));
-          const newRemotes = remoteDenemeler.filter(r => !localIds.has(r.id));
-          const mergedDenemeler = [...localDenemeler, ...newRemotes];
-          // Tarihe göre sırala
-          mergedDenemeler.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-          setDenemeler(mergedDenemeler);
-          saveDenemeler(mergedDenemeler);
-        }
-        if (remote?.denemeTargetNet !== undefined) {
-          setTargetNet(remote.denemeTargetNet);
-          saveTargetNet(remote.denemeTargetNet);
+        try {
+          const remote = await loadFromFirebase(user.uid);
+          if (remote?.denemeler !== undefined) {
+            const remoteDenemeler = migrateDenemeler(remote.denemeler as DenemeRecord[]);
+            // Her zaman lokal ve remote'u id'ye göre birleştir (veri kaybını önler)
+            const localIds = new Set(localDenemeler.map(d => d.id));
+            const newRemotes = remoteDenemeler.filter(r => !localIds.has(r.id));
+            const mergedDenemeler = [...localDenemeler, ...newRemotes];
+            // Tarihe göre sırala
+            mergedDenemeler.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+            setDenemeler(mergedDenemeler);
+            saveDenemeler(mergedDenemeler);
+          }
+          if (remote?.denemeTargetNet !== undefined) {
+            setTargetNet(remote.denemeTargetNet);
+            saveTargetNet(remote.denemeTargetNet);
+          }
+        } catch (e) {
+          console.error("Init Firebase load failed:", e);
         }
       }
 
+      syncedUserId.current = user?.uid ?? null;
+      isSyncing.current = false;
       setLoaded(true);
     };
     init();
-  }, [user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.uid]); // Only re-run when the actual UID changes, not on every user object refresh
 
   useEffect(() => {
-    if (!loaded) return;
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      return;
-    }
-    if (user?.uid) {
-      saveDenemeDataToFirebase(user.uid, denemeler, targetNet);
+    // Do not save back to Firebase while the initial sync is still running or
+    // before the local+remote merge has completed.
+    if (!loaded || isSyncing.current) return;
+    // Only fire for the user whose data we actually loaded.
+    if (!user?.uid || user.uid !== syncedUserId.current) return;
+
+    saveDenemeDataToFirebase(user.uid, denemeler, targetNet);
       
-      const genelDenemeler = denemeler.filter((d) => d.examType !== "brans");
-      if (genelDenemeler.length > 0) {
-        const nets = genelDenemeler.map((d) => evaluateDeneme(d.scores).totalNet);
-        const avg = averageNet(genelDenemeler);
+    const genelDenemeler = denemeler.filter((d) => d.examType !== "brans");
+    if (genelDenemeler.length > 0) {
+      const nets = genelDenemeler.map((d) => evaluateDeneme(d.scores).totalNet);
+      const avg = averageNet(genelDenemeler);
+      const max = Math.max(...nets);
+      updateLeaderboard(user.uid, user.displayName, user.photoURL, avg, max, genelDenemeler.length);
+    } else {
+      removeFromLeaderboard(user.uid);
+    }
+
+    // Update branch leaderboards
+    const bransDenemeler = denemeler.filter((d) => d.examType === "brans" && d.bransSubjectId);
+    const bransGroups = bransDenemeler.reduce((acc: any, d: any) => {
+      if (!acc[d.bransSubjectId]) acc[d.bransSubjectId] = [];
+      acc[d.bransSubjectId].push(d);
+      return acc;
+    }, {});
+
+    for (const subject of DENEME_SUBJECTS) {
+      const subjectId = subject.id;
+      const subjectDenemeler = bransGroups[subjectId];
+      
+      if (subjectDenemeler && subjectDenemeler.length > 0) {
+        const nets = subjectDenemeler.map((d: any) => {
+          const score = d.scores.find((s: any) => s.subjectId === subjectId);
+          return score ? score.correct - (score.wrong / 4) : 0;
+        });
+        const avg = nets.reduce((a: number, b: number) => a + b, 0) / nets.length;
         const max = Math.max(...nets);
-        updateLeaderboard(user.uid, user.displayName, user.photoURL, avg, max, genelDenemeler.length);
+        updateBranchLeaderboard(user.uid, user.displayName, user.photoURL, subjectId, avg, max, subjectDenemeler.length);
       } else {
-        removeFromLeaderboard(user.uid);
-      }
-
-      // Update branch leaderboards
-      const bransDenemeler = denemeler.filter((d) => d.examType === "brans" && d.bransSubjectId);
-      const bransGroups = bransDenemeler.reduce((acc: any, d: any) => {
-        if (!acc[d.bransSubjectId]) acc[d.bransSubjectId] = [];
-        acc[d.bransSubjectId].push(d);
-        return acc;
-      }, {});
-
-      for (const subject of DENEME_SUBJECTS) {
-        const subjectId = subject.id;
-        const subjectDenemeler = bransGroups[subjectId];
-        
-        if (subjectDenemeler && subjectDenemeler.length > 0) {
-          const nets = subjectDenemeler.map((d: any) => {
-            const score = d.scores.find((s: any) => s.subjectId === subjectId);
-            return score ? score.correct - (score.wrong / 4) : 0;
-          });
-          const avg = nets.reduce((a: number, b: number) => a + b, 0) / nets.length;
-          const max = Math.max(...nets);
-          updateBranchLeaderboard(user.uid, user.displayName, user.photoURL, subjectId, avg, max, subjectDenemeler.length);
-        } else {
-          removeFromBranchLeaderboard(user.uid, subjectId);
-        }
+        removeFromBranchLeaderboard(user.uid, subjectId);
       }
     }
   }, [denemeler, targetNet, loaded, user]);

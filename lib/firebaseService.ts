@@ -1,24 +1,44 @@
 import { db } from "./firebase";
-import { doc, getDoc, getDocFromServer, getDocFromCache, setDoc, collection, query, where, getDocs, serverTimestamp, deleteDoc } from "firebase/firestore";
+import {
+  doc,
+  getDoc,
+  getDocFromCache,
+  setDoc,
+  collection,
+  query,
+  where,
+  getDocs,
+  serverTimestamp,
+  deleteDoc,
+} from "firebase/firestore";
 import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
 
-export const isLocalhost = typeof window !== "undefined" && (
-  window.location.hostname === "localhost" || 
-  window.location.hostname === "127.0.0.1" ||
-  window.location.hostname.startsWith("192.168.") ||
-  window.location.hostname.startsWith("10.") ||
-  window.location.hostname.startsWith("172.")
-);
+/**
+ * Tek doğruluk kaynağı: ortam tespiti.
+ * leaderboardService gibi diğer modüller buradan import eder,
+ * kod tekrarını ve tutarsızlığı önler.
+ */
+export const isLocalhost =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname.startsWith("192.168.") ||
+    window.location.hostname.startsWith("10.") ||
+    window.location.hostname.startsWith("172."));
 
-// Firestore doesn't allow undefined values — strip them recursively
+// Firestore undefined değerlere izin vermez — özyinelemeli temizle
 function stripUndefined(obj: unknown): unknown {
   if (Array.isArray(obj)) {
     return obj.map(stripUndefined);
   }
   if (obj !== null && typeof obj === "object") {
-    if (obj.constructor && obj.constructor.name !== "Object" && obj.constructor.name !== "Array") {
+    if (
+      obj.constructor &&
+      obj.constructor.name !== "Object" &&
+      obj.constructor.name !== "Array"
+    ) {
       return obj;
     }
     return Object.fromEntries(
@@ -33,14 +53,13 @@ function stripUndefined(obj: unknown): unknown {
 export const saveToFirebase = async (userId: string, data: AppData) => {
   if (!userId) return;
   if (isLocalhost) {
-    console.log("🛠️ Lokal ortamdasınız: Firebase'e (user_data) kayıt yapılmadı.");
+    console.log("🛠️ Lokal ortam: Firebase'e (user_data) kayıt yapılmadı.");
     return;
   }
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const sanitized = stripUndefined(data) as AppData;
     await setDoc(docRef, sanitized, { merge: true });
-
   } catch (error) {
     console.error("❌ Firebase kayıt hatası:", error);
   }
@@ -52,16 +71,19 @@ export const forceUploadToFirebase = async (userId: string, data: AppData) => {
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const sanitized = stripUndefined(data) as AppData;
-    await setDoc(docRef, sanitized, { merge: false }); // merge:false → tamamen üstüne yazar
-
+    // merge:false → tüm belgeyi sıfırdan yazar
+    await setDoc(docRef, sanitized, { merge: false });
   } catch (error) {
     console.error("❌ Force upload hatası:", error);
     throw error;
   }
 };
 
-
-export const updateUserProfile = async (userId: string, displayName: string | null, email: string | null) => {
+export const updateUserProfile = async (
+  userId: string,
+  displayName: string | null,
+  email: string | null
+) => {
   if (!userId) return;
   if (isLocalhost) return;
   try {
@@ -79,7 +101,7 @@ export const saveDenemeDataToFirebase = async (
 ) => {
   if (!userId) return;
   if (isLocalhost) {
-    console.log("🛠️ Lokal ortamdasınız: Deneme verisi Firebase'e kaydedilmedi.");
+    console.log("🛠️ Lokal ortam: Deneme verisi Firebase'e kaydedilmedi.");
     return;
   }
   try {
@@ -89,38 +111,40 @@ export const saveDenemeDataToFirebase = async (
       ...(denemeTargetNet !== undefined ? { denemeTargetNet } : {}),
     }) as Pick<AppData, "denemeler" | "denemeTargetNet">;
     await setDoc(docRef, payload, { merge: true });
-  } catch (error: any) {
+  } catch (error) {
+    // alert() yerine sadece konsola yaz — kullanıcıya ham hata göstermek güvensiz
     console.error("❌ Deneme Firebase kayıt hatası:", error);
-    if (typeof window !== "undefined") {
-      alert("Sunucuya kayıt yapılamadı: " + error.message);
-    }
   }
 };
 
-export const loadFromFirebase = async (userId: string): Promise<AppData | null> => {
+export const loadFromFirebase = async (
+  userId: string
+): Promise<AppData | null> => {
   if (!userId) return null;
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
-    // getDocFromServer yerine getDoc kullanıyoruz, böylece offline cache'deki bekleyen veriler de alınır.
+    // getDoc: persistence açıkken hem ağı hem cache'i birleştirerek döner.
+    // Ağ kesilirse IndexedDB'deki son sürümü kullanır.
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
-
       return docSnap.data() as AppData;
     }
+    return null;
   } catch (error) {
-    // Sunucu erişimi başarısız olursa cache'den dene
+    // Ağ tamamen erişilemezse cache'den son bilinen veriyi al
     try {
       const docRef = doc(db, DATA_COLLECTION, userId);
       const docSnap = await getDocFromCache(docRef);
       if (docSnap.exists()) {
-
+        console.warn("⚠️ Sunucu erişilemedi, cache'den yüklendi.");
         return docSnap.data() as AppData;
       }
-    } catch (fallbackError) {
-      console.error("❌ Firebase yükleme hatası:", fallbackError);
+    } catch {
+      // Cache de boşsa veri yok — sessizce null dön
     }
+    console.error("❌ Firebase yükleme hatası:", error);
+    return null;
   }
-  return null;
 };
 
 export const updatePresence = async (userId: string) => {
@@ -128,7 +152,12 @@ export const updatePresence = async (userId: string) => {
   if (isLocalhost) return;
   try {
     const docRef = doc(db, "active_users", userId);
-    await setDoc(docRef, { lastActive: Date.now() }, { merge: true });
+    // serverTimestamp() kullan: client saati manipüle edilebilir
+    await setDoc(
+      docRef,
+      { lastActive: serverTimestamp() },
+      { merge: true }
+    );
   } catch (error) {
     console.error("Presence update error:", error);
   }
@@ -136,13 +165,18 @@ export const updatePresence = async (userId: string) => {
 
 export const getOnlineUsersCount = async (): Promise<number> => {
   try {
-    const fiveMinsAgo = Date.now() - 5 * 60 * 1000;
+    // serverTimestamp ile kaydedilen alanı sorgulamak için Firestore
+    // sunucu tarafında 5 dakika öncesini hesaplıyoruz.
+    // Not: serverTimestamp Timestamp nesnesi döndürür, Date.now() ile karışmaması için
+    // active_users belgelerinde artık Firestore Timestamp kullanılıyor.
+    const { Timestamp } = await import("firebase/firestore");
+    const fiveMinsAgo = Timestamp.fromMillis(Date.now() - 5 * 60 * 1000);
     const q = query(
       collection(db, "active_users"),
       where("lastActive", ">", fiveMinsAgo)
     );
     const snapshot = await getDocs(q);
-    return Math.max(1, snapshot.size); // Always show at least 1 (themselves)
+    return Math.max(1, snapshot.size);
   } catch (error) {
     console.error("Online users fetch error:", error);
     return 1;
@@ -152,16 +186,30 @@ export const getOnlineUsersCount = async (): Promise<number> => {
 export const deleteUserAllData = async (userId: string): Promise<void> => {
   if (!userId) return;
   if (isLocalhost) {
-    console.log("🛠️ Lokal ortamdasınız: Silme işlemi iptal edildi.");
+    console.log("🛠️ Lokal ortam: Silme işlemi iptal edildi.");
     return;
   }
   const collections = ["user_data", "leaderboard", "active_users"];
-  const branchSubjects = ["turkce", "matematik", "tarih", "cografya", "vatandaslik", "guncel"];
+  const branchSubjects = [
+    "turkce",
+    "matematik",
+    "tarih",
+    "cografya",
+    "vatandaslik",
+    "guncel",
+  ];
 
-  await Promise.all([
+  // Tüm silme işlemlerini paralel yürüt; herhangi biri hata verirse logla ama devam et
+  const results = await Promise.allSettled([
     ...collections.map((col) => deleteDoc(doc(db, col, userId))),
-    ...branchSubjects.map((s) => deleteDoc(doc(db, "branch_leaderboards", `${userId}_${s}`)))
+    ...branchSubjects.map((s) =>
+      deleteDoc(doc(db, "branch_leaderboards", `${userId}_${s}`))
+    ),
   ]);
 
+  results.forEach((r, i) => {
+    if (r.status === "rejected") {
+      console.error(`❌ Silme hatası (${i}):`, r.reason);
+    }
+  });
 };
-

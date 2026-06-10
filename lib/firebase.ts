@@ -1,5 +1,5 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager } from "firebase/firestore";
 import { getAuth, GoogleAuthProvider } from "firebase/auth";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
@@ -13,25 +13,37 @@ const firebaseConfig = {
   measurementId: "G-FCC2C9S1GL"
 };
 
-// Initialize Firebase
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Initialize Firebase — guard against double-init in Next.js hot reload
+const isFirstInit = getApps().length === 0;
+const app = isFirstInit ? initializeApp(firebaseConfig) : getApp();
 
-// Enable offline persistence (sadece tarayıcıda çalışır)
-if (typeof window !== "undefined") {
-  enableIndexedDbPersistence(db).catch((err) => {
-    if (err.code === 'failed-precondition') {
-      console.warn("Birden fazla sekme açık olduğu için offline persistence aktif edilemedi.");
-    } else if (err.code === 'unimplemented') {
-      console.warn("Tarayıcınız offline persistence desteklemiyor.");
-    }
-  });
+// Firestore: tarayıcıda ilk kez başlatılıyorsa IndexedDB kalıcı cache ile aç.
+// persistentLocalCache → enableIndexedDbPersistence'ın modern karşılığı.
+// persistentMultipleTabManager → birden fazla sekme açık olsa da sorunsuz çalışır.
+// Sunucu tarafında (SSR/SSG) veya ikinci init'te düz getFirestore kullan.
+let db: ReturnType<typeof getFirestore>;
+if (typeof window !== "undefined" && isFirstInit) {
+  try {
+    db = initializeFirestore(app, {
+      localCache: persistentLocalCache({
+        tabManager: persistentMultipleTabManager(),
+      }),
+    });
+  } catch {
+    // Nadir durum: başka bir modül daha önce getFirestore çağırdıysa
+    db = getFirestore(app);
+  }
+} else {
+  db = getFirestore(app);
 }
 
 const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Analytics initialization (only in browser)
-const analytics = typeof window !== "undefined" ? isSupported().then(yes => yes ? getAnalytics(app) : null) : null;
+// Analytics: yalnızca tarayıcıda, non-blocking
+const analytics =
+  typeof window !== "undefined"
+    ? isSupported().then((yes) => (yes ? getAnalytics(app) : null))
+    : null;
 
 export { app, db, auth, googleProvider, analytics };
