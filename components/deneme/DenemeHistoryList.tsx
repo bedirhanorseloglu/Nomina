@@ -4,6 +4,8 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
+import { Trash2, Edit3, Target, Search } from "lucide-react";
+import AppleEmoji from "../AppleEmoji";
 import { DenemeRecord, evaluateDeneme, formatNet, estimateP3Score } from "@/lib/denemeUtils";
 import { DENEME_SUBJECTS } from "@/lib/denemeConfig";
 import ConfirmDialog from "./ConfirmDialog";
@@ -98,20 +100,20 @@ export default function DenemeHistoryList({
             if (!subConfig) return null;
 
             return (
-              <div key={subId} className="space-y-5 bg-slate-50/50 dark:bg-[#0a0f1a] p-6 rounded-[2rem] border border-slate-200/60 dark:border-white/5">
-                <div className="flex items-center gap-4 border-b border-slate-200/50 dark:border-white/5 pb-4">
-                  <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow-sm" style={{ backgroundColor: `${subConfig.color}15`, color: subConfig.color }}>
+              <div key={subId} className="space-y-4">
+                <div className="flex items-center gap-4 mb-2">
+                  <div className="w-14 h-14 rounded-[1.25rem] flex items-center justify-center text-2xl shadow-sm" style={{ backgroundColor: `${subConfig.color}15`, color: subConfig.color }}>
                     {subConfig.icon}
                   </div>
                   <div>
-                    <h3 className="text-xl font-black text-slate-800 dark:text-white">
+                    <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">
                       {subConfig.title}
                     </h3>
                     <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{list.length} Çözüm</p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {list.map((deneme) => {
                     const res = evaluateDeneme(deneme.scores, deneme.examType);
                     const subRes = res.subjects.find((s) => s.subjectId === subId);
@@ -120,23 +122,23 @@ export default function DenemeHistoryList({
                     return (
                       <div
                         key={deneme.id}
-                        className="p-5 bg-white dark:bg-[#1e293b] rounded-2xl shadow-sm hover:shadow-md border border-slate-100 dark:border-white/5 transition-all flex flex-col group"
+                        className="p-5 bg-white dark:bg-[#1e293b] rounded-[1.5rem] shadow-sm hover:shadow-md ring-1 ring-slate-100 dark:ring-white/5 hover:ring-slate-200 dark:hover:ring-white/10 transition-all flex flex-col group"
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h4 className="text-base font-bold text-slate-800 dark:text-white group-hover:text-violet-600 transition-colors">
+                            <h4 className="text-base font-bold text-slate-800 dark:text-white transition-colors" style={{ color: "var(--tw-text-opacity)" }}>
                               {deneme.name}
                             </h4>
                             <div className="flex items-center gap-2 mt-1.5 text-xs font-medium text-slate-400">
                               <span>{format(new Date(deneme.date + "T12:00:00"), "d MMM yyyy", { locale: tr })}</span>
                               {deneme.publisher && (
-                                <span className="bg-slate-100 dark:bg-white/10 px-2 py-0.5 rounded-md text-slate-500">
+                                <span className="bg-slate-50 dark:bg-white/10 px-2 py-0.5 rounded-md text-slate-500">
                                   {deneme.publisher}
                                 </span>
                               )}
                             </div>
                           </div>
-                          <div className="px-3 py-1.5 rounded-xl text-center shrink-0 border" style={{ backgroundColor: `${subConfig.color}15`, borderColor: `${subConfig.color}30` }}>
+                          <div className="px-3 py-1.5 rounded-xl text-center shrink-0 ring-1" style={{ backgroundColor: `${subConfig.color}10`, ringColor: `${subConfig.color}20` }}>
                             <span className="text-[10px] font-black uppercase block leading-tight opacity-80" style={{ color: subConfig.color }}>Net</span>
                             <span className="text-lg font-black font-mono leading-none" style={{ color: subConfig.color }}>
                               {formatNet(subRes.net)}
@@ -144,18 +146,18 @@ export default function DenemeHistoryList({
                           </div>
                         </div>
 
-                        <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-100 dark:border-white/5">
+                        <div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-50 dark:border-white/5">
                           <div className="flex gap-2 text-xs font-bold font-mono">
                             <span className="bg-emerald-50 text-emerald-600 px-2 py-1 rounded-lg">{subRes.correct} D</span>
                             <span className="bg-red-50 text-red-500 px-2 py-1 rounded-lg">{subRes.wrong} Y</span>
                             <span className="bg-slate-50 text-slate-500 px-2 py-1 rounded-lg">{subRes.empty} B</span>
                           </div>
-                          <div className="flex gap-1">
+                          <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                             <button onClick={() => onEdit(deneme)} className="p-2 text-slate-400 hover:text-blue-500 bg-slate-50 dark:bg-white/5 hover:bg-blue-50 rounded-lg transition-colors">
-                              ✏️
+                              <Edit3 className="w-4 h-4" />
                             </button>
                             <button onClick={() => requestDelete(deneme)} className="p-2 text-slate-400 hover:text-red-500 bg-slate-50 dark:bg-white/5 hover:bg-red-50 rounded-lg transition-colors">
-                              🗑️
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </div>
                         </div>
@@ -175,7 +177,7 @@ export default function DenemeHistoryList({
   return (
     <>
       {deleteDialog}
-      <div className="space-y-4">
+      <div className="space-y-5">
         {denemeler.map((deneme, index) => {
           const result = evaluateDeneme(deneme.scores, deneme.examType);
           const expanded = expandedId === deneme.id;
@@ -193,54 +195,59 @@ export default function DenemeHistoryList({
               key={deneme.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className={`bg-white dark:bg-[#1e293b] rounded-[1.5rem] shadow-sm border ${expanded ? "border-blue-300 dark:border-blue-500/50 shadow-md" : "border-slate-200 dark:border-white/5"} overflow-hidden transition-all duration-300`}
+              whileHover={{ y: -4 }}
+              className={`bg-white dark:bg-[#1e293b] rounded-3xl transition-all duration-300 ${
+                expanded 
+                  ? "shadow-md ring-2 ring-[#1cb0f6] dark:ring-[#1cb0f6]" 
+                  : "shadow-sm hover:shadow-md ring-1 ring-slate-200 dark:hover:ring-white/10"
+              } overflow-hidden group`}
             >
               <button
                 type="button"
                 onClick={() => setExpandedId(expanded ? null : deneme.id)}
-                className="w-full p-5 flex flex-col md:flex-row md:items-center gap-4 text-left focus:outline-none group relative"
+                className="w-full p-6 sm:p-8 flex flex-col md:flex-row md:items-center gap-6 text-left focus:outline-none relative active:scale-[0.98] transition-transform"
               >
-                {/* Sol Dekoratif Çizgi */}
-                <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b from-blue-400 to-indigo-500" />
-                
-                <div className="flex-1 pl-2">
-                  <div className="flex items-center gap-3">
-                    <h4 className="text-lg font-bold text-slate-800 dark:text-white group-hover:text-blue-600 transition-colors">
+                <div className="flex-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <h4 className={`text-xl font-black transition-colors ${expanded ? "text-[#1cb0f6]" : "text-slate-800 dark:text-white group-hover:text-[#1cb0f6]"}`}>
                       {deneme.name}
                     </h4>
-                    {trend === "up" && <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full font-bold">Yükseliş 🚀</span>}
-                    {trend === "down" && <span className="text-xs bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full font-bold">Düşüş 📉</span>}
+                    {trend === "up" && <span className="text-[10px] bg-[#58cc02]/10 text-[#58cc02] px-3 py-1.5 rounded-xl font-black uppercase tracking-widest flex items-center gap-1 border border-[#58cc02]/20"><span className="text-sm leading-none">↗</span> Yükseliş</span>}
+                    {trend === "down" && <span className="text-[10px] bg-[#ff4b4b]/10 text-[#ff4b4b] px-3 py-1.5 rounded-xl font-black uppercase tracking-widest flex items-center gap-1 border border-[#ff4b4b]/20"><span className="text-sm leading-none">↘</span> Düşüş</span>}
                   </div>
-                  <div className="flex items-center gap-2 mt-1.5 text-xs font-semibold text-slate-400">
+                  <div className="flex items-center gap-3 text-sm font-bold text-slate-400 mt-2">
                     <span>{format(new Date(deneme.date + "T12:00:00"), "d MMM yyyy", { locale: tr })}</span>
                     {deneme.publisher && (
                       <>
-                        <span className="w-1 h-1 rounded-full bg-slate-300" />
-                        <span>Yayın: {deneme.publisher}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-300 dark:bg-slate-600" />
+                        <span>{deneme.publisher}</span>
                       </>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 md:gap-6 w-full md:w-auto mt-4 md:mt-0 justify-between md:justify-end">
-                  <div className="text-center bg-slate-50 dark:bg-white/5 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-white/5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">GY Net</p>
-                    <p className="font-mono font-bold text-blue-600 dark:text-blue-400 text-base">{formatNet(result.gyNet)}</p>
+                <div className="flex items-center gap-6 sm:gap-10 w-full md:w-auto">
+                  <div className="flex flex-col items-center">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">GY Net</span>
+                    <span className="font-mono font-bold text-slate-700 dark:text-slate-300 text-lg leading-none">{formatNet(result.gyNet)}</span>
                   </div>
-                  <div className="text-center bg-slate-50 dark:bg-white/5 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-white/5">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">GK Net</p>
-                    <p className="font-mono font-bold text-purple-600 dark:text-purple-400 text-base">{formatNet(result.gkNet)}</p>
+                  <div className="w-px h-8 bg-slate-100 dark:bg-white/5 hidden sm:block" />
+                  <div className="flex flex-col items-center">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">GK Net</span>
+                    <span className="font-mono font-bold text-slate-700 dark:text-slate-300 text-lg leading-none">{formatNet(result.gkNet)}</span>
                   </div>
-                  <div className="text-center bg-blue-50 dark:bg-blue-500/10 px-4 py-2 rounded-xl border border-blue-100 dark:border-blue-500/20 shadow-sm">
-                    <p className="text-[10px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest">Toplam</p>
-                    <p className="font-mono font-black text-blue-700 dark:text-blue-300 text-xl leading-none mt-0.5">{formatNet(result.totalNet)}</p>
+                  <div className="w-px h-8 bg-slate-100 dark:bg-white/5 hidden sm:block" />
+                  <div className="flex flex-col items-center">
+                    <span className="text-[10px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-1">Toplam</span>
+                    <span className="font-mono font-black text-blue-600 dark:text-blue-400 text-2xl leading-none">{formatNet(result.totalNet)}</span>
                   </div>
-                  <div className="text-center bg-indigo-50 dark:bg-indigo-500/10 px-4 py-2 rounded-xl border border-indigo-100 dark:border-indigo-500/20 shadow-sm hidden sm:block">
-                    <p className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">P3 Puan</p>
-                    <p className="font-mono font-black text-indigo-700 dark:text-indigo-300 text-xl leading-none mt-0.5">{estimateP3Score(result.gyNet, result.gkNet).toFixed(2)}</p>
+                  <div className="w-px h-8 bg-slate-100 dark:bg-white/5 hidden sm:block" />
+                  <div className="flex flex-col items-center hidden sm:flex">
+                    <span className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-1">P3 Puan</span>
+                    <span className="font-mono font-black text-indigo-600 dark:text-indigo-400 text-2xl leading-none">{estimateP3Score(result.gyNet, result.gkNet).toFixed(2)}</span>
                   </div>
-                  <div className="hidden md:flex w-8 justify-end text-slate-300 group-hover:text-blue-500 transition-colors">
-                    <svg className={`w-6 h-6 transition-transform duration-300 ${expanded ? "rotate-180 text-blue-500" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all ml-2">
+                    <svg className={`w-5 h-5 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                     </svg>
                   </div>
@@ -254,28 +261,30 @@ export default function DenemeHistoryList({
                     animate={{ height: "auto", opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="border-t border-slate-100 dark:border-white/5 bg-slate-50/50 dark:bg-[#151e2b]"
                   >
-                    <div className="p-6">
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="px-6 pb-6 sm:px-8 sm:pb-8">
+                      <div className="w-full h-px bg-slate-100 dark:bg-white/5 mb-8" />
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                         {result.subjects.map((s) => {
                           const subConfig = DENEME_SUBJECTS.find((sub) => sub.id === s.subjectId);
                           return (
-                          <div key={s.subjectId} className="bg-white dark:bg-[#1e293b] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden">
-                            {/* Accent line on top */}
-                            <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: subConfig?.color || '#3b82f6' }} />
-                            <h5 className="text-[11px] font-black uppercase tracking-wider mb-2" style={{ color: subConfig?.color || '#64748b' }}>{s.title}</h5>
-                            <div className="flex justify-between items-end">
-                              <span className="font-mono font-black text-xl text-slate-800 dark:text-white leading-none">
-                                {formatNet(s.net)} <span className="text-[10px] font-bold text-slate-400 font-sans tracking-wide">NET</span>
-                              </span>
-                              <div className="flex gap-1 text-[10px] font-bold font-mono">
-                                <span className="text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400 px-1.5 py-0.5 rounded-md">{s.correct}D</span>
-                                <span className="text-rose-600 bg-rose-50 dark:bg-rose-500/10 dark:text-rose-400 px-1.5 py-0.5 rounded-md">{s.wrong}Y</span>
-                              </div>
+                          <div key={s.subjectId} className="flex flex-col">
+                            <div className="flex items-center gap-2 mb-3">
+                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: subConfig?.color || '#3b82f6' }} />
+                              <h5 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{s.title}</h5>
                             </div>
-                            {/* Mini progress bar for accuracy */}
-                            <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full mt-3 overflow-hidden flex">
+                            <div className="flex items-baseline gap-2 mb-2">
+                              <span className="font-mono font-black text-2xl text-slate-800 dark:text-white leading-none">
+                                {formatNet(s.net)}
+                              </span>
+                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Net</span>
+                            </div>
+                            <div className="flex gap-2 text-[11px] font-bold font-mono mb-3">
+                              <span className="text-emerald-500">{s.correct}D</span>
+                              <span className="text-slate-300 dark:text-slate-600">•</span>
+                              <span className="text-rose-500">{s.wrong}Y</span>
+                            </div>
+                            <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full overflow-hidden flex">
                               <div style={{ width: `${(s.correct / Math.max(1, s.correct + s.wrong + s.empty)) * 100}%` }} className="bg-emerald-400 h-full transition-all duration-500" />
                               <div style={{ width: `${(s.wrong / Math.max(1, s.correct + s.wrong + s.empty)) * 100}%` }} className="bg-rose-400 h-full transition-all duration-500" />
                             </div>
@@ -284,22 +293,26 @@ export default function DenemeHistoryList({
                         })}
                       </div>
                       
-                      <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-slate-200/60 dark:border-white/10">
-                        <div className="flex items-center gap-2">
-                          <span className="bg-indigo-100 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 font-bold px-3 py-1.5 rounded-lg text-sm border border-indigo-200 dark:border-indigo-500/30">
-                            🎯 Tahmini P3: {estimateP3Score(result.gyNet, result.gkNet).toFixed(3)}
-                          </span>
+                      <div className="mt-8 pt-6 border-t border-slate-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                            <AppleEmoji emoji="🎯" size={24} />
+                          </div>
+                          <div>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tahmini P3 Puanı</p>
+                            <p className="text-lg font-black text-indigo-600 dark:text-indigo-400 font-mono leading-none mt-0.5">{estimateP3Score(result.gyNet, result.gkNet).toFixed(3)}</p>
+                          </div>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-2">
                           <button
                             onClick={() => onEdit(deneme)}
-                            className="px-4 py-2 bg-white dark:bg-white/10 border border-slate-200 dark:border-white/5 text-sm font-bold text-slate-600 dark:text-white rounded-xl shadow-sm hover:shadow-md transition-all"
+                            className="px-5 py-2.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-xl transition-colors"
                           >
                             Düzenle
                           </button>
                           <button
                             onClick={() => requestDelete(deneme)}
-                            className="px-4 py-2 bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 text-sm font-bold text-red-600 rounded-xl shadow-sm hover:shadow-md transition-all"
+                            className="px-5 py-2.5 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-sm font-bold rounded-xl transition-colors"
                           >
                             Sil
                           </button>

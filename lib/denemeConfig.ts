@@ -15,7 +15,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "turkce",
     title: "Türkçe",
     icon: "📘",
-    color: "#3b82f6", // Blue
+    color: "#1cb0f6", // Duolingo Blue
     category: "Genel Yetenek",
     questionCount: 30,
   },
@@ -23,7 +23,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "matematik",
     title: "Matematik",
     icon: "🔢",
-    color: "#8b5cf6", // Violet
+    color: "#af52de", // Apple Purple
     category: "Genel Yetenek",
     questionCount: 30,
   },
@@ -31,7 +31,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "tarih",
     title: "Tarih",
     icon: "🏛",
-    color: "#d97706", // Amber
+    color: "#ff9500", // Apple Orange
     category: "Genel Kültür",
     questionCount: 27,
   },
@@ -39,7 +39,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "cografya",
     title: "Coğrafya",
     icon: "🗺",
-    color: "#10b981", // Emerald
+    color: "#58cc02", // Duolingo Green
     category: "Genel Kültür",
     questionCount: 18,
   },
@@ -47,7 +47,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "vatandaslik",
     title: "Vatandaşlık",
     icon: "⚖️",
-    color: "#64748b", // Slate
+    color: "#5856d6", // Apple Indigo
     category: "Vatandaşlık",
     questionCount: 9,
   },
@@ -55,7 +55,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "guncel-bilgiler",
     title: "Güncel Bilgiler",
     icon: "🌍",
-    color: "#f43f5e", // Rose
+    color: "#ff2d55", // Apple Pink
     category: "Genel Kültür",
     questionCount: 6,
   },

@@ -77,11 +77,11 @@ export default function FloatingNavbar() {
       >
         {/* Logo Area */}
         <Link href="/dashboard" className="flex items-center gap-3 group focus:outline-none shrink-0">
-          <div className="relative flex items-center justify-center w-[38px] h-[38px] rounded-[12px] bg-[#3b82f6] text-white shadow-sm border-b-[3px] border-[#1d4ed8] transition-all group-hover:-translate-y-0.5 group-hover:shadow-md group-active:translate-y-[2px] group-active:border-b-0 group-active:mb-[3px]">
+          <div className="relative flex items-center justify-center w-[38px] h-[38px] rounded-[12px] bg-[#1cb0f6] text-white shadow-sm border-b-[3px] border-[#1899d6] transition-all group-hover:-translate-y-0.5 group-hover:shadow-md group-active:translate-y-[2px] group-active:border-b-0 group-active:mb-[3px]">
             <span className="font-black text-[22px] leading-none tracking-tighter">K</span>
           </div>
           <span className="font-black text-[22px] tracking-tighter text-slate-800 dark:text-white hidden sm:block">
-            KPSS<span className="text-blue-600 dark:text-blue-500">26</span>
+            KPSS<span className="text-[#1cb0f6]">26</span>
           </span>
         </Link>
 

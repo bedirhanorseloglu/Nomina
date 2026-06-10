@@ -143,22 +143,26 @@ export default function ExamSimulatorPage() {
 
   if (isFinished) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="min-h-screen bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-6 fixed inset-0 z-50">
         <motion.div 
-          initial={{ scale: 0.9, opacity: 0 }}
+          initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          className="bg-white p-10 rounded-[3rem] shadow-2xl text-center max-w-lg border border-slate-100"
+          transition={{ type: "spring", bounce: 0.5, duration: 0.5 }}
+          className="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-[2.5rem] shadow-2xl max-w-md w-full text-center border-4 border-white/50 dark:border-white/10"
         >
-          <div className="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle2 className="w-12 h-12" />
+          <div className="w-24 h-24 bg-[#58cc02]/10 text-[#58cc02] rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-inner relative">
+            <div className="absolute inset-0 bg-[#58cc02]/20 rounded-[1.5rem] animate-ping opacity-50" />
+            <CheckCircle2 className="w-12 h-12 relative z-10" />
           </div>
-          <h2 className="text-3xl font-black text-slate-800 tracking-tight mb-4">Sınav Tamamlandı!</h2>
-          <p className="text-slate-500 font-medium mb-8">Gerçek bir sınav deneyimi yaşadın. Şimdi derin bir nefes al ve sonuçlarını deneme merkezine kaydet.</p>
+          <h2 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight mb-4">Süre Doldu!</h2>
+          <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 leading-relaxed text-lg">
+            Harika bir odaklanmaydı! Gerçek bir sınav deneyimi yaşadın. Şimdi derin bir nefes al ve sonuçlarını deneme merkezine kaydet.
+          </p>
           <button 
             onClick={() => router.push("/liderlik")} 
-            className="w-full bg-slate-900 text-white font-bold py-4 rounded-2xl hover:bg-slate-800 transition-colors"
+            className="w-full bg-[#58cc02] border-b-4 border-[#46a302] hover:bg-[#46a302] text-white font-black py-4 rounded-2xl transition-all active:translate-y-1 active:border-b-0 active:mb-1 text-lg"
           >
-            Sonuçları Kaydetmeye Git
+            Sonuçları Kaydet
           </button>
         </motion.div>
       </div>
@@ -185,22 +189,22 @@ export default function ExamSimulatorPage() {
 
   if (!hasStarted) {
     return (
-      <div className="min-h-screen bg-slate-900 flex flex-col items-center p-6 text-white relative overflow-hidden">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/20 blur-[120px] rounded-full pointer-events-none" />
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0b0f19] flex flex-col items-center p-6 text-slate-900 dark:text-white relative overflow-hidden transition-colors duration-500">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/10 dark:bg-blue-500/20 blur-[120px] rounded-full pointer-events-none" />
         
         {/* Header */}
         <div className="w-full max-w-4xl flex items-center justify-between z-10 mb-12 mt-4">
            <button 
              onClick={() => setupStep === "mode" ? router.back() : setSetupStep("mode")}
-             className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors font-medium"
+             className="flex items-center gap-2 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition-colors font-bold"
            >
              <ArrowLeft className="w-5 h-5" /> Geri
            </button>
            <div className="flex items-center gap-3">
-             <div className="w-10 h-10 bg-accent/20 text-accent rounded-xl flex items-center justify-center border border-accent/30">
+             <div className="w-10 h-10 bg-blue-100 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 rounded-xl flex items-center justify-center border border-blue-200 dark:border-blue-500/30">
                <Shield className="w-5 h-5" />
              </div>
-             <span className="font-bold tracking-widest text-sm text-slate-300">ÖSYM ODAK MODU</span>
+             <span className="font-black tracking-widest text-sm text-slate-500 dark:text-slate-300 uppercase">ÖSYM Odak Modu</span>
            </div>
         </div>
 
@@ -214,8 +218,8 @@ export default function ExamSimulatorPage() {
                 exit={{ opacity: 0, y: -20 }}
                 className="flex flex-col items-center text-center mt-12"
               >
-                <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Ne Çözeceksin?</h1>
-                <p className="text-lg text-slate-400 mb-12 max-w-2xl">
+                <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-slate-800 dark:text-white">Ne Çözeceksin?</h1>
+                <p className="text-lg text-slate-500 dark:text-slate-400 mb-12 max-w-2xl font-medium">
                   Odaklanmak istediğin sınav tipini seç. Simülatör seni dış dünyadan soyutlayarak gerçek bir sınav atmosferi yaşatacak.
                 </p>
 
@@ -226,13 +230,13 @@ export default function ExamSimulatorPage() {
                       setCustomDuration(130);
                       setSetupStep("duration");
                     }}
-                    className="group bg-slate-800/50 hover:bg-slate-800 border-2 border-slate-700/50 hover:border-emerald-500/50 rounded-3xl p-8 text-left transition-all hover:scale-105"
+                    className="group bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border-2 border-slate-200 dark:border-slate-700/50 hover:border-[#58cc02] dark:hover:border-[#58cc02] rounded-3xl p-8 text-left transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#58cc02]/10"
                   >
-                    <div className="w-16 h-16 bg-emerald-500/10 text-emerald-400 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                    <div className="w-16 h-16 bg-[#58cc02]/10 text-[#58cc02] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#58cc02] group-hover:text-white transition-colors">
                       <Target className="w-8 h-8" />
                     </div>
-                    <h3 className="text-2xl font-bold mb-2">Genel Deneme</h3>
-                    <p className="text-slate-400 font-medium">120 soru, 130 dakika. Tam teşekküllü GY-GK KPSS provası.</p>
+                    <h3 className="text-2xl font-black mb-2 text-slate-800 dark:text-white">Genel Deneme</h3>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium">120 soru, 130 dakika. Tam teşekküllü GY-GK KPSS provası.</p>
                   </button>
 
                   <button 
@@ -240,13 +244,13 @@ export default function ExamSimulatorPage() {
                       setExamMode("brans");
                       setSetupStep("duration");
                     }}
-                    className="group bg-slate-800/50 hover:bg-slate-800 border-2 border-slate-700/50 hover:border-blue-500/50 rounded-3xl p-8 text-left transition-all hover:scale-105"
+                    className="group bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border-2 border-slate-200 dark:border-slate-700/50 hover:border-[#1cb0f6] dark:hover:border-[#1cb0f6] rounded-3xl p-8 text-left transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#1cb0f6]/10"
                   >
-                    <div className="w-16 h-16 bg-blue-500/10 text-blue-400 rounded-2xl flex items-center justify-center mb-6 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                    <div className="w-16 h-16 bg-[#1cb0f6]/10 text-[#1cb0f6] rounded-2xl flex items-center justify-center mb-6 group-hover:bg-[#1cb0f6] group-hover:text-white transition-colors">
                       <Layers className="w-8 h-8" />
                     </div>
-                    <h3 className="text-2xl font-bold mb-2">Branş Denemesi</h3>
-                    <p className="text-slate-400 font-medium">Spesifik bir derse odaklan. Süreni konuya göre sen belirle.</p>
+                    <h3 className="text-2xl font-black mb-2 text-slate-800 dark:text-white">Branş Denemesi</h3>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium">Spesifik bir derse odaklan. Süreni konuya göre sen belirle.</p>
                   </button>
                 </div>
               </motion.div>
@@ -261,54 +265,68 @@ export default function ExamSimulatorPage() {
                 className="flex flex-col items-center mt-12 w-full max-w-3xl mx-auto"
               >
                 <div className="text-center mb-12">
-                  <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4">Süreni Belirle</h1>
-                  <p className="text-lg text-slate-400">
+                  <h1 className="text-4xl md:text-5xl font-black tracking-tight mb-4 text-slate-800 dark:text-white">Süreni Belirle</h1>
+                  <p className="text-lg text-slate-500 dark:text-slate-400 font-medium">
                     {examMode === "genel" ? "Genel deneme için varsayılan süre 130 dakikadır. İstersen değiştirebilirsin." : "Çözeceğin branşı seç veya doğrudan süreni gir."}
                   </p>
                 </div>
 
                 {examMode === "brans" && (
                   <div className="flex flex-wrap justify-center gap-3 mb-10 w-full">
-                    {SUBJECTS.map((sub) => (
-                      <button
-                        key={sub.id}
-                        onClick={() => {
-                          setSelectedSubject(sub);
-                          setCustomDuration(sub.defaultDuration);
-                        }}
-                        className={`px-6 py-3 rounded-2xl font-bold border-2 transition-all ${selectedSubject?.id === sub.id ? "bg-blue-500 border-blue-500 text-white" : "bg-slate-800/50 border-slate-700 text-slate-300 hover:border-blue-500/50"}`}
-                      >
-                        {sub.name} ({sub.defaultDuration} Dk)
-                      </button>
-                    ))}
+                    {SUBJECTS.map((sub) => {
+                      // Apple/Duolingo colors mapping
+                      const colorMap: Record<string, string> = {
+                        "tarih": "#ff9500",
+                        "cografya": "#58cc02",
+                        "vatandaslik": "#5856d6",
+                        "turkce": "#1cb0f6",
+                        "matematik": "#af52de"
+                      };
+                      const color = colorMap[sub.id] || "#1cb0f6";
+                      const isSelected = selectedSubject?.id === sub.id;
+
+                      return (
+                        <button
+                          key={sub.id}
+                          onClick={() => {
+                            setSelectedSubject(sub);
+                            setCustomDuration(sub.defaultDuration);
+                          }}
+                          style={isSelected ? { backgroundColor: color, borderColor: color, color: "white" } : {}}
+                          className={`px-6 py-3 rounded-2xl font-black border-2 transition-all hover:-translate-y-0.5 ${isSelected ? "shadow-lg" : "bg-white dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-slate-300 dark:hover:border-slate-600"}`}
+                        >
+                          {sub.name} ({sub.defaultDuration} Dk)
+                        </button>
+                      );
+                    })}
                   </div>
                 )}
 
-                <div className="bg-slate-800/80 border border-slate-700 rounded-3xl p-8 w-full max-w-md mx-auto text-center mb-10">
-                  <label className="block text-slate-400 font-bold mb-6 text-sm uppercase tracking-widest">{examMode === "genel" ? "Sabit Süre" : "Özel Süre (Dakika)"}</label>
+                <div className="bg-white dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-[2rem] p-8 w-full max-w-md mx-auto text-center mb-10 shadow-sm">
+                  <label className="block text-slate-400 dark:text-slate-500 font-black mb-6 text-sm uppercase tracking-widest">{examMode === "genel" ? "Sabit Süre" : "Özel Süre (Dakika)"}</label>
                   <div className="flex items-center justify-center gap-6">
                     <button 
                       onClick={() => setCustomDuration(Math.max(1, customDuration - 5))}
                       disabled={examMode === "genel"}
-                      className="w-16 h-16 rounded-2xl bg-slate-700 text-white font-black text-3xl hover:bg-slate-600 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-white font-black text-3xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >-</button>
-                    <div className="text-6xl font-black text-white w-32 tabular-nums">
+                    <div className="text-6xl font-black text-slate-800 dark:text-white w-32 tabular-nums">
                       {customDuration}
                     </div>
                     <button 
                       onClick={() => setCustomDuration(customDuration + 5)}
                       disabled={examMode === "genel"}
-                      className="w-16 h-16 rounded-2xl bg-slate-700 text-white font-black text-3xl hover:bg-slate-600 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-white font-black text-3xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >+</button>
                   </div>
                   {examMode === "genel" && (
-                     <p className="mt-6 text-emerald-400 text-sm font-medium">Genel deneme süresi gerçek sınavla aynıdır ve değiştirilemez.</p>
+                     <p className="mt-6 text-[#58cc02] text-sm font-bold">Genel deneme süresi gerçek sınavla aynıdır ve değiştirilemez.</p>
                   )}
                 </div>
 
                 <button 
                   onClick={startExam}
-                  className="bg-accent w-full max-w-md text-white font-black text-xl py-6 rounded-2xl flex items-center justify-center gap-3 hover:bg-emerald-400 hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_40px_rgba(16,185,129,0.3)]"
+                  className="bg-[#1cb0f6] border-b-4 border-[#1899d6] w-full max-w-md text-white font-black text-xl py-5 rounded-2xl flex items-center justify-center gap-3 hover:bg-[#1899d6] active:translate-y-1 active:border-b-0 active:mb-1 transition-all"
                 >
                   <Play className="w-6 h-6 fill-current" />
                   Sınavı Başlat
@@ -449,39 +467,42 @@ export default function ExamSimulatorPage() {
 
       <AnimatePresence>
         {showExitWarning && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-sm">
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-md">
             <motion.div 
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-2xl max-w-md w-full text-center"
+              exit={{ scale: 0.8, opacity: 0 }}
+              transition={{ type: "spring", bounce: 0.5, duration: 0.5 }}
+              className="bg-white dark:bg-slate-800 p-8 sm:p-10 rounded-[2.5rem] shadow-2xl max-w-sm w-full text-center border-4 border-white/50 dark:border-white/10"
             >
-              <div className="w-16 h-16 bg-red-100 dark:bg-red-500/20 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                <AlertTriangle className="w-8 h-8" />
+              <div className="w-20 h-20 bg-[#ff2d55]/10 text-[#ff2d55] rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
+                <AlertTriangle className="w-10 h-10" />
               </div>
-              <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Emin misiniz?</h3>
-              <p className="text-slate-500 dark:text-slate-400 font-medium mb-8">
-                Odaklanmayı şimdi bırakırsanız sınav atmosferinden kopacaksınız. Kalan süreniz: {hours > 0 ? `${formatDigit(hours)}:` : ''}{formatDigit(mins)}:{formatDigit(secs)}
+              <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-3 tracking-tight">Pes mi ediyorsun?</h3>
+              <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 leading-relaxed">
+                Odaklanmayı şimdi bırakırsanız sınav atmosferinden kopacaksınız.<br/>
+                <span className="block mt-4 text-sm uppercase tracking-widest font-bold">Kalan Süreniz</span>
+                <strong className="text-slate-800 dark:text-white text-3xl block mt-1 font-mono tracking-tighter tabular-nums">{hours > 0 ? `${formatDigit(hours)}:` : ''}{formatDigit(mins)}:{formatDigit(secs)}</strong>
               </p>
               
-              <div className="space-y-3">
+              <div className="flex flex-col gap-3">
                 <button 
                   onClick={() => setShowExitWarning(false)}
-                  className="w-full bg-slate-100 dark:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold py-3 rounded-xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-colors"
+                  className="w-full bg-[#1cb0f6] border-b-4 border-[#1899d6] hover:bg-[#1899d6] text-white font-black py-4 rounded-2xl transition-all active:translate-y-1 active:border-b-0 active:mb-1"
                 >
                   Odaklanmaya Devam Et
                 </button>
                 <button 
                   onClick={finishExam}
-                  className="w-full bg-red-500 text-white font-bold py-3 rounded-xl hover:bg-red-600 transition-colors"
+                  className="w-full bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-white font-bold py-3.5 rounded-2xl transition-all active:scale-95"
                 >
                   Sınavı Erken Bitir
                 </button>
                 <button 
                   onClick={forceExit}
-                  className="w-full text-slate-400 dark:text-slate-500 font-bold py-2 text-sm hover:text-slate-600 dark:hover:text-slate-400"
+                  className="w-full text-slate-400 hover:text-[#ff2d55] font-bold py-2 mt-2 text-sm transition-colors"
                 >
-                  Anasayfaya Dön (İptal)
+                  Anasayfaya Dön
                 </button>
               </div>
             </motion.div>

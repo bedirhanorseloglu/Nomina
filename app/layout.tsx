@@ -4,7 +4,15 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import AuthGuard from "@/components/auth/AuthGuard";
 import GlobalPomodoro from "@/components/GlobalPomodoro";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { Nunito } from "next/font/google";
 import "./globals.css";
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700", "800", "900"],
+});
 
 export const metadata: Metadata = {
   title: "KPSS 2026 Komuta Merkezi",
@@ -17,8 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="tr" suppressHydrationWarning>
-      <body className="antialiased min-h-screen flex flex-col">
+    <html lang="tr" suppressHydrationWarning className={nunito.variable}>
+      <body className="antialiased min-h-screen flex flex-col font-sans">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             {children}

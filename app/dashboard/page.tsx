@@ -159,12 +159,19 @@ function HomeContent() {
     })
     setData({ ...data, subjects: newSubjects })
     if (wasCompleted) {
-      toast.success("Müfredat konusu tamamlandı! Başarılar! 📘")
-      confetti({
-        particleCount: 80,
-        spread: 60,
-        origin: { y: 0.8 }
-      })
+      toast.custom((t) => (
+        <div className="flex items-center justify-center w-full mt-2">
+          <div className="bg-slate-900/80 dark:bg-white/80 backdrop-blur-xl text-white dark:text-slate-900 flex items-center gap-4 px-6 py-4 rounded-full shadow-2xl shadow-black/20 border border-slate-700/50 dark:border-white/50 min-w-[340px]">
+            <div className="w-10 h-10 bg-[#1cb0f6] rounded-full flex items-center justify-center shrink-0 shadow-inner">
+              <span className="text-xl">📘</span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[15px] font-black tracking-tight leading-tight">Müfredat Konusu Tamamlandı!</span>
+              <span className="text-sm text-slate-200 dark:text-slate-600 font-bold mt-0.5">Başarılar! 🚀</span>
+            </div>
+          </div>
+        </div>
+      ), { position: 'top-center', duration: 3000 })
     }
   }
 
@@ -276,12 +283,19 @@ function HomeContent() {
     const newCompletedNotes = { ...currentCompleted, [slotId]: isNowCompleted }
     setData({ ...data, completedNotes: newCompletedNotes })
     if (isNowCompleted) {
-      toast.success("Günlük görev tamamlandı! Harika gidiyorsun! 🚀")
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.75 }
-      })
+      toast.custom((t) => (
+        <div className="flex items-center justify-center w-full mt-2">
+          <div className="bg-slate-900/80 dark:bg-white/80 backdrop-blur-xl text-white dark:text-slate-900 flex items-center gap-4 px-6 py-4 rounded-full shadow-2xl shadow-black/20 border border-slate-700/50 dark:border-white/50 min-w-[340px]">
+            <div className="w-10 h-10 bg-[#58cc02] rounded-full flex items-center justify-center shrink-0 shadow-inner">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[15px] font-black tracking-tight leading-tight">Günlük görev tamamlandı!</span>
+              <span className="text-sm text-slate-200 dark:text-slate-600 font-bold mt-0.5">Harika gidiyorsun! 🚀</span>
+            </div>
+          </div>
+        </div>
+      ), { position: 'top-center', duration: 4000 })
     }
   }
 
@@ -501,42 +515,42 @@ function HomeContent() {
                 {/* Right Col: Timeline & Context */}
                 <div className="xl:col-span-8 flex flex-col gap-6">
                   {/* View Switcher Tabs */}
-                  <div className="bg-white dark:bg-[#1e293b]/80 backdrop-blur-sm border border-gray-100 dark:border-white/5 rounded-3xl p-2 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <div className="bg-white dark:bg-[#1e293b]/80 backdrop-blur-sm border-2 border-slate-100 dark:border-white/5 rounded-3xl p-1.5 shadow-sm flex flex-col sm:flex-row items-stretch sm:items-center gap-1.5">
                     <button 
                       onClick={() => setActiveView('daily')}
-                      className={`flex-1 py-3 sm:py-4 rounded-2xl text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-2 sm:gap-3 relative overflow-hidden ${
+                      className={`flex-1 py-3.5 sm:py-4 rounded-[1.25rem] text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 relative overflow-hidden ${
                         activeView === 'daily' 
-                          ? 'text-white' 
-                          : 'text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
+                          ? 'text-white shadow-md' 
+                          : 'text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
                       }`}
                     >
                       {activeView === 'daily' && (
                         <motion.div 
                           layoutId="activeTabBg"
-                          className="absolute inset-0 bg-blue-500"
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          className="absolute inset-0 bg-[#1cb0f6] border-b-[3px] border-[#1899d6]"
+                          transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
                         />
                       )}
-                      <span className="relative z-10">Günlük Operasyon</span>
-                      {activeView === 'daily' && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-1.5 h-1.5 rounded-full bg-white animate-pulse relative z-10" />}
+                      <span className={`relative z-10 ${activeView === 'daily' ? 'mt-[3px]' : ''}`}>Günlük Operasyon</span>
+                      {activeView === 'daily' && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-1.5 h-1.5 rounded-full bg-white relative z-10 mt-[3px]" />}
                     </button>
                     <button 
                       onClick={() => setActiveView('monthly')}
-                      className={`flex-1 py-3 sm:py-4 rounded-2xl text-[10px] sm:text-xs font-bold uppercase tracking-widest transition-all duration-500 flex items-center justify-center gap-2 sm:gap-3 relative overflow-hidden ${
+                      className={`flex-1 py-3.5 sm:py-4 rounded-[1.25rem] text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 relative overflow-hidden ${
                         activeView === 'monthly' 
-                          ? 'text-white' 
-                          : 'text-gray-500 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5'
+                          ? 'text-white shadow-md' 
+                          : 'text-slate-400 hover:text-slate-600 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/5'
                       }`}
                     >
                       {activeView === 'monthly' && (
                         <motion.div 
                           layoutId="activeTabBg"
-                          className="absolute inset-0 bg-blue-500"
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          className="absolute inset-0 bg-[#1cb0f6] border-b-[3px] border-[#1899d6]"
+                          transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
                         />
                       )}
-                      <span className="relative z-10">Aylık Projeksiyon</span>
-                      {activeView === 'monthly' && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-1.5 h-1.5 rounded-full bg-white animate-pulse relative z-10" />}
+                      <span className={`relative z-10 ${activeView === 'monthly' ? 'mt-[3px]' : ''}`}>Aylık Projeksiyon</span>
+                      {activeView === 'monthly' && <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-1.5 h-1.5 rounded-full bg-white relative z-10 mt-[3px]" />}
                     </button>
                   </div>
 

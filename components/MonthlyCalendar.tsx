@@ -68,15 +68,15 @@ function DroppableDayCell({
     <div
       ref={setNodeRef}
       onClick={onClick}
-      className={`min-h-[110px] p-2 border rounded-2xl transition-all duration-300 cursor-pointer flex flex-col gap-1 relative group overflow-hidden ${
-        !isCurrentMonth ? 'opacity-20 pointer-events-none' : 'hover:bg-slate-50 dark:hover:bg-slate-800'
-      } ${isToday ? 'bg-accent/5 border-accent/30 shadow-sm' : 'border-slate-100 dark:border-slate-700 bg-white dark:bg-slate-900'} ${
-        isOver ? 'scale-105 z-20 ring-2 ring-accent bg-accent/10 border-transparent shadow-xl' : ''
+      className={`min-h-[120px] p-2.5 border-2 rounded-[1.5rem] transition-all duration-300 cursor-pointer flex flex-col gap-1.5 relative group overflow-hidden ${
+        !isCurrentMonth ? 'opacity-30 pointer-events-none border-slate-100 dark:border-slate-800' : 'hover:-translate-y-1 hover:shadow-lg'
+      } ${isToday ? 'bg-[#1cb0f6]/5 border-[#1cb0f6] shadow-sm' : 'border-slate-100 dark:border-white/5 bg-white dark:bg-[#1e293b]/80 hover:border-[#1cb0f6]/50'} ${
+        isOver ? 'scale-105 z-20 ring-4 ring-[#1cb0f6]/30 bg-[#1cb0f6]/10 border-[#1cb0f6] shadow-xl' : ''
       }`}
     >
       <div className="flex justify-between items-center mb-1">
-        <span className={`text-xs font-black font-mono px-2 py-0.5 rounded-lg ${
-          isToday ? 'bg-accent text-white' : isExamDay ? 'bg-red-500 text-white' : 'text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100'
+        <span className={`text-[11px] font-black font-mono px-2.5 py-1 rounded-[0.75rem] border-2 transition-colors ${
+          isToday ? 'bg-[#1cb0f6] text-white border-[#1cb0f6] shadow-sm' : isExamDay ? 'bg-[#ff2d55] text-white border-[#ff2d55]' : 'bg-transparent border-transparent text-slate-400 group-hover:bg-slate-50 dark:group-hover:bg-slate-800/50 group-hover:text-slate-700 dark:group-hover:text-white group-hover:border-slate-200 dark:group-hover:border-slate-700'
         }`}>
           {format(date, "d")}
         </span>
@@ -94,8 +94,8 @@ function DroppableDayCell({
           return (
             <div 
               key={`${topic.id}-${topic.scheduledTime || idx}`} 
-              className="text-[9px] font-bold px-1.5 py-0.5 rounded-md truncate opacity-90 border border-slate-100 shadow-sm"
-              style={{ backgroundColor: `${subject?.color || 'var(--accent)'}10`, color: subject?.color || 'var(--accent)' }}
+              className="text-[9px] font-black px-2 py-1 rounded-[0.5rem] truncate opacity-100 border-2 shadow-sm transition-transform hover:scale-105"
+              style={{ backgroundColor: `${subject?.color || '#1cb0f6'}15`, borderColor: `${subject?.color || '#1cb0f6'}30`, color: subject?.color || '#1cb0f6' }}
             >
               {topic.title}
             </div>
@@ -132,14 +132,14 @@ export default function MonthlyCalendar({ topics, subjects, slotNotes, completed
   const days = eachDayOfInterval({ start: startDate, end: endDate })
 
   return (
-    <div className="glass rounded-[2rem] p-8">
-      <div className="flex justify-between items-center mb-8 px-2">
-        <h2 className="text-2xl font-black font-heading capitalize text-slate-900 dark:text-slate-100 tracking-tight">
+    <div className="bg-white dark:bg-[#1e293b]/80 backdrop-blur-sm rounded-[2rem] p-6 sm:p-8 shadow-sm border border-slate-100 dark:border-white/5">
+      <div className="flex justify-between items-center mb-8">
+        <h2 className="text-3xl font-black capitalize text-slate-800 dark:text-white tracking-tight">
           {format(currentDate, "MMMM yyyy", { locale: tr })}
         </h2>
-        <div className="flex gap-2 p-1 bg-slate-50 dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700">
-          <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none">←</button>
-          <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="w-10 h-10 rounded-xl hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none">→</button>
+        <div className="flex gap-2 p-1.5 bg-slate-50 dark:bg-black/20 rounded-[1.5rem] border-2 border-slate-100 dark:border-white/5">
+          <button onClick={() => setCurrentDate(subMonths(currentDate, 1))} className="w-12 h-12 rounded-[1rem] hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none font-bold">→</button>
+          <button onClick={() => setCurrentDate(addMonths(currentDate, 1))} className="w-12 h-12 rounded-[1rem] hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none font-bold">→</button>
         </div>
       </div>
 
@@ -172,20 +172,20 @@ export default function MonthlyCalendar({ topics, subjects, slotNotes, completed
         })}
       </div>
       
-      <div className="mt-8 flex items-center gap-6 px-4">
-          <div className="flex items-center gap-2">
-             <div className="flex items-center gap-0.5 bg-red-50 p-1 rounded-md border border-red-100 shadow-sm scale-90">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      <div className="mt-8 flex flex-wrap items-center gap-4 sm:gap-6 pt-6 border-t-2 border-slate-100 dark:border-slate-800/50">
+          <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-2 rounded-xl border-2 border-slate-100 dark:border-slate-700">
+             <div className="flex items-center justify-center w-6 h-6 bg-[#ff2d55]/10 rounded-lg">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="#ff2d55"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
              </div>
-             <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Youtube Notları</span>
+             <span className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest">Youtube Notları</span>
           </div>
-         <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-blue-500 shadow-sm shadow-blue-500/30" />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tekrarlar</span>
+         <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-2 rounded-xl border-2 border-slate-100 dark:border-slate-700">
+            <div className="w-4 h-4 rounded-full bg-[#1cb0f6] border-4 border-[#1cb0f6]/20" />
+            <span className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest">Tekrarlar</span>
          </div>
-         <div className="flex items-center gap-2">
-            <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-sm shadow-indigo-500/30" />
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dersler</span>
+         <div className="flex items-center gap-3 bg-slate-50 dark:bg-slate-800/50 px-4 py-2 rounded-xl border-2 border-slate-100 dark:border-slate-700">
+            <div className="w-4 h-4 rounded-full bg-[#af52de] border-4 border-[#af52de]/20" />
+            <span className="text-[10px] sm:text-xs font-black text-slate-500 uppercase tracking-widest">Dersler</span>
          </div>
       </div>
     </div>

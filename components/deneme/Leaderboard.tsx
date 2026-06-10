@@ -104,7 +104,7 @@ export default function Leaderboard() {
         
         <div className="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between mb-10 gap-6">
           <div className="flex items-center gap-5">
-            <div className="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/30 transform -rotate-6">
+            <div className="w-16 h-16 rounded-[1.5rem] bg-[#ff9500]/10 border border-[#ff9500]/20 flex items-center justify-center text-[#ff9500] shadow-sm shrink-0">
               <Trophy className="w-8 h-8" />
             </div>
             <div>
@@ -115,25 +115,31 @@ export default function Leaderboard() {
             </div>
           </div>
           
-          <div className="bg-slate-100 dark:bg-white/5 p-1.5 rounded-2xl flex gap-1 border border-slate-200 dark:border-white/10 w-fit">
+          <div className="bg-slate-100/80 dark:bg-white/5 p-1.5 rounded-[1.25rem] flex gap-1 border border-slate-200/60 dark:border-white/10 w-fit relative">
             <button
               onClick={() => setLeaderboardType("genel")}
-              className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+              className={`relative z-10 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors w-36 ${
                 leaderboardType === "genel" 
-                  ? "bg-white dark:bg-[#1e293b] text-blue-600 shadow-sm border border-slate-200/50 dark:border-white/5" 
+                  ? "text-[#1cb0f6]" 
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
+              {leaderboardType === "genel" && (
+                <motion.div layoutId="leaderboardTab" className="absolute inset-0 bg-white dark:bg-[#1e293b] rounded-xl shadow-[0_2px_8px_rgb(0,0,0,0.04)] border border-slate-200/50 dark:border-white/5 -z-10" />
+              )}
               Genel Deneme
             </button>
             <button
               onClick={() => setLeaderboardType("brans")}
-              className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
+              className={`relative z-10 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors w-36 ${
                 leaderboardType === "brans" 
-                  ? "bg-white dark:bg-[#1e293b] text-violet-600 shadow-sm border border-slate-200/50 dark:border-white/5" 
+                  ? "text-[#af52de]" 
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
+              {leaderboardType === "brans" && (
+                <motion.div layoutId="leaderboardTab" className="absolute inset-0 bg-white dark:bg-[#1e293b] rounded-xl shadow-[0_2px_8px_rgb(0,0,0,0.04)] border border-slate-200/50 dark:border-white/5 -z-10" />
+              )}
               Branş
             </button>
           </div>

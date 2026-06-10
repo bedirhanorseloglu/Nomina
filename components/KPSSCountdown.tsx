@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"
 const EXAM_DATE = new Date("2026-09-06T10:15:00").getTime()
 
 const FlipNumber = ({ value, label, isDanger, isWarning }: { value: number, label: string, isDanger: boolean, isWarning: boolean }) => {
-  const colorClass = isDanger ? "text-red-500" : isWarning ? "text-amber-500" : "text-blue-500"
+  const colorClass = isDanger ? "text-[#ff2d55]" : isWarning ? "text-[#ff9500]" : "text-[#1cb0f6]"
   
   return (
     <div className="flex flex-col items-center">

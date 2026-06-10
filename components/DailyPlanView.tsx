@@ -37,16 +37,16 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
   return (
     <div 
       ref={setNodeRef}
-      className={`group relative rounded-2xl p-4 transition-all duration-300 border flex flex-col gap-3 ${
+      className={`group relative rounded-[1.5rem] p-5 transition-all duration-300 border-2 flex flex-col gap-4 ${
         isLocked 
-          ? 'bg-slate-50 dark:bg-slate-800 border-slate-100 dark:border-slate-700 opacity-60' 
-          : 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-700 hover:border-accent/40 dark:hover:border-accent/40 hover:shadow-md'
-      } ${isOver ? 'ring-2 ring-accent border-transparent scale-[1.02] z-10' : ''} ${
-        isDragging && !isLocked && !topic ? 'border-dashed border-accent/30 bg-accent/5 animate-pulse' : ''
+          ? 'bg-slate-50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700 opacity-60' 
+          : 'bg-white dark:bg-[#1e293b]/80 border-slate-100 dark:border-white/5 hover:border-[#1cb0f6] dark:hover:border-[#1cb0f6] hover:shadow-xl hover:-translate-y-1'
+      } ${isOver ? 'ring-4 ring-[#1cb0f6]/30 border-[#1cb0f6] scale-[1.02] z-10' : ''} ${
+        isDragging && !isLocked && !topic ? 'border-dashed border-[#1cb0f6]/50 bg-[#1cb0f6]/5 animate-pulse' : ''
       }`}
     >
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-black font-mono text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors tracking-tighter bg-slate-100 dark:bg-slate-800 px-2.5 py-1 rounded-lg border border-slate-200 dark:border-slate-700">
+        <span className="text-[11px] font-black font-mono text-[#1cb0f6] tracking-tighter bg-[#1cb0f6]/10 px-3 py-1.5 rounded-[0.75rem] border-2 border-[#1cb0f6]/20">
           {hour.toString().padStart(2, '0')}:00
         </span>
         {topic && !isLocked && (
@@ -55,9 +55,9 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
               e.stopPropagation();
               onRemoveTopic(topic.id, dateStr, `${hour.toString().padStart(2, '0')}:00`);
             }}
-            className="w-6 h-6 rounded-md bg-slate-50 dark:bg-slate-800 text-slate-300 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100"
+            className="w-7 h-7 rounded-[0.75rem] bg-slate-50 dark:bg-slate-800 text-slate-400 hover:bg-[#ff2d55] hover:text-white flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 active:scale-90 shadow-sm"
           >
-            ✕
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         )}
       </div>
@@ -92,8 +92,8 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
              </div>
           </div>
         ) : (
-          <div className="flex items-center justify-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl py-4 bg-slate-50/50 dark:bg-slate-800/50">
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 group-hover:text-accent/60 transition-colors">
+          <div className="flex items-center justify-center border-2 border-dashed border-slate-200 dark:border-slate-700/50 rounded-[1rem] py-5 bg-slate-50 dark:bg-slate-800/30 group-hover:bg-[#1cb0f6]/5 group-hover:border-[#1cb0f6]/30 transition-all">
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-300 group-hover:text-[#1cb0f6] transition-colors">
                {isDragging ? "BURAYA BIRAK" : "BOŞ SLOT"}
              </span>
           </div>
@@ -101,17 +101,17 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
       </div>
 
       {!isLocked && (
-        <div className={`mt-2 p-3 rounded-xl border transition-all relative ${
+        <div className={`p-3.5 rounded-[1.25rem] border-2 transition-all relative ${
           note 
             ? isCompleted 
-              ? 'bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700 opacity-60' 
-              : 'bg-amber-50/50 dark:bg-amber-900/10 border-amber-100 dark:border-amber-900/30 shadow-sm' 
-            : 'bg-slate-50/50 dark:bg-slate-800/50 border-slate-100 dark:border-slate-700 group-hover:bg-white dark:group-hover:bg-slate-800'
+              ? 'bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 opacity-60' 
+              : 'bg-[#ffc800]/10 dark:bg-[#ffc800]/5 border-[#ffc800]/30 shadow-sm' 
+            : 'bg-slate-50/50 dark:bg-slate-800/30 border-slate-100 dark:border-white/5 group-hover:bg-white dark:group-hover:bg-slate-800/50'
         }`}>
-           <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-2 opacity-40">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                <span className="text-[8px] font-black uppercase tracking-widest">Özel Not</span>
+           <div className="flex items-center justify-between mb-2">
+              <div className={`flex items-center gap-2 ${note ? (isCompleted ? 'opacity-40' : 'text-[#ffc800]') : 'opacity-40 text-slate-400'}`}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <span className="text-[9px] font-black uppercase tracking-widest">Özel Not</span>
               </div>
               
               {note && (
@@ -120,10 +120,10 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
                     e.stopPropagation();
                     onToggleNote(slotId);
                   }}
-                  className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
                     isCompleted 
-                      ? 'bg-emerald-500 border-emerald-500 text-white scale-110 shadow-lg shadow-emerald-500/20' 
-                      : 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 hover:border-emerald-400'
+                      ? 'bg-[#58cc02] border-[#58cc02] text-white scale-110 shadow-lg shadow-[#58cc02]/20' 
+                      : 'bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-600 hover:border-[#58cc02] hover:bg-[#58cc02]/10'
                   }`}
                 >
                   <AnimatePresence mode="wait">
@@ -134,7 +134,7 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
                         exit={{ scale: 0, rotate: 45 }}
                         transition={{ duration: 0.2 }}
                       >
-                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12"></polyline>
                         </svg>
                       </motion.div>
@@ -148,8 +148,8 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
              onChange={(e) => onUpdateNote(slotId, e.target.value)}
              placeholder="Bir not bırakın..."
              rows={2}
-             className={`w-full bg-transparent border-0 outline-none text-xs font-medium transition-all placeholder:text-slate-200 dark:placeholder:text-slate-600 resize-none leading-relaxed ${
-               isCompleted ? 'text-slate-400 dark:text-slate-500 line-through' : 'text-slate-700 dark:text-slate-300 focus:text-slate-900 dark:focus:text-slate-100'
+             className={`w-full bg-transparent border-0 outline-none text-xs font-bold transition-all placeholder:text-slate-300 dark:placeholder:text-slate-600 resize-none leading-relaxed ${
+               isCompleted ? 'text-slate-400 dark:text-slate-500 line-through' : 'text-slate-700 dark:text-slate-200 focus:text-slate-900 dark:focus:white'
              }`}
              onClick={(e) => e.stopPropagation()}
            />
@@ -287,23 +287,23 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
   return (
     <div className="flex flex-col gap-6">
       {/* Date Header */}
-      <div className="glass rounded-3xl p-4 sm:p-6 flex flex-col lg:flex-row justify-between items-center gap-6">
+      <div className="bg-white dark:bg-[#1e293b]/80 backdrop-blur-sm rounded-[2rem] p-4 sm:p-6 flex flex-col lg:flex-row justify-between items-center gap-6 shadow-sm border border-slate-100 dark:border-white/5">
         <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 w-full lg:w-auto">
-           <div className="bg-accent/10 w-16 h-16 rounded-2xl flex flex-col items-center justify-center border border-accent/20 shadow-sm">
-              <span className="text-[10px] font-black uppercase text-accent tracking-tighter">{format(date, "MMM", { locale: tr })}</span>
-              <span className="text-2xl font-black text-slate-900 dark:text-slate-100 leading-tight">{format(date, "dd")}</span>
+           <div className="bg-[#1cb0f6]/10 w-16 h-16 rounded-[1.25rem] flex flex-col items-center justify-center border-2 border-[#1cb0f6]/20 shadow-sm">
+              <span className="text-[10px] font-black uppercase text-[#1cb0f6] tracking-widest">{format(date, "MMM", { locale: tr })}</span>
+              <span className="text-2xl font-black text-slate-800 dark:text-white leading-tight mt-0.5">{format(date, "dd")}</span>
            </div>
            <div className="flex flex-col text-center lg:text-left">
-              <h2 className="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+              <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">
                 {format(date, "EEEE", { locale: tr })}
               </h2>
-              <div className="flex items-center justify-center lg:justify-start gap-3 mt-1">
+              <div className="flex items-center justify-center lg:justify-start gap-3 mt-2">
                 <button 
                   onClick={() => onToggleHoliday(dateStr)}
-                  className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full border transition-all ${
+                  className={`text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border-2 transition-all ${
                     isHoliday 
-                      ? "bg-red-500/10 text-red-500 border-red-500/20" 
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:border-accent/40 hover:text-accent"
+                      ? "bg-[#ff2d55]/10 text-[#ff2d55] border-[#ff2d55]/20 hover:bg-[#ff2d55]/20" 
+                      : "bg-slate-50 dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:border-[#1cb0f6] hover:text-[#1cb0f6]"
                   }`}
                 >
                   {isHoliday ? "🏖 Tatili İptal Et" : "🏖 Tatil Modu"}
@@ -312,36 +312,35 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
            </div>
         </div>
 
-        <div className="flex items-center justify-between sm:justify-center gap-2 bg-slate-50 dark:bg-slate-800 p-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 w-full sm:w-auto">
-          <button onClick={() => onDateChange(subDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0">←</button>
-          <button onClick={() => onDateChange(new Date())} className="flex-1 sm:flex-none px-4 sm:px-6 py-2 sm:py-3 bg-accent text-white font-black rounded-xl hover:shadow-lg hover:shadow-accent/30 transition-all text-[10px] sm:text-xs uppercase tracking-widest whitespace-nowrap">Bugün</button>
-          <button onClick={() => onDateChange(addDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-xl hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0">→</button>
+        <div className="flex items-center justify-between sm:justify-center gap-2 bg-slate-50 dark:bg-black/20 p-2 rounded-[1.5rem] border-2 border-slate-100 dark:border-white/5 w-full sm:w-auto">
+          <button onClick={() => onDateChange(subDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-[1rem] hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0 font-bold">→</button>
+          <button onClick={() => onDateChange(new Date())} className="flex-1 sm:flex-none px-6 py-2.5 bg-[#1cb0f6] border-b-4 border-[#1899d6] hover:bg-[#1899d6] text-white font-black rounded-[1rem] transition-all active:translate-y-1 active:border-b-0 active:mb-1 text-xs uppercase tracking-widest whitespace-nowrap">Bugün</button>
+          <button onClick={() => onDateChange(addDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-[1rem] hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0 font-bold">→</button>
         </div>
       </div>
 
       {/* Timeline with Tabs */}
-      <div className="glass rounded-3xl overflow-hidden flex flex-col">
-        <div className="flex border-b border-slate-100">
+      <div className="bg-white dark:bg-[#1e293b]/80 backdrop-blur-sm rounded-[2rem] overflow-hidden flex flex-col shadow-sm border border-slate-100 dark:border-white/5 mt-2">
+        <div className="flex bg-slate-50 dark:bg-black/20 p-2 m-4 rounded-[1.5rem] border-2 border-slate-100 dark:border-white/5 gap-2 overflow-x-auto snap-x">
            {(['morning', 'afternoon', 'evening'] as const).map((tab) => {
              const { hasSomething, hasUncompleted } = stats[tab]
              return (
                <button
                  key={tab}
                  onClick={() => setActiveTab(tab)}
-                 className={`flex-1 py-4 text-[10px] font-black uppercase tracking-[0.2em] transition-all relative flex items-center justify-center gap-2 ${
-                   activeTab === tab ? 'text-accent' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 bg-slate-50/30 dark:bg-slate-800/30'
+                 className={`flex-1 py-3.5 px-6 min-w-max text-[10px] sm:text-xs font-black uppercase tracking-widest transition-all relative flex items-center justify-center gap-3 rounded-[1rem] snap-center ${
+                   activeTab === tab 
+                    ? 'text-[#1cb0f6] bg-white dark:bg-slate-800 shadow-sm border-2 border-[#1cb0f6]' 
+                    : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-white/50 dark:hover:bg-white/5 border-2 border-transparent'
                  }`}
                >
                  <span>{tab === 'morning' ? 'Sabah' : tab === 'afternoon' ? 'Öğle' : 'Akşam'}</span>
                  {hasSomething && (
-                   <div className={`w-1.5 h-1.5 rounded-full ${
+                   <div className={`w-2.5 h-2.5 rounded-full ${
                      hasUncompleted 
-                       ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]' 
-                       : 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]'
-                   } animate-pulse`} />
-                 )}
-                 {activeTab === tab && (
-                   <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-1 bg-accent" />
+                       ? 'bg-[#ff2d55] shadow-[0_0_8px_rgba(255,45,85,0.5)]' 
+                       : 'bg-[#58cc02] shadow-[0_0_8px_rgba(88,204,2,0.5)]'
+                   } ${hasUncompleted ? 'animate-pulse' : ''}`} />
                  )}
                </button>
              )

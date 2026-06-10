@@ -10,6 +10,7 @@ import DenemeEntryForm from "./DenemeEntryForm";
 import DenemeHistoryList from "./DenemeHistoryList";
 import DenemeAnalytics from "./DenemeAnalytics";
 import DenemeAlert from "./DenemeAlert";
+import AppleEmoji from "../AppleEmoji";
 import {
   addDeneme,
   deleteDeneme,
@@ -206,25 +207,25 @@ export default function DenemePageContent() {
           transition={{ duration: 0.4, ease: "easeOut" }}
           className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10"
         >
-          <div className="flex items-center gap-5">
-            <div className="relative w-16 h-16 rounded-full border-[3px] border-white dark:border-slate-800 shadow-sm overflow-hidden shrink-0 bg-white">
+          <div className="flex items-center gap-6">
+            <div className="relative w-20 h-20 rounded-[2rem] shadow-sm overflow-hidden shrink-0 bg-white ring-4 ring-white dark:ring-[#1e293b]">
               {user?.photoURL ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={user.photoURL} alt="Profil" className="w-full h-full object-cover" />
               ) : (
-                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-sky-500 flex items-center justify-center text-white text-2xl font-black">
+                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-3xl font-black">
                   {user?.displayName?.charAt(0)?.toUpperCase() || "K"}
                 </div>
               )}
             </div>
             <div>
-              <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">
-                {tab === "yeni" ? "Yeni Deneme" : tab === "gecmis" ? "Kayıt Defteri" : "İstatistikler"}
+              <p className="text-sm font-black uppercase tracking-widest text-slate-400 mb-1">
+                Hoş Geldin, {user?.displayName?.split(" ")[0] || "Şampiyon"}
+              </p>
+              <h1 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight">
+                {tab === "yeni" ? "Sınav Girişi" : tab === "gecmis" ? "Kayıt Defteri" : "Gelişim Analizi"}
               </h1>
-              <div className="flex items-center gap-3 mt-1.5">
-                <p className="text-xs font-black uppercase tracking-widest text-slate-400">
-                  {tab === "yeni" ? "Sınav Sonucu Ekle" : tab === "gecmis" ? "Tüm Sınavların" : "Gelişim Analizin"}
-                </p>
+              <div className="flex items-center gap-3 mt-2">
                 {typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && (
                   <button
                     type="button"
@@ -268,16 +269,16 @@ export default function DenemePageContent() {
                       saveDenemeler(newData);
                       toast.success("Test verileri başarıyla eklendi! (Firebase etkilenmedi)");
                     }}
-                    className="px-2 py-0.5 bg-rose-100 text-rose-600 font-black rounded-lg text-[9px] uppercase tracking-wider border border-rose-200 hover:bg-rose-200 transition-colors"
+                    className="px-3 py-1 bg-rose-100 text-rose-600 font-black rounded-xl text-[10px] uppercase tracking-wider border border-rose-200 hover:bg-rose-200 transition-colors"
                   >
-                    🧪 Test Verisi
+                    🧪 Test Verisi Yükle
                   </button>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="flex gap-1 p-1.5 bg-white dark:bg-[#1e293b]/80 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm w-full md:w-auto">
+          <div className="flex gap-1.5 p-1.5 bg-slate-200/60 dark:bg-slate-800/60 rounded-[1.5rem] w-full md:w-auto mt-6 md:mt-0 shadow-inner">
             {TABS.map((t) => (
               <button
                 key={t.id}
@@ -286,17 +287,17 @@ export default function DenemePageContent() {
                   setTab(t.id);
                   if (t.id !== "yeni") setEditing(null);
                 }}
-                className="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all relative flex items-center justify-center gap-2 cursor-pointer focus:outline-none"
+                className="flex-1 md:flex-none px-6 py-2.5 rounded-xl text-[12px] font-bold transition-all relative flex items-center justify-center gap-2 cursor-pointer focus:outline-none"
               >
                 {tab === t.id && (
                   <motion.div
                     layoutId="denemeTabBg"
-                    className="absolute inset-0 bg-blue-500 rounded-xl shadow-md shadow-blue-500/20"
+                    className="absolute inset-0 bg-white dark:bg-slate-700 rounded-xl shadow-sm"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
-                <t.icon className={`w-4 h-4 relative z-10 transition-colors ${tab === t.id ? "text-white" : "text-slate-400"}`} />
-                <span className={`relative z-10 transition-colors ${tab === t.id ? "text-white" : "text-slate-500 dark:text-slate-400"}`}>
+                <t.icon className={`w-4 h-4 relative z-10 transition-colors ${tab === t.id ? "text-blue-600 dark:text-blue-400" : "text-slate-400"}`} />
+                <span className={`relative z-10 transition-colors ${tab === t.id ? "text-slate-800 dark:text-white font-black" : "text-slate-500 hover:text-slate-700 dark:text-slate-400 font-bold"}`}>
                   {t.label}
                 </span>
               </button>
@@ -432,42 +433,43 @@ function ViewTypeSwitcher({
   onChange: (v: "genel" | "brans") => void;
 }) {
   return (
-    <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#1e293b] p-2 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5">
-      <div className="flex w-full sm:w-auto relative">
+    <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="inline-flex bg-slate-200/60 dark:bg-slate-800/60 p-1.5 rounded-2xl w-full sm:w-auto">
         <button
           onClick={() => onChange("genel")}
-          className={`flex-1 sm:flex-none relative px-6 py-3 text-sm font-bold transition-all rounded-xl z-10 flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-none relative px-6 py-2.5 text-sm font-bold transition-all rounded-xl z-10 flex items-center justify-center gap-2 ${
             viewType === "genel" ? "text-blue-700 dark:text-blue-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
           }`}
         >
           {viewType === "genel" && (
             <motion.div
               layoutId="edtechActiveTab"
-              className="absolute inset-0 bg-blue-50 dark:bg-blue-500/10 rounded-xl"
+              className="absolute inset-0 bg-white dark:bg-slate-700 shadow-sm rounded-xl"
               transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
             />
           )}
-          <span className="relative z-10 text-lg">🌍</span>
+          <AppleEmoji emoji="🌍" className="relative z-10 mr-1" />
           <span className="relative z-10">Genel Deneme</span>
         </button>
         <button
           onClick={() => onChange("brans")}
-          className={`flex-1 sm:flex-none relative px-6 py-3 text-sm font-bold transition-all rounded-xl z-10 flex items-center justify-center gap-2 ${
+          className={`flex-1 sm:flex-none relative px-6 py-2.5 text-sm font-bold transition-all rounded-xl z-10 flex items-center justify-center gap-2 ${
             viewType === "brans" ? "text-violet-700 dark:text-violet-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
           }`}
         >
           {viewType === "brans" && (
             <motion.div
               layoutId="edtechActiveTab"
-              className="absolute inset-0 bg-violet-50 dark:bg-violet-500/10 rounded-xl"
+              className="absolute inset-0 bg-white dark:bg-slate-700 shadow-sm rounded-xl"
               transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
             />
           )}
-          <span className="relative z-10 text-lg">🎯</span>
+          <AppleEmoji emoji="🎯" className="relative z-10 mr-1" />
           <span className="relative z-10">Branş Denemesi</span>
         </button>
       </div>
-      <div className="px-4 hidden sm:block text-xs font-medium text-slate-400">
+      <div className="hidden sm:flex items-center gap-2.5 px-5 py-3 bg-white dark:bg-slate-800/80 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 text-xs font-bold text-slate-400">
+        <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
         {viewType === "genel" ? "KPSS GY-GK Sınavları" : "Ders Bazlı Sınavlar"}
       </div>
     </div>

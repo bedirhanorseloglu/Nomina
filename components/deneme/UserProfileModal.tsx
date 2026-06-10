@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, TrendingUp, Award, Calendar, BookOpen } from "lucide-react";
+import { X, Loader2, TrendingUp, Award, Calendar, BookOpen, Swords } from "lucide-react";
 import { LeaderboardEntry } from "@/lib/leaderboardService";
 import { loadFromFirebase } from "@/lib/firebaseService";
 import { evaluateDeneme } from "@/lib/denemeUtils";
@@ -284,80 +284,69 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
           initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          className="relative w-full max-w-5xl max-h-[90vh] bg-white rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.2)] border-2 border-slate-200 flex flex-col overflow-hidden"
+          className="relative w-full max-w-5xl max-h-[90vh] bg-white dark:bg-[#0f172a] rounded-[2rem] shadow-2xl border border-slate-100 dark:border-white/5 flex flex-col overflow-hidden"
         >
-          {/* Header Background */}
-          <div className={`h-40 shrink-0 bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 relative overflow-hidden`}>
-             {/* Decorative circles */}
-             <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3"></div>
-             <div className="absolute bottom-0 left-0 w-48 h-48 bg-blue-500/10 rounded-full blur-2xl translate-y-1/3 -translate-x-1/4"></div>
-             
-             <button
-                onClick={onClose}
-                className="absolute top-4 right-4 p-2 bg-black/20 hover:bg-black/40 text-white rounded-xl transition-colors backdrop-blur-md z-10"
-              >
-                <X className="w-5 h-5" />
-              </button>
-          </div>
-          
-          {/* Avatar & Info (Overlapping Glass Card) */}
-          <div className="px-4 sm:px-6 relative -mt-16 z-10 shrink-0">
-             <div className="bg-white/80 backdrop-blur-xl border border-white/80 shadow-xl shadow-slate-200/50 rounded-[2rem] p-5 flex flex-col sm:flex-row items-center sm:items-end justify-between gap-4">
-                
-                <div className="flex flex-col sm:flex-row items-center sm:items-end gap-5">
-                  <div className={`w-24 h-24 rounded-2xl border-4 border-white shadow-md bg-white flex items-center justify-center overflow-hidden shrink-0`}>
-                    {userEntry.photoURL ? (
-                       <img src={userEntry.photoURL} alt={userEntry.displayName} className="w-full h-full object-cover" />
-                    ) : (
-                       <div className="w-full h-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center">
-                         <span className="text-3xl font-black text-slate-400">
-                           {userEntry.displayName.charAt(0).toUpperCase()}
-                         </span>
-                       </div>
-                    )}
-                  </div>
-                  
-                  <div className="text-center sm:text-left mb-1">
-                    <h2 className="text-2xl sm:text-3xl font-black text-slate-800 tracking-tight">{userEntry.displayName}</h2>
-                    <div className="flex items-center justify-center sm:justify-start gap-2 mt-1.5">
-                       <span className="text-xs font-bold text-slate-500 flex items-center gap-1.5 bg-slate-100/80 px-3 py-1.5 rounded-lg border border-slate-200/50 shadow-sm">
-                         <Award className="w-4 h-4 text-blue-500" /> KPSS Adayı
-                       </span>
-                    </div>
-                  </div>
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 rounded-full transition-colors z-20"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Clean Apple/Duolingo Profile Header */}
+          <div className="p-6 sm:p-8 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-6 border-b border-slate-100 dark:border-white/5 relative bg-white dark:bg-[#0f172a]">
+            
+            <div className="flex flex-col sm:flex-row items-center gap-5">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-[1.5rem] bg-[#1cb0f6]/10 border border-[#1cb0f6]/20 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
+                {userEntry.photoURL ? (
+                   <img src={userEntry.photoURL} alt={userEntry.displayName} className="w-full h-full object-cover" />
+                ) : (
+                   <span className="text-4xl font-black text-[#1cb0f6]">
+                     {userEntry.displayName.charAt(0).toUpperCase()}
+                   </span>
+                )}
+              </div>
+              
+              <div className="text-center sm:text-left mt-2 sm:mt-0">
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white tracking-tight">{userEntry.displayName}</h2>
+                <div className="flex items-center justify-center sm:justify-start gap-2 mt-2">
+                   <span className="text-[11px] font-bold text-[#1cb0f6] flex items-center gap-1.5 bg-[#1cb0f6]/10 px-3 py-1.5 rounded-xl border border-[#1cb0f6]/20">
+                     <Award className="w-4 h-4" /> KPSS Adayı
+                   </span>
                 </div>
+              </div>
+            </div>
 
-                {(() => {
-                  const headerAvgRakip = (() => {
-                    if (kiyasType === "genel") return stats.avgNetGenel || 0;
-                    const rakipBransList = userDenemeler.filter(d => d.examType === "brans" && d.bransSubjectId === kiyasBransSubject);
-                    if (!rakipBransList.length) return 0;
-                    const nets = rakipBransList.map(d => {
-                      const s = d.scores.find((x: any) => x.subjectId === kiyasBransSubject);
-                      return s ? s.correct - (s.wrong / 4) : 0;
-                    });
-                    return nets.reduce((a, b) => a + b, 0) / nets.length;
-                  })();
+            {(() => {
+              const headerAvgRakip = (() => {
+                if (kiyasType === "genel") return stats.avgNetGenel || 0;
+                const rakipBransList = userDenemeler.filter(d => d.examType === "brans" && d.bransSubjectId === kiyasBransSubject);
+                if (!rakipBransList.length) return 0;
+                const nets = rakipBransList.map(d => {
+                  const s = d.scores.find((x: any) => x.subjectId === kiyasBransSubject);
+                  return s ? s.correct - (s.wrong / 4) : 0;
+                });
+                return nets.reduce((a, b) => a + b, 0) / nets.length;
+              })();
 
-                  const getHeaderStyle = () => {
-                    if (kiyasType === "genel") return { backgroundColor: "#e0e7ff", color: "#4f46e5", borderColor: "#c7d2fe" };
-                    const subject = DENEME_SUBJECTS.find(s => s.id === kiyasBransSubject);
-                    const color = subject?.color || "#64748b";
-                    return { backgroundColor: `${color}15`, color: color, borderColor: `${color}40` };
-                  };
-                  const styleProps = getHeaderStyle();
-                  
-                  return (
-                    <div className={`text-center sm:text-right px-6 py-4 rounded-2xl border shrink-0 shadow-sm transition-colors duration-300`} style={{ backgroundColor: styleProps.backgroundColor, borderColor: styleProps.borderColor }}>
-                       <p className={`text-[10px] font-black uppercase tracking-widest mb-0.5 transition-colors duration-300`} style={{ color: styleProps.color }}>Net Ortalaması</p>
-                       <p className={`text-3xl font-black font-mono tracking-tighter drop-shadow-sm transition-colors duration-300`} style={{ color: styleProps.color }}>
-                         {headerAvgRakip.toFixed(2)}
-                       </p>
-                    </div>
-                  );
-                })()}
+              const isBrans = kiyasType === "brans";
+              const activeSubject = isBrans ? DENEME_SUBJECTS.find(s => s.id === kiyasBransSubject) : null;
+              
+              const title = isBrans && activeSubject ? `${activeSubject.title} Ort.` : "Genel Net Ort.";
+              const color = isBrans && activeSubject ? activeSubject.color : "#1cb0f6";
 
-             </div>
+              return (
+                <div className="text-center sm:text-right px-6 py-4 rounded-[1.25rem] border shadow-sm shrink-0 transition-all duration-300 sm:mr-10 mt-4 sm:mt-0"
+                     style={{ backgroundColor: `${color}10`, borderColor: `${color}20` }}>
+                   <p className="text-[10px] font-black uppercase tracking-widest mb-1" style={{ color: color }}>{title}</p>
+                   <p className="text-4xl font-black font-mono tracking-tighter drop-shadow-sm" style={{ color: color }}>
+                     {headerAvgRakip.toFixed(2)}
+                   </p>
+                </div>
+              );
+            })()}
+
           </div>
           
           {/* Removed Tab Selection as requested */}
@@ -383,7 +372,7 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                       </button>
                     </div>
                   </div>
-                  <span className="text-[10px] font-black text-white bg-slate-800 px-3 py-1.5 rounded-xl uppercase tracking-widest shadow-sm">Sen ⚔️ {userEntry.displayName}</span>
+                  <span className="text-[10px] font-black text-white bg-slate-800 px-3 py-1.5 rounded-xl uppercase tracking-widest shadow-sm flex items-center gap-1.5">Sen <Swords className="w-3.5 h-3.5" /> {userEntry.displayName}</span>
                 </div>
                 
                 {kiyasType === "brans" && (
@@ -449,51 +438,53 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                   return (
                 <div className="grid md:grid-cols-2 gap-6">
                   {/* Left Column: Averages & Stats */}
-                  <div className="space-y-6">
+                  <div className="space-y-5">
                     {/* Ortalamalar */}
-                    <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 hover:border-blue-200 transition-colors">
-                      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
-                         <span className={kiyasAvgSen >= kiyasAvgRakip ? "text-blue-500" : ""}>Sen ({kiyasAvgSen.toFixed(1)}) {kiyasAvgSen >= kiyasAvgRakip && kiyasAvgSen > 0 && "👑"}</span>
+                    <div className="bg-white dark:bg-[#1e293b] p-5 rounded-[1.5rem] border border-slate-100 dark:border-white/5 shadow-[0_2px_10px_rgb(0,0,0,0.03)] hover:shadow-md transition-all">
+                      <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+                         <span className={kiyasAvgSen >= kiyasAvgRakip ? "text-[#1cb0f6]" : ""}>Sen ({kiyasAvgSen.toFixed(1)}) {kiyasAvgSen >= kiyasAvgRakip && kiyasAvgSen > 0 && "👑"}</span>
                          <span className="text-slate-500">{typeLabel} Net Ortalaması</span>
-                         <span className={kiyasAvgRakip > kiyasAvgSen ? "text-red-500" : ""}>{kiyasAvgRakip > kiyasAvgSen && "👑"} Rakip ({kiyasAvgRakip.toFixed(1)})</span>
+                         <span className={kiyasAvgRakip > kiyasAvgSen ? "text-[#ff2d55]" : ""}>{kiyasAvgRakip > kiyasAvgSen && "👑"} Rakip ({kiyasAvgRakip.toFixed(1)})</span>
                       </div>
-                      <div className="flex h-4 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 relative">
-                         <div className="bg-blue-400 h-full transition-all" style={{ width: `${(kiyasAvgSen / (kiyasAvgSen + kiyasAvgRakip || 1)) * 100}%` }}></div>
-                         <div className="bg-red-400 h-full transition-all" style={{ width: `${(kiyasAvgRakip / (kiyasAvgSen + kiyasAvgRakip || 1)) * 100}%` }}></div>
+                      <div className="flex h-3 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                         <div className="h-full transition-all" style={{ backgroundColor: "#1cb0f6", width: `${(kiyasAvgSen / (kiyasAvgSen + kiyasAvgRakip || 1)) * 100}%` }}></div>
+                         <div className="h-full transition-all" style={{ backgroundColor: "#ff2d55", width: `${(kiyasAvgRakip / (kiyasAvgSen + kiyasAvgRakip || 1)) * 100}%` }}></div>
                       </div>
                     </div>
 
                     {/* En Yüksek Net */}
-                    <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 hover:border-blue-200 transition-colors">
-                      <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3">
-                         <span className={kiyasMaxSen >= kiyasMaxRakip ? "text-blue-500" : ""}>Sen ({kiyasMaxSen.toFixed(1)}) {kiyasMaxSen >= kiyasMaxRakip && kiyasMaxSen > 0 && "👑"}</span>
+                    <div className="bg-white dark:bg-[#1e293b] p-5 rounded-[1.5rem] border border-slate-100 dark:border-white/5 shadow-[0_2px_10px_rgb(0,0,0,0.03)] hover:shadow-md transition-all">
+                      <div className="flex justify-between text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-4">
+                         <span className={kiyasMaxSen >= kiyasMaxRakip ? "text-[#1cb0f6]" : ""}>Sen ({kiyasMaxSen.toFixed(1)}) {kiyasMaxSen >= kiyasMaxRakip && kiyasMaxSen > 0 && "👑"}</span>
                          <span className="text-slate-500">En Yüksek {typeLabel} Net</span>
-                         <span className={kiyasMaxRakip > kiyasMaxSen ? "text-red-500" : ""}>{kiyasMaxRakip > kiyasMaxSen && "👑"} Rakip ({kiyasMaxRakip.toFixed(1)})</span>
+                         <span className={kiyasMaxRakip > kiyasMaxSen ? "text-[#ff2d55]" : ""}>{kiyasMaxRakip > kiyasMaxSen && "👑"} Rakip ({kiyasMaxRakip.toFixed(1)})</span>
                       </div>
-                      <div className="flex h-4 rounded-full overflow-hidden bg-slate-100 border-2 border-slate-200 relative">
-                         <div className="bg-blue-400 h-full transition-all" style={{ width: `${(kiyasMaxSen / (kiyasMaxSen + kiyasMaxRakip || 1)) * 100}%` }}></div>
-                         <div className="bg-red-400 h-full transition-all" style={{ width: `${(kiyasMaxRakip / (kiyasMaxSen + kiyasMaxRakip || 1)) * 100}%` }}></div>
+                      <div className="flex h-3 rounded-full overflow-hidden bg-slate-100 dark:bg-slate-800">
+                         <div className="h-full transition-all" style={{ backgroundColor: "#1cb0f6", width: `${(kiyasMaxSen / (kiyasMaxSen + kiyasMaxRakip || 1)) * 100}%` }}></div>
+                         <div className="h-full transition-all" style={{ backgroundColor: "#ff2d55", width: `${(kiyasMaxRakip / (kiyasMaxSen + kiyasMaxRakip || 1)) * 100}%` }}></div>
                       </div>
                     </div>
 
                     {/* Çözülen Denemeler (Genel + Branş) */}
                     <div className="flex justify-between gap-4">
-                       <div className={`flex-1 bg-blue-50 p-4 rounded-2xl border-2 border-blue-200 border-b-4 text-center ${kiyasTotalSen >= kiyasTotalRakip && kiyasTotalSen > 0 ? "ring-2 ring-blue-400 ring-offset-2" : ""}`}>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-blue-600 mb-2">Sen</p>
-                          <p className="text-3xl font-black text-blue-500">{kiyasTotalSen}</p>
-                          <p className="text-[10px] font-bold text-blue-600/70 leading-tight mt-1">Tane {kiyasType === "brans" ? DENEME_SUBJECTS.find(s=>s.id===kiyasBransSubject)?.title + " Branş Denemesi" : "Genel Deneme"} Çözüldü</p>
+                       <div className={`flex-1 bg-[#1cb0f6]/5 dark:bg-[#1cb0f6]/10 p-5 rounded-[1.5rem] border border-[#1cb0f6]/20 dark:border-[#1cb0f6]/20 text-center shadow-sm`}>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-[#1cb0f6] mb-2">Sen</p>
+                          <p className="text-3xl font-black text-[#1cb0f6] font-mono leading-none mb-1">{kiyasTotalSen}</p>
+                          <p className="text-[10px] font-bold text-[#1cb0f6]/70 leading-tight">Tane {kiyasType === "brans" ? DENEME_SUBJECTS.find(s=>s.id===kiyasBransSubject)?.title + " Branş Denemesi" : "Genel Deneme"} Çözüldü</p>
                        </div>
-                       <div className="flex-1 flex items-center justify-center text-4xl opacity-50 drop-shadow-sm">⚔️</div>
-                       <div className={`flex-1 bg-red-50 p-4 rounded-2xl border-2 border-red-200 border-b-4 text-center ${kiyasTotalRakip > kiyasTotalSen ? "ring-2 ring-red-400 ring-offset-2" : ""}`}>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-red-600 mb-2">Rakip</p>
-                          <p className="text-3xl font-black text-red-500">{kiyasTotalRakip}</p>
-                          <p className="text-[10px] font-bold text-red-600/70 leading-tight mt-1">Tane {kiyasType === "brans" ? DENEME_SUBJECTS.find(s=>s.id===kiyasBransSubject)?.title + " Branş Denemesi" : "Genel Deneme"} Çözüldü</p>
+                       <div className="flex items-center justify-center text-slate-300 dark:text-slate-600">
+                         <Swords className="w-8 h-8 opacity-70" />
+                       </div>
+                       <div className={`flex-1 bg-[#ff2d55]/5 dark:bg-[#ff2d55]/10 p-5 rounded-[1.5rem] border border-[#ff2d55]/20 dark:border-[#ff2d55]/20 text-center shadow-sm`}>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-[#ff2d55] mb-2">Rakip</p>
+                          <p className="text-3xl font-black text-[#ff2d55] font-mono leading-none mb-1">{kiyasTotalRakip}</p>
+                          <p className="text-[10px] font-bold text-[#ff2d55]/70 leading-tight">Tane {kiyasType === "brans" ? DENEME_SUBJECTS.find(s=>s.id===kiyasBransSubject)?.title + " Branş Denemesi" : "Genel Deneme"} Çözüldü</p>
                        </div>
                     </div>
                   </div>
 
                   {/* Right Column: Subject Chart */}
-                  <div className="bg-white p-4 rounded-2xl border-2 border-slate-200 border-b-4 flex flex-col h-[400px]">
+                  <div className="bg-white dark:bg-[#1e293b] p-6 rounded-[1.5rem] border border-slate-100 dark:border-white/5 shadow-[0_2px_10px_rgb(0,0,0,0.03)] flex flex-col h-[400px]">
                     <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4 text-center">{typeLabel} - Ders Bazlı Net Ortalamaları</p>
                     <div className="flex-1">
                       <ResponsiveContainer width="100%" height="100%">
@@ -518,8 +509,8 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                             formatter={(value: any) => Number(value).toFixed(1) + " Net"}
                           />
                           <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: 'bold' }} />
-                          <Bar dataKey="sen" name="Sen" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={12} />
-                          <Bar dataKey="rakip" name="Rakip" fill="#ef4444" radius={[0, 4, 4, 0]} barSize={12} />
+                          <Bar dataKey="sen" name="Sen" fill="#1cb0f6" radius={[0, 4, 4, 0]} barSize={12} />
+                          <Bar dataKey="rakip" name="Rakip" fill="#ff2d55" radius={[0, 4, 4, 0]} barSize={12} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
