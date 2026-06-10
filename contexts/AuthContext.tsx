@@ -44,17 +44,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (remote?.denemeler && remote.denemeler.length > 0) {
               const remoteMigrated = migrateDenemeler(remote.denemeler as any[]);
               
-              if (isLocalhost && localDenemeler.length > 0) {
-                // Lokal ortamda çalışırken ve lokalde veri varken, Firebase'den gelen veriyi yerel verinin üstüne yazma.
-                // Yerelde olmayanları (ID'ye göre) birleştir, böylece test ederken eklediğin denemeler kaybolmaz.
-                const localIds = new Set(localDenemeler.map((d: any) => d.id));
-                const newRemotes = remoteMigrated.filter((r: any) => !localIds.has(r.id));
-                mergedDenemeler = [...localDenemeler, ...newRemotes];
-                saveDenemeler(mergedDenemeler);
-              } else {
-                mergedDenemeler = remoteMigrated;
-                saveDenemeler(mergedDenemeler);
-              }
+              // Her zaman lokal ve remote'u id'ye göre birleştir (veri kaybını önler)
+              const localIds = new Set(localDenemeler.map((d: any) => d.id));
+              const newRemotes = remoteMigrated.filter((r: any) => !localIds.has(r.id));
+              mergedDenemeler = [...localDenemeler, ...newRemotes];
+              // Tarihe göre sırala
+              mergedDenemeler.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+              saveDenemeler(mergedDenemeler);
             } else if (localDenemeler.length > 0 && !isLocalhost) {
               await saveDenemeDataToFirebase(currentUser.uid, localDenemeler, targetNet);
             }

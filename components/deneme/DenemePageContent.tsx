@@ -59,14 +59,12 @@ export default function DenemePageContent() {
         const remote = await loadFromFirebase(user.uid);
         if (remote?.denemeler !== undefined) {
           const remoteDenemeler = migrateDenemeler(remote.denemeler as DenemeRecord[]);
-          let mergedDenemeler = localDenemeler;
-          if (isLocalhost && localDenemeler.length > 0) {
-             const localIds = new Set(localDenemeler.map(d => d.id));
-             const newRemotes = remoteDenemeler.filter(r => !localIds.has(r.id));
-             mergedDenemeler = [...localDenemeler, ...newRemotes];
-          } else {
-             mergedDenemeler = remoteDenemeler;
-          }
+          // Her zaman lokal ve remote'u id'ye göre birleştir (veri kaybını önler)
+          const localIds = new Set(localDenemeler.map(d => d.id));
+          const newRemotes = remoteDenemeler.filter(r => !localIds.has(r.id));
+          mergedDenemeler = [...localDenemeler, ...newRemotes];
+          // Tarihe göre sırala
+          mergedDenemeler.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
           setDenemeler(mergedDenemeler);
           saveDenemeler(mergedDenemeler);
         }
