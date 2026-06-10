@@ -4,9 +4,9 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { User, signInWithPopup, signOut as firebaseSignOut, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { loadDenemeler, loadTargetNet, saveDenemeler } from "@/lib/denemeStorage";
-import { loadFromFirebase, saveDenemeDataToFirebase, updateUserProfile } from "@/lib/firebaseService";
+import { loadFromFirebase, saveDenemeDataToFirebase, updateUserProfile, isLocalhost } from "@/lib/firebaseService";
 import { updateLeaderboard, updateBranchLeaderboard } from "@/lib/leaderboardService";
-import { evaluateDeneme, averageNet } from "@/lib/denemeUtils";
+import { evaluateDeneme, averageNet, migrateDenemeler } from "@/lib/denemeUtils";
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -42,9 +42,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             let mergedDenemeler = localDenemeler;
             
             if (remote?.denemeler && remote.denemeler.length > 0) {
-              mergedDenemeler = remote.denemeler as any[];
-              saveDenemeler(mergedDenemeler);
-            } else if (localDenemeler.length > 0) {
+              const remoteMigrated = migrateDenemeler(remote.denemeler as any[]);
+              
+              if (isLocalhost && localDenemeler.length > 0) {
+                // Lokal ortamda çalışırken ve lokalde veri varken, Firebase'den gelen veriyi yerel verinin üstüne yazma.
+                // Yerelde olmayanları (ID'ye göre) birleştir, böylece test ederken eklediğin denemeler kaybolmaz.
+                const localIds = new Set(localDenemeler.map((d: any) => d.id));
+                const newRemotes = remoteMigrated.filter((r: any) => !localIds.has(r.id));
+                mergedDenemeler = [...localDenemeler, ...newRemotes];
+                saveDenemeler(mergedDenemeler);
+              } else {
+                mergedDenemeler = remoteMigrated;
+                saveDenemeler(mergedDenemeler);
+              }
+            } else if (localDenemeler.length > 0 && !isLocalhost) {
               await saveDenemeDataToFirebase(currentUser.uid, localDenemeler, targetNet);
             }
             

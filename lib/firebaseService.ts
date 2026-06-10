@@ -4,8 +4,7 @@ import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
 
-// Helper to check if we are in local development mode
-const isLocalhost = typeof window !== "undefined" && (
+export const isLocalhost = typeof window !== "undefined" && (
   window.location.hostname === "localhost" || 
   window.location.hostname === "127.0.0.1" ||
   window.location.hostname.startsWith("192.168.") ||

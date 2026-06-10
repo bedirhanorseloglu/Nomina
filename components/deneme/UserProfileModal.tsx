@@ -13,7 +13,7 @@ import { loadDenemeler } from "@/lib/denemeStorage";
 import { useAuth } from "@/contexts/AuthContext";
 import { BADGES, getEarnedBadges } from "@/lib/badgesConfig";
 import DenemeAnalytics from "./DenemeAnalytics";
-import { DenemeRecord } from "@/lib/denemeUtils";
+import { DenemeRecord, migrateDenemeler } from "@/lib/denemeUtils";
 import { DENEME_SUBJECTS } from "@/lib/denemeConfig";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
@@ -106,9 +106,11 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
         const data = await loadFromFirebase(userEntry.userId);
         if (data) {
           if (data.denemeler) {
-            setUserDenemeler(data.denemeler);
-            setUserGenelSubjectAverages(calculateSubjectAverages(data.denemeler, "genel"));
-            setUserBransSubjectAverages(calculateSubjectAverages(data.denemeler, "brans"));
+            const migrated = migrateDenemeler(data.denemeler as DenemeRecord[]);
+            data.denemeler = migrated as any;
+            setUserDenemeler(migrated);
+            setUserGenelSubjectAverages(calculateSubjectAverages(migrated, "genel"));
+            setUserBransSubjectAverages(calculateSubjectAverages(migrated, "brans"));
           }
           if (data.denemeTargetNet !== undefined) {
             setUserTargetNet(data.denemeTargetNet);

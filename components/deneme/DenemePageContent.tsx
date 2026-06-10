@@ -23,7 +23,7 @@ import {
   updateDeneme,
 } from "@/lib/denemeStorage";
 import { DenemeRecord } from "@/lib/denemeUtils";
-import { loadFromFirebase, saveDenemeDataToFirebase } from "@/lib/firebaseService";
+import { loadFromFirebase, saveDenemeDataToFirebase, isLocalhost } from "@/lib/firebaseService";
 import { averageNet, evaluateDeneme, formatNet, migrateDenemeler } from "@/lib/denemeUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateLeaderboard, updateBranchLeaderboard, removeFromLeaderboard, removeFromBranchLeaderboard } from "@/lib/leaderboardService";
@@ -59,8 +59,16 @@ export default function DenemePageContent() {
         const remote = await loadFromFirebase(user.uid);
         if (remote?.denemeler !== undefined) {
           const remoteDenemeler = migrateDenemeler(remote.denemeler as DenemeRecord[]);
-          setDenemeler(remoteDenemeler);
-          saveDenemeler(remoteDenemeler);
+          let mergedDenemeler = local;
+          if (isLocalhost && local.length > 0) {
+             const localIds = new Set(local.map(d => d.id));
+             const newRemotes = remoteDenemeler.filter(r => !localIds.has(r.id));
+             mergedDenemeler = [...local, ...newRemotes];
+          } else {
+             mergedDenemeler = remoteDenemeler;
+          }
+          setDenemeler(mergedDenemeler);
+          saveDenemeler(mergedDenemeler);
         }
         if (remote?.denemeTargetNet !== undefined) {
           setTargetNet(remote.denemeTargetNet);
