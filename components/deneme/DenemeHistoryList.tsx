@@ -136,9 +136,9 @@ export default function DenemeHistoryList({
                               )}
                             </div>
                           </div>
-                          <div className="bg-violet-50 dark:bg-violet-500/10 border border-violet-100 dark:border-violet-500/20 px-3 py-1.5 rounded-xl text-center shrink-0">
-                            <span className="text-[10px] font-black uppercase text-violet-600 dark:text-violet-400 block leading-tight">Net</span>
-                            <span className="text-lg font-black text-violet-700 dark:text-violet-300 font-mono leading-none">
+                          <div className="px-3 py-1.5 rounded-xl text-center shrink-0 border" style={{ backgroundColor: `${subConfig.color}15`, borderColor: `${subConfig.color}30` }}>
+                            <span className="text-[10px] font-black uppercase block leading-tight opacity-80" style={{ color: subConfig.color }}>Net</span>
+                            <span className="text-lg font-black font-mono leading-none" style={{ color: subConfig.color }}>
                               {formatNet(subRes.net)}
                             </span>
                           </div>
@@ -258,23 +258,30 @@ export default function DenemeHistoryList({
                   >
                     <div className="p-6">
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        {result.subjects.map((s) => (
-                          <div key={s.subjectId} className="bg-white dark:bg-[#1e293b] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5">
-                            <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{s.title}</h5>
+                        {result.subjects.map((s) => {
+                          const subConfig = DENEME_SUBJECTS.find((sub) => sub.id === s.subjectId);
+                          return (
+                          <div key={s.subjectId} className="bg-white dark:bg-[#1e293b] p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-white/5 relative overflow-hidden">
+                            {/* Accent line on top */}
+                            <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: subConfig?.color || '#3b82f6' }} />
+                            <h5 className="text-[11px] font-black uppercase tracking-wider mb-2" style={{ color: subConfig?.color || '#64748b' }}>{s.title}</h5>
                             <div className="flex justify-between items-end">
-                              <span className="font-mono font-black text-lg text-slate-800 dark:text-white">{formatNet(s.net)} <span className="text-xs font-sans text-slate-400">net</span></span>
+                              <span className="font-mono font-black text-xl text-slate-800 dark:text-white leading-none">
+                                {formatNet(s.net)} <span className="text-[10px] font-bold text-slate-400 font-sans tracking-wide">NET</span>
+                              </span>
                               <div className="flex gap-1 text-[10px] font-bold font-mono">
-                                <span className="text-emerald-500">{s.correct}D</span>
-                                <span className="text-red-400">{s.wrong}Y</span>
+                                <span className="text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 dark:text-emerald-400 px-1.5 py-0.5 rounded-md">{s.correct}D</span>
+                                <span className="text-rose-600 bg-rose-50 dark:bg-rose-500/10 dark:text-rose-400 px-1.5 py-0.5 rounded-md">{s.wrong}Y</span>
                               </div>
                             </div>
                             {/* Mini progress bar for accuracy */}
-                            <div className="h-1.5 w-full bg-slate-100 dark:bg-white/5 rounded-full mt-3 overflow-hidden flex">
-                              <div style={{ width: `${(s.correct / (s.correct + s.wrong + s.empty)) * 100}%` }} className="bg-emerald-400 h-full" />
-                              <div style={{ width: `${(s.wrong / (s.correct + s.wrong + s.empty)) * 100}%` }} className="bg-red-400 h-full" />
+                            <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800/50 rounded-full mt-3 overflow-hidden flex">
+                              <div style={{ width: `${(s.correct / Math.max(1, s.correct + s.wrong + s.empty)) * 100}%` }} className="bg-emerald-400 h-full transition-all duration-500" />
+                              <div style={{ width: `${(s.wrong / Math.max(1, s.correct + s.wrong + s.empty)) * 100}%` }} className="bg-rose-400 h-full transition-all duration-500" />
                             </div>
                           </div>
-                        ))}
+                          );
+                        })}
                       </div>
                       
                       <div className="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4 pt-4 border-t border-slate-200/60 dark:border-white/10">
