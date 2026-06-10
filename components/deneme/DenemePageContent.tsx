@@ -62,7 +62,7 @@ export default function DenemePageContent() {
           // Her zaman lokal ve remote'u id'ye göre birleştir (veri kaybını önler)
           const localIds = new Set(localDenemeler.map(d => d.id));
           const newRemotes = remoteDenemeler.filter(r => !localIds.has(r.id));
-          mergedDenemeler = [...localDenemeler, ...newRemotes];
+          const mergedDenemeler = [...localDenemeler, ...newRemotes];
           // Tarihe göre sırala
           mergedDenemeler.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
           setDenemeler(mergedDenemeler);
