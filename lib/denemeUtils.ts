@@ -174,36 +174,66 @@ export function subjectAverageNet(
   return Math.round((sum / denemeler.length) * 100) / 100;
 }
 
+/**
+ * Branş denemesinin hangi derse ait olduğunu skorlardan çıkar.
+ * Kurallar (öncelik sırasıyla):
+ * 1. bransSubjectId zaten doluysa dokunma
+ * 2. Sadece tek skor varsa o ders
+ * 3. En yüksek (correct+wrong) toplamına sahip ders — branş denemesinde
+ *    yalnızca o ders doldurulur, diğerleri 0'dır
+ */
+export function inferBransSubjectId(d: DenemeRecord): string | undefined {
+  if (d.bransSubjectId) return d.bransSubjectId;
+  if (d.examType !== "brans") return undefined;
+  if (d.scores.length === 0) return undefined;
+  if (d.scores.length === 1) return d.scores[0].subjectId;
+
+  // En yüksek girilen soru sayısına sahip derse göre belirle
+  const best = d.scores.reduce((prev, curr) => {
+    const prevTotal = prev.correct + prev.wrong;
+    const currTotal = curr.correct + curr.wrong;
+    return currTotal > prevTotal ? curr : prev;
+  });
+  // Hiç cevap girilmemişse ilk skoru al
+  return (best.correct + best.wrong) > 0 ? best.subjectId : d.scores[0].subjectId;
+}
+
 export function migrateDenemeler(denemeler: DenemeRecord[]): DenemeRecord[] {
   return denemeler.map(d => {
-    const geometriScore = d.scores.find(s => s.subjectId === "geometri");
-    if (!geometriScore) return d;
+    let record = { ...d };
 
-    // Remove geometri, merge into matematik
-    const newScores = d.scores.filter(s => s.subjectId !== "geometri");
-    const matematikScoreIndex = newScores.findIndex(s => s.subjectId === "matematik");
-    
-    if (matematikScoreIndex !== -1) {
-      newScores[matematikScoreIndex] = {
-        ...newScores[matematikScoreIndex],
-        correct: newScores[matematikScoreIndex].correct + geometriScore.correct,
-        wrong: newScores[matematikScoreIndex].wrong + geometriScore.wrong,
-        empty: newScores[matematikScoreIndex].empty + geometriScore.empty,
-      };
-    } else {
-      // If for some reason there is geometri but no matematik
-      newScores.push({
-        subjectId: "matematik",
-        correct: geometriScore.correct,
-        wrong: geometriScore.wrong,
-        empty: geometriScore.empty + 23, // Fallback
-      });
+    // 1. Geometri → Matematik birleştirme (eski format)
+    const geometriScore = record.scores.find(s => s.subjectId === "geometri");
+    if (geometriScore) {
+      const newScores = record.scores.filter(s => s.subjectId !== "geometri");
+      const matematikIdx = newScores.findIndex(s => s.subjectId === "matematik");
+      if (matematikIdx !== -1) {
+        newScores[matematikIdx] = {
+          ...newScores[matematikIdx],
+          correct: newScores[matematikIdx].correct + geometriScore.correct,
+          wrong: newScores[matematikIdx].wrong + geometriScore.wrong,
+          empty: newScores[matematikIdx].empty + geometriScore.empty,
+        };
+      } else {
+        newScores.push({
+          subjectId: "matematik",
+          correct: geometriScore.correct,
+          wrong: geometriScore.wrong,
+          empty: geometriScore.empty + 23,
+        });
+      }
+      record = { ...record, scores: newScores };
     }
 
-    return {
-      ...d,
-      scores: newScores
-    };
+    // 2. Eksik bransSubjectId tamamla (branş denemesi ama id kaydedilmemiş)
+    if (record.examType === "brans" && !record.bransSubjectId) {
+      const inferred = inferBransSubjectId(record);
+      if (inferred) {
+        record = { ...record, bransSubjectId: inferred };
+      }
+    }
+
+    return record;
   });
 }
 

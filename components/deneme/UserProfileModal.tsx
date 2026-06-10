@@ -500,7 +500,7 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                             { subject: 'Tarih', sen: senSbjAvg?.['tarih'] || 0, rakip: rakipSbjAvg['tarih'] || 0 },
                             { subject: 'Coğrafya', sen: senSbjAvg?.['cografya'] || 0, rakip: rakipSbjAvg['cografya'] || 0 },
                             { subject: 'Vatandaşlık', sen: senSbjAvg?.['vatandaslik'] || 0, rakip: rakipSbjAvg['vatandaslik'] || 0 },
-                            { subject: 'Güncel', sen: senSbjAvg?.['guncel'] || 0, rakip: rakipSbjAvg['guncel'] || 0 },
+                            { subject: 'Güncel', sen: senSbjAvg?.['guncel-bilgiler'] || 0, rakip: rakipSbjAvg['guncel-bilgiler'] || 0 },
                           ]}
                           layout="vertical"
                           margin={{ top: 5, right: 10, left: 20, bottom: 5 }}
