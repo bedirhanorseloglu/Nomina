@@ -367,9 +367,6 @@ export default function FloatingPomodoro() {
                 <span className={`text-sm font-black tracking-widest uppercase hidden sm:block ${isActive ? 'font-mono' : ''}`}>
                   {isFinishedAlert ? 'Süre Bitti!' : (isActive ? formatTime : (mode === 'stopwatch' ? 'Kronometre' : 'Mola'))}
                 </span>
-                {isActive && (
-                  <span className="text-sm">{mode === 'stopwatch' ? '⏱️' : '☕'}</span>
-                )}
               </div>
               {!isActive && totalFocusMinutes > 0 && (
                 <span className="text-[10px] mt-0.5 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:block">
