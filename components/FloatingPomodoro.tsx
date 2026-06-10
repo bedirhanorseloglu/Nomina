@@ -368,7 +368,7 @@ export default function FloatingPomodoro() {
                   {isFinishedAlert ? 'Süre Bitti!' : (isActive ? formatTime : (mode === 'stopwatch' ? 'Kronometre' : 'Mola'))}
                 </span>
               </div>
-              {!isActive && totalFocusMinutes > 0 && (
+              {totalFocusMinutes > 0 && (
                 <span className="text-[10px] mt-0.5 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:block">
                   Bugün: %{Math.min(100, Math.round((totalFocusMinutes / dailyGoalMinutes) * 100))} İlerleme
                 </span>
