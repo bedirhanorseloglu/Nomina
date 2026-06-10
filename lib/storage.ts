@@ -12,8 +12,6 @@ export const loadData = (): AppData => {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
       const parsed = JSON.parse(saved) as AppData
-      // Need to handle missing subjects/topics if we update data.ts later
-      // But for this SPA, we just use it directly.
       return {
         ...parsed,
         subjects: mergeWithInitialData(parsed.subjects),
@@ -53,5 +51,56 @@ const mergeWithInitialData = (savedSubjects: Subject[] = []) => {
 
 export const saveData = (data: AppData) => {
   if (typeof window === "undefined") return
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  
+  // Her kayıtta lastUpdated damgasını yenile
+  const dataToSave = { ...data, lastUpdated: Date.now() }
+  
+  const jsonString = JSON.stringify(dataToSave)
+  localStorage.setItem(STORAGE_KEY, jsonString)
+  
+  // Günlük yedekleme (Rolling Backups)
+  try {
+    const today = new Date().toISOString().split('T')[0]
+    const backupKey = `kpss_backup_${today}`
+    // Sadece günde bir kez yedek al, böylece gün içinde bozulsa bile gün başındaki hali kalsın
+    if (!localStorage.getItem(backupKey)) {
+      localStorage.setItem(backupKey, jsonString)
+      
+      // Eski yedekleri temizle (Sadece son 7 günü tut)
+      cleanupOldBackups()
+    }
+  } catch (e) {
+    console.error("Backup failed", e)
+  }
+}
+
+const cleanupOldBackups = () => {
+  const keys = Object.keys(localStorage)
+  const backupKeys = keys.filter(k => k.startsWith('kpss_backup_')).sort()
+  
+  // Eğer 7'den fazla yedek varsa, en eskileri sil
+  if (backupKeys.length > 7) {
+    const toDelete = backupKeys.slice(0, backupKeys.length - 7)
+    toDelete.forEach(key => localStorage.removeItem(key))
+  }
+}
+
+export const getAvailableBackups = (): string[] => {
+  if (typeof window === "undefined") return []
+  const keys = Object.keys(localStorage)
+  return keys.filter(k => k.startsWith('kpss_backup_')).map(k => k.replace('kpss_backup_', '')).sort().reverse()
+}
+
+export const restoreBackup = (dateString: string): boolean => {
+  if (typeof window === "undefined") return false
+  try {
+    const backupData = localStorage.getItem(`kpss_backup_${dateString}`)
+    if (backupData) {
+      localStorage.setItem(STORAGE_KEY, backupData)
+      return true
+    }
+  } catch (e) {
+    console.error("Restore failed", e)
+  }
+  return false
 }

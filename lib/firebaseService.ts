@@ -1,5 +1,5 @@
 import { db } from "./firebase";
-import { doc, getDoc, setDoc, collection, query, where, getDocs, serverTimestamp, deleteDoc } from "firebase/firestore";
+import { doc, getDoc, getDocFromServer, setDoc, collection, query, where, getDocs, serverTimestamp, deleteDoc } from "firebase/firestore";
 import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
@@ -44,6 +44,21 @@ export const saveToFirebase = async (userId: string, data: AppData) => {
   }
 };
 
+// Lokal ortamdan da Firebase'e zorla yükler (manuel sync için)
+export const forceUploadToFirebase = async (userId: string, data: AppData) => {
+  if (!userId) return;
+  try {
+    const docRef = doc(db, DATA_COLLECTION, userId);
+    const sanitized = stripUndefined(data) as AppData;
+    await setDoc(docRef, sanitized, { merge: false }); // merge:false → tamamen üstüne yazar
+    console.log("✅ Veriler zorla Firebase'e yüklendi");
+  } catch (error) {
+    console.error("❌ Force upload hatası:", error);
+    throw error;
+  }
+};
+
+
 export const updateUserProfile = async (userId: string, displayName: string | null, email: string | null) => {
   if (!userId) return;
   if (isLocalhost) return;
@@ -82,13 +97,24 @@ export const loadFromFirebase = async (userId: string): Promise<AppData | null> 
   if (!userId) return null;
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
-    const docSnap = await getDoc(docRef);
+    // getDocFromServer: cache'i bypass edip her zaman sunucudan taze veri çeker
+    const docSnap = await getDocFromServer(docRef);
     if (docSnap.exists()) {
-      console.log("✅ Firebase'den yüklendi");
+      console.log("✅ Firebase'den yüklendi (sunucu)");
       return docSnap.data() as AppData;
     }
   } catch (error) {
-    console.error("❌ Firebase yükleme hatası:", error);
+    // Sunucu erişimi başarısız olursa cache'den dene
+    try {
+      const docRef = doc(db, DATA_COLLECTION, userId);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        console.log("✅ Firebase'den yüklendi (cache)");
+        return docSnap.data() as AppData;
+      }
+    } catch (fallbackError) {
+      console.error("❌ Firebase yükleme hatası:", fallbackError);
+    }
   }
   return null;
 };

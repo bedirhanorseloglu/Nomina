@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { loadData, saveData } from "@/lib/storage"
-import { loadFromFirebase, saveToFirebase } from "@/lib/firebaseService"
+import { loadFromFirebase, saveToFirebase, forceUploadToFirebase, updateUserProfile } from "@/lib/firebaseService"
 import { initialData } from "@/lib/data"
 import { format } from "date-fns"
 import TopicList from "@/components/TopicList"
@@ -66,80 +66,45 @@ function HomeContent() {
   useEffect(() => {
     const initData = async () => {
       const local = loadData()
-      setData(local)
+      
       if (user?.uid) {
-        const remote = await loadFromFirebase(user.uid)
-        if (remote) {
-          // Start with local as base, only overwrite fields where remote has REAL data
-          const merged: AppData = { ...local }
-
-          // subjects: deep merge, local.done OR remote.done (her ikisinden de ilerleme korunur)
-          if (remote.subjects && remote.subjects.length > 0) {
-            merged.subjects = local.subjects.map(localSub => {
-              const remoteSub = remote.subjects!.find((s: any) => s.id === localSub.id)
-              if (!remoteSub) return localSub
-              return {
-                ...localSub,
-                topics: localSub.topics.map(localTopic => {
-                  const remoteTopic = remoteSub.topics.find((t: any) => t.id === localTopic.id)
-                  return {
-                    ...localTopic,
-                    done: localTopic.done || (remoteTopic ? remoteTopic.done : false),
-                    schedules: (remoteTopic?.schedules?.length ?? 0) > (localTopic.schedules?.length ?? 0)
-                      ? remoteTopic!.schedules
-                      : localTopic.schedules,
-                  }
-                })
-              }
-            })
-          }
-
-          // denemeler: en uzun listeyi kullan (daha fazla deneme = daha doğru)
-          const remoteDenemeler = remote.denemeler ?? []
-          const localDenemeler = local.denemeler ?? []
-          merged.denemeler = remoteDenemeler.length >= localDenemeler.length
-            ? remoteDenemeler
-            : localDenemeler
-
-          // denemeTargetNet: remote varsa kullan
-          if (remote.denemeTargetNet !== undefined) {
-            merged.denemeTargetNet = remote.denemeTargetNet
-          }
-
-          // dailyGoals: her iki taraftaki günleri birleştir
-          merged.dailyGoals = { ...(local.dailyGoals || {}), ...(remote.dailyGoals || {}) }
-
-          // slotNotes: her iki taraftaki notları birleştir
-          merged.slotNotes = { ...(local.slotNotes || {}), ...(remote.slotNotes || {}) }
-
-          // completedNotes: her iki taraftaki tamamlananları birleştir
-          merged.completedNotes = { ...(local.completedNotes || {}), ...(remote.completedNotes || {}) }
-
-          // holidays: en uzun listeyi kullan
-          const remoteHolidays = remote.holidays ?? []
-          const localHolidays = local.holidays ?? []
-          merged.holidays = remoteHolidays.length >= localHolidays.length ? remoteHolidays : localHolidays
-
-          // streak: büyük olan değeri koru
-          merged.streak = Math.max(local.streak ?? 0, remote.streak ?? 0)
-
-          // dailyGoalTarget: remote varsa kullan, yoksa local
-          if (remote.dailyGoalTarget !== undefined) {
-            merged.dailyGoalTarget = remote.dailyGoalTarget
-          }
-
-          // lastActiveDate: en güncel tarihi kullan
-          if (remote.lastActiveDate && local.lastActiveDate) {
-            merged.lastActiveDate = remote.lastActiveDate > local.lastActiveDate
-              ? remote.lastActiveDate
-              : local.lastActiveDate
+        try {
+          const remote = await loadFromFirebase(user.uid)
+          if (remote) {
+            const localTime = local.lastUpdated || 0
+            const remoteTime = remote.lastUpdated || 0
+            
+            // Eğer Firebase verisi Lokalden daha yeniyse
+            if (remoteTime > localTime) {
+              console.log("Bulut verisi daha güncel. Ekrana yükleniyor...")
+              setData(remote)
+              saveData(remote)
+            } 
+            // Eğer Lokal veri Firebase'den daha yeniyse
+            else if (localTime > remoteTime) {
+              console.log("Lokal veri daha güncel. Buluta eşitleniyor...")
+              setData(local)
+              saveToFirebase(user.uid, local)
+            } 
+            // İkisi de aynıysa
+            else {
+              setData(local)
+            }
           } else {
-            merged.lastActiveDate = remote.lastActiveDate || local.lastActiveDate
+            // Firebase'de henüz hiç veri yoksa
+            setData(local)
+            saveToFirebase(user.uid, local)
           }
-
-          setData(merged)
-          saveData(merged)
+        } catch (e) {
+          console.error("Sync error:", e)
+          setData(local)
         }
+      } else {
+        setData(local)
+      }
+      
+      if (user?.uid) {
+        updateUserProfile(user.uid, user.displayName, user.email)
       }
       isInitialLoad.current = false
     }
@@ -148,15 +113,22 @@ function HomeContent() {
 
   useEffect(() => {
     if (data && !isInitialLoad.current) {
+      // 1. Her zaman lokale kaydet
       saveData(data)
       setIsSaving(true)
-      if (user?.uid) {
-        saveToFirebase(user.uid, data).then(() => {
-          setTimeout(() => setIsSaving(false), 2000)
-        })
-      } else {
-        setTimeout(() => setIsSaving(false), 2000)
-      }
+      
+      // 2. Debounce ile Firebase'e aktar (Sürekli sunucuyu yormamak için 1.5 sn bekle)
+      const timeoutId = setTimeout(() => {
+        if (user?.uid) {
+          saveToFirebase(user.uid, data).then(() => {
+            setIsSaving(false)
+          }).catch(() => setIsSaving(false))
+        } else {
+          setIsSaving(false)
+        }
+      }, 1500)
+      
+      return () => clearTimeout(timeoutId)
     }
   }, [data, user])
 
@@ -415,16 +387,28 @@ function HomeContent() {
                       <div className="flex items-center gap-1.5 px-2 py-0.5 bg-rose-50 dark:bg-rose-500/10 rounded-lg border border-rose-100 dark:border-rose-500/20">
                          <span className="text-[9px] font-black uppercase tracking-widest text-rose-500">Busis ❤️</span>
                       </div>
-                      <AnimatePresence>
-                        {isSaving && (
+                      <AnimatePresence mode="wait">
+                        {isSaving ? (
                           <motion.div 
+                            key="saving"
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.9 }}
                             className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20"
                           >
                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            Senkronize
+                            Senkronize ediliyor...
+                          </motion.div>
+                        ) : (
+                          <motion.div 
+                            key="synced"
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20"
+                          >
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            Bulutla Eşitlendi ✓
                           </motion.div>
                         )}
                       </AnimatePresence>

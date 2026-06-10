@@ -59,6 +59,7 @@ export type AppData = {
   denemeTargetNet?: number
   dailyGoals?: Record<string, number> // Key: "YYYY-MM-DD", Value: questions solved
   dailyGoalTarget?: number
+  lastUpdated?: number // Timestamp for auto-sync
 }
 
 export type UniversityClass = {
