@@ -229,8 +229,11 @@ export default function FloatingPomodoro() {
   }, [isActive, timeLeft, mode, focusDuration, breakDuration]);
 
   const toggleTimer = () => {
-     setIsActive(!isActive);
-     setIsFinishedAlert(false);
+    if (!isActive) {
+      lastTickRef.current = Date.now();
+    }
+    setIsActive(!isActive);
+    setIsFinishedAlert(false);
   };
   const resetTimer = () => {
     setIsActive(false);
