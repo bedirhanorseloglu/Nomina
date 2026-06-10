@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, BarChart3, Trophy, Bell, LogOut, Settings } from "lucide-react";
+import { LayoutDashboard, BarChart3, Trophy, Bell, LogOut, Settings, Timer, MapPin } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import ProfileSettingsModal from "@/components/ProfileSettingsModal";
 import React, { useState, useEffect, useRef } from "react";
@@ -12,7 +12,9 @@ import React, { useState, useEffect, useRef } from "react";
 const links = [
   { href: "/dashboard", label: "Gösterge Paneli", icon: LayoutDashboard },
   { href: "/deneme", label: "Deneme Merkezi", icon: BarChart3 },
+  { href: "/simulator", label: "Simülatör", icon: Timer },
   { href: "/liderlik", label: "Liderlik Tablosu", icon: Trophy },
+  { href: "/etkinlik", label: "Etkinlikler", icon: MapPin },
 ];
 
 export default function DenemeNav({ children }: { children?: React.ReactNode }) {

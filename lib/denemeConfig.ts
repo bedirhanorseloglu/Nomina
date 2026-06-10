@@ -15,7 +15,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "turkce",
     title: "Türkçe",
     icon: "📘",
-    color: "#3b82f6",
+    color: "#3b82f6", // Blue
     category: "Genel Yetenek",
     questionCount: 30,
   },
@@ -23,7 +23,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "matematik",
     title: "Matematik",
     icon: "🔢",
-    color: "#f59e0b",
+    color: "#8b5cf6", // Violet
     category: "Genel Yetenek",
     questionCount: 30,
   },
@@ -31,7 +31,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "tarih",
     title: "Tarih",
     icon: "🏛",
-    color: "#ef4444",
+    color: "#d97706", // Amber
     category: "Genel Kültür",
     questionCount: 27,
   },
@@ -39,7 +39,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "cografya",
     title: "Coğrafya",
     icon: "🗺",
-    color: "#8b5cf6",
+    color: "#10b981", // Emerald
     category: "Genel Kültür",
     questionCount: 18,
   },
@@ -47,7 +47,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "vatandaslik",
     title: "Vatandaşlık",
     icon: "⚖️",
-    color: "#ec4899",
+    color: "#64748b", // Slate
     category: "Vatandaşlık",
     questionCount: 9,
   },
@@ -55,7 +55,7 @@ export const DENEME_SUBJECTS: DenemeSubjectConfig[] = [
     id: "guncel-bilgiler",
     title: "Güncel Bilgiler",
     icon: "🌍",
-    color: "#6366f1",
+    color: "#f43f5e", // Rose
     category: "Genel Kültür",
     questionCount: 6,
   },

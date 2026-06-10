@@ -339,24 +339,18 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                     return nets.reduce((a, b) => a + b, 0) / nets.length;
                   })();
 
-                  const getHeaderColors = () => {
-                    if (kiyasType === "genel") return { bg: "from-indigo-50 to-indigo-100/50", text: "text-indigo-600/80", gradient: "from-indigo-600 to-indigo-800", border: "border-indigo-200/50" };
-                    switch(kiyasBransSubject) {
-                      case "turkce": return { bg: "from-blue-50 to-sky-50/50", text: "text-blue-600/70", gradient: "from-blue-600 to-sky-500", border: "border-blue-200/50" };
-                      case "matematik": return { bg: "from-amber-50 to-orange-50/50", text: "text-amber-600/70", gradient: "from-amber-600 to-orange-500", border: "border-amber-100/50" };
-                      case "tarih": return { bg: "from-red-50 to-rose-50/50", text: "text-red-600/70", gradient: "from-red-600 to-rose-600", border: "border-red-100/50" };
-                      case "cografya": return { bg: "from-violet-50 to-purple-50/50", text: "text-violet-600/70", gradient: "from-violet-600 to-purple-600", border: "border-violet-100/50" };
-                      case "vatandaslik": return { bg: "from-pink-50 to-rose-50/50", text: "text-pink-600/70", gradient: "from-pink-600 to-rose-500", border: "border-pink-100/50" };
-                      case "guncel": return { bg: "from-emerald-50 to-teal-50/50", text: "text-emerald-600/70", gradient: "from-emerald-600 to-teal-500", border: "border-emerald-100/50" };
-                      default: return { bg: "from-slate-50 to-slate-50/50", text: "text-slate-600/70", gradient: "from-slate-600 to-slate-600", border: "border-slate-100/50" };
-                    }
+                  const getHeaderStyle = () => {
+                    if (kiyasType === "genel") return { backgroundColor: "#e0e7ff", color: "#4f46e5", borderColor: "#c7d2fe" };
+                    const subject = DENEME_SUBJECTS.find(s => s.id === kiyasBransSubject);
+                    const color = subject?.color || "#64748b";
+                    return { backgroundColor: `${color}15`, color: color, borderColor: `${color}40` };
                   };
-                  const colors = getHeaderColors();
+                  const styleProps = getHeaderStyle();
                   
                   return (
-                    <div className={`text-center sm:text-right bg-gradient-to-br ${colors.bg} px-6 py-4 rounded-2xl border ${colors.border} shrink-0 shadow-sm transition-colors duration-300`}>
-                       <p className={`text-[10px] font-black uppercase ${colors.text} tracking-widest mb-0.5 transition-colors duration-300`}>Net Ortalaması</p>
-                       <p className={`text-3xl font-black font-mono tracking-tighter bg-clip-text text-transparent bg-gradient-to-r ${colors.gradient} drop-shadow-sm transition-colors duration-300`}>
+                    <div className={`text-center sm:text-right px-6 py-4 rounded-2xl border shrink-0 shadow-sm transition-colors duration-300`} style={{ backgroundColor: styleProps.backgroundColor, borderColor: styleProps.borderColor }}>
+                       <p className={`text-[10px] font-black uppercase tracking-widest mb-0.5 transition-colors duration-300`} style={{ color: styleProps.color }}>Net Ortalaması</p>
+                       <p className={`text-3xl font-black font-mono tracking-tighter drop-shadow-sm transition-colors duration-300`} style={{ color: styleProps.color }}>
                          {headerAvgRakip.toFixed(2)}
                        </p>
                     </div>
@@ -395,24 +389,12 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                 {kiyasType === "brans" && (
                   <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                     {DENEME_SUBJECTS.map(subj => {
-                      const isActive = kiyasBransSubject === subj.id;
-                      let activeClass = "bg-purple-50 text-purple-600 border-purple-400 shadow-sm";
-                      if (isActive) {
-                        switch (subj.id) {
-                          case "turkce": activeClass = "bg-blue-50 text-blue-600 border-blue-400 shadow-sm"; break;
-                          case "matematik": activeClass = "bg-amber-50 text-amber-600 border-amber-400 shadow-sm"; break;
-                          case "tarih": activeClass = "bg-red-50 text-red-600 border-red-400 shadow-sm"; break;
-                          case "cografya": activeClass = "bg-violet-50 text-violet-600 border-violet-400 shadow-sm"; break;
-                          case "vatandaslik": activeClass = "bg-pink-50 text-pink-600 border-pink-400 shadow-sm"; break;
-                          case "guncel": activeClass = "bg-emerald-50 text-emerald-600 border-emerald-400 shadow-sm"; break;
-                        }
-                      }
-                      
                       return (
                         <button
                           key={subj.id}
                           onClick={() => setKiyasBransSubject(subj.id)}
-                          className={`px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all whitespace-nowrap border-2 ${isActive ? activeClass : "bg-white text-slate-400 border-slate-200 hover:border-slate-300 hover:bg-slate-50"}`}
+                          className={`px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all whitespace-nowrap border-2 ${isActive ? "text-white shadow-sm" : "bg-white text-slate-400 border-slate-200 hover:border-slate-300 hover:bg-slate-50"}`}
+                          style={isActive ? { backgroundColor: subj.color, borderColor: subj.color } : {}}
                         >
                           {subj.title}
                         </button>

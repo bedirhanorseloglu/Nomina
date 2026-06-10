@@ -55,6 +55,22 @@ export const getLeaderboard = async (limitCount: number = 10): Promise<Leaderboa
     querySnapshot.forEach((doc) => {
       results.push(doc.data() as LeaderboardEntry);
     });
+    
+    if (isLocalhost) {
+      for (let i = 1; i <= 10; i++) {
+        results.push({
+          userId: `mock-user-${i}`,
+          displayName: `Rakiplerin ${i}`,
+          photoURL: "",
+          averageNet: 95 - (i * 3) + Math.random() * 2,
+          maxNet: 100,
+          totalTrials: 5 + i,
+          updatedAt: new Date().toISOString()
+        });
+      }
+      results.sort((a, b) => b.averageNet - a.averageNet);
+    }
+    
     return results;
   } catch (error) {
     console.error("❌ Liderlik tablosu yükleme hatası:", error);
@@ -124,6 +140,23 @@ export const getBranchLeaderboard = async (subjectId: string, limitCount: number
     querySnapshot.forEach((doc) => {
       results.push(doc.data() as BranchLeaderboardEntry);
     });
+    
+    if (isLocalhost) {
+      for (let i = 1; i <= 10; i++) {
+        results.push({
+          userId: `mock-branch-user-${i}`,
+          subjectId,
+          displayName: `Branş Rakibi ${i}`,
+          photoURL: "",
+          averageNet: 25 - i + Math.random() * 2,
+          maxNet: 30,
+          totalTrials: 3 + i,
+          updatedAt: new Date().toISOString()
+        });
+      }
+      results.sort((a, b) => b.averageNet - a.averageNet);
+    }
+    
     return results;
   } catch (error) {
     console.error("❌ Branş liderlik tablosu yükleme hatası:", error);

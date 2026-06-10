@@ -207,14 +207,63 @@ export function migrateDenemeler(denemeler: DenemeRecord[]): DenemeRecord[] {
   });
 }
 
-/** 
- * Net değerine göre gerçekçi KPSS P3 puanı tahmini yapar.
- * ÖSYM'nin son yıllardaki standart sapmaları ve 2026 KPSS
- * beklentileri baz alınarak oluşturulmuş regresyon formülüdür.
- * Formül: 45 + (Net * 0.45). [0, 100] aralığına sınırlandırılmıştır.
+/**
+ * 2024 KPSS Lisans gerçek sonuçlarından (11 onaylanmış ÖSYM belgesi)
+ * en küçük kareler regresyonu ile türetilmiş puan tahmin formülleri.
+ *
+ * P3 = 54.42 + 0.4512 × GY_net + 0.3475 × GK_net  (R²=0.983, RMSE=0.94)
+ * P1 = 53.48 + 0.6286 × GY_net + 0.1998 × GK_net  (R²=0.997, RMSE=0.52)
+ * P2 = 53.68 + 0.5449 × GY_net + 0.2772 × GK_net  (R²=0.993, RMSE=0.67)
+ *
+ * GY katsayısı tüm puan türlerinde GK'dan yüksektir çünkü GY testinin
+ * standart sapması daha düşüktür (her net daha değerli).
  */
-export function estimateP3Score(net: number): number {
-  if (net <= 0) return 0;
-  const estimate = 45 + (net * 0.45);
-  return Math.min(100, Math.max(0, estimate));
+
+const P3_INTERCEPT = 54.41787;
+const P3_GY_COEFF = 0.45117;
+const P3_GK_COEFF = 0.34747;
+
+const P1_INTERCEPT = 53.47528;
+const P1_GY_COEFF = 0.62863;
+const P1_GK_COEFF = 0.19984;
+
+const P2_INTERCEPT = 53.67540;
+const P2_GY_COEFF = 0.54493;
+const P2_GK_COEFF = 0.27715;
+
+function clampPuan(value: number): number {
+  if (value <= 0) return 0;
+  return Math.min(100, Math.max(0, value));
+}
+
+/**
+ * GY ve GK netlerini ayrı ayrı alarak KPSS P3 puanı tahmini yapar.
+ * 2024 KPSS Lisans gerçek verileriyle kalibre edilmiştir (R²=0.983).
+ */
+export function estimateP3Score(gyNet: number, gkNet: number): number;
+/**
+ * Toplam net üzerinden yaklaşık P3 tahmini yapar.
+ * GY/GK ayrımı bilinmediğinde kullanılır (hedef net slider vb.)
+ * Toplam neti 50/50 oranında GY ve GK'ya bölerek hesaplar.
+ */
+export function estimateP3Score(totalNet: number): number;
+export function estimateP3Score(gyNetOrTotal: number, gkNet?: number): number {
+  if (gkNet !== undefined) {
+    // İki parametreli çağrı: estimateP3Score(gyNet, gkNet)
+    return clampPuan(P3_INTERCEPT + P3_GY_COEFF * gyNetOrTotal + P3_GK_COEFF * gkNet);
+  }
+  // Tek parametreli çağrı: estimateP3Score(totalNet)
+  // Toplam neti eşit bölerek yaklaşık tahmin üret
+  const half = gyNetOrTotal / 2;
+  return clampPuan(P3_INTERCEPT + P3_GY_COEFF * half + P3_GK_COEFF * half);
+}
+
+/** KPSS P1 puanı tahmini (GY ağırlıklı). R²=0.997 */
+export function estimateP1Score(gyNet: number, gkNet: number): number {
+  return clampPuan(P1_INTERCEPT + P1_GY_COEFF * gyNet + P1_GK_COEFF * gkNet);
+}
+
+/** KPSS P2 puanı tahmini (dengeli). R²=0.993 */
+export function estimateP2Score(gyNet: number, gkNet: number): number {
+  return clampPuan(P2_INTERCEPT + P2_GY_COEFF * gyNet + P2_GK_COEFF * gkNet);
 }

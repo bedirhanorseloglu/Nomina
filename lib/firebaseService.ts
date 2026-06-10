@@ -5,7 +5,13 @@ import { AppData } from "@/types";
 const DATA_COLLECTION = "user_data";
 
 // Helper to check if we are in local development mode
-const isLocalhost = typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+const isLocalhost = typeof window !== "undefined" && (
+  window.location.hostname === "localhost" || 
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname.startsWith("192.168.") ||
+  window.location.hostname.startsWith("10.") ||
+  window.location.hostname.startsWith("172.")
+);
 
 // Firestore doesn't allow undefined values — strip them recursively
 function stripUndefined(obj: unknown): unknown {

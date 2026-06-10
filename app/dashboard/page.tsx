@@ -350,54 +350,98 @@ function HomeContent() {
             <div className="max-w-7xl mx-auto space-y-12 md:space-y-16">
               
               {/* Overview Section */}
-              <section className="flex flex-col gap-8">
-                 {/* Status Tags */}
-                 <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-2 px-2.5 py-1 bg-red-50 dark:bg-red-500/10 rounded-lg border border-red-100 dark:border-red-500/20">
-                       <span className="text-[10px] font-bold uppercase tracking-widest text-red-500">Busis ❤️</span>
-                    </div>
-                    <div className="flex items-center gap-2 px-2.5 py-1 bg-white dark:bg-[#1e293b]/80 rounded-lg border border-gray-100 dark:border-white/5 shadow-sm">
-                       <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-                       <span className="text-[10px] font-bold uppercase tracking-widest text-gray-500">Sistem: <span className="text-blue-600 dark:text-blue-400">Aktif</span></span>
-                    </div>
-                    {isSaving && (
-                      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-100 dark:border-emerald-500/20">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                        Senkronize
+              {/* Unified EdTech Header */}
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: "easeOut" }}
+                className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 mb-4"
+              >
+                <div className="flex items-center gap-5">
+                  <div className="relative w-16 h-16 rounded-full border-[3px] border-white dark:border-slate-800 shadow-sm overflow-hidden shrink-0 bg-white">
+                    {user?.photoURL ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={user.photoURL} alt="Profil" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-black">
+                        {user?.displayName?.charAt(0)?.toUpperCase() || "K"}
                       </div>
                     )}
-                 </div>
-
-                 <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-8">
-                    <div className="flex flex-col gap-3 flex-1">
-                       <div>
-                         <h1 className="text-3xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white">Gösterge Paneli</h1>
-                         <p className="text-gray-500 dark:text-gray-400 text-sm font-medium mt-1">Hedeflerinize ulaşmak için bugün harika bir gün.</p>
-                       </div>
-                       <div className="mt-2">
-                         <DenemeLinkButton variant="card" />
-                       </div>
+                  </div>
+                  <div>
+                    <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">
+                      Merhaba, {user?.displayName?.split(" ")[0] || "Şampiyon"}!
+                    </h1>
+                    <div className="flex items-center gap-3 mt-1.5 flex-wrap">
+                      <p className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-slate-400">
+                        Sınava Hazırlık Merkezi
+                      </p>
+                      <div className="flex items-center gap-1.5 px-2 py-0.5 bg-rose-50 dark:bg-rose-500/10 rounded-lg border border-rose-100 dark:border-rose-500/20">
+                         <span className="text-[9px] font-black uppercase tracking-widest text-rose-500">Busis ❤️</span>
+                      </div>
+                      <AnimatePresence>
+                        {isSaving && (
+                          <motion.div 
+                            initial={{ opacity: 0, scale: 0.9 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0, scale: 0.9 }}
+                            className="flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20"
+                          >
+                            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Senkronize
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
+                  </div>
+                </div>
 
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 shrink-0 w-full lg:w-auto">
-                        <KPSSCountdown />
-                        <div className="relative group overflow-hidden bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl border border-slate-200/60 dark:border-white/5 px-6 py-5 rounded-[2rem] shadow-sm hover:shadow-md transition-all flex flex-col items-center justify-center min-w-[140px]">
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/30 dark:from-blue-900/10 dark:to-indigo-900/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                            <div className="relative z-10 flex flex-col items-center">
-                                <ProgressRing percentage={totalPercent} size={84} strokeWidth={8} color={activeSubject?.color || "#3b82f6"} hideLabel={true} />
-                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 mt-3 relative z-10">Genel İlerleme</span>
-                            </div>
-                        </div>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 mt-4 xl:mt-0">
+                  <div 
+                    className="flex items-center gap-3.5 bg-white dark:bg-[#1e293b] backdrop-blur-xl pl-2.5 pr-6 py-2.5 rounded-[2rem] shadow-md border-2 transition-colors"
+                    style={{ borderColor: `${activeSubject?.color || "#3b82f6"}30` }}
+                  >
+                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-white shadow-[inset_0_-2px_6px_rgba(0,0,0,0.2)] shrink-0" style={{ backgroundImage: `linear-gradient(135deg, ${activeSubject?.color || "#3b82f6"}, ${activeSubject?.color ? activeSubject.color + 'dd' : "#60a5fa"})` }}>
+                      <span className="text-xs font-black tracking-tight">%{Math.round(totalPercent)}</span>
                     </div>
-                 </div>
-                 <StatsBar 
+                    <div className="flex flex-col w-36">
+                      <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-500 dark:text-slate-300 mb-1.5">Müfredat İlerlemesi</span>
+                      <div className="h-2 w-full bg-slate-100 dark:bg-slate-700/80 rounded-full overflow-hidden shadow-inner border border-black/5 dark:border-white/5">
+                        <motion.div 
+                          className="h-full rounded-full"
+                          style={{ backgroundColor: activeSubject?.color || "#3b82f6", boxShadow: `0 0 10px ${activeSubject?.color || "#3b82f6"}80` }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${totalPercent}%` }}
+                          transition={{ duration: 1.2, ease: "easeOut" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
+                className="mb-2"
+              >
+                <KPSSCountdown />
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2, ease: "easeOut" }}
+              >
+                <StatsBar 
                    total={totalTopics} 
                    completed={completedTopics} 
                    dailySolved={data.dailyGoals?.[format(new Date(), "yyyy-MM-dd")] || 0}
                    dailyTarget={data.dailyGoalTarget || 100}
                    onUpdateGoal={handleUpdateDailyGoal}
                  />
-              </section>
+              </motion.div>
 
               {/* Strategy Details (Collapsible) */}
               <section>

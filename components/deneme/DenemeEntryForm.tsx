@@ -436,7 +436,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 <div className="col-span-2 rounded-[20px] p-5 text-center bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/50 shadow-sm mt-2">
                   <p className="text-[10px] font-black uppercase tracking-[0.15em] text-amber-600 mb-1">P3 Puan Tahmini</p>
                   <p className="text-3xl font-black font-mono text-amber-800 tracking-tight">
-                    {estimateP3Score(result.totalNet).toFixed(3)}
+                    {estimateP3Score(result.gyNet, result.gkNet).toFixed(3)}
                   </p>
                 </div>
               </>

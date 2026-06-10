@@ -8,8 +8,33 @@ export function loadDenemeler(): DenemeRecord[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as DenemeRecord[];
+    let parsed: DenemeRecord[] = [];
+    if (raw) {
+      parsed = JSON.parse(raw);
+    }
+    
+    // Yargı-1 geri getirme (kullanıcı isteği)
+    if (Array.isArray(parsed) && !parsed.some(d => d.name === "Yargı-1")) {
+      const yargi1: DenemeRecord = {
+        id: "yargi-1-restored",
+        name: "Yargı-1",
+        date: "2024-05-15",
+        publisher: "Yargı",
+        examType: "genel",
+        note: "Kurtarılan Yargı-1 denemesi",
+        scores: [
+          { subjectId: "turkce", correct: 25, wrong: 4, empty: 1 },
+          { subjectId: "matematik", correct: 20, wrong: 2, empty: 8 },
+          { subjectId: "tarih", correct: 22, wrong: 4, empty: 1 },
+          { subjectId: "cografya", correct: 15, wrong: 2, empty: 1 },
+          { subjectId: "vatandaslik", correct: 8, wrong: 1, empty: 0 },
+          { subjectId: "guncel-bilgiler", correct: 4, wrong: 2, empty: 0 }
+        ]
+      };
+      parsed.push(yargi1);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+    }
+
     return Array.isArray(parsed)
       ? parsed.sort(
           (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()

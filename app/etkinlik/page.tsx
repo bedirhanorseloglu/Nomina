@@ -1,80 +1,207 @@
 "use client";
 
-import React from "react";
-import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Map, Layers, ArrowRight } from "lucide-react";
+import React, { useState } from "react";
+import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
+import { Map, Layers, LayoutGrid, Milestone, Scale, Lock } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+
+type SubjectTab = "all" | "cografya" | "tarih" | "vatandaslik";
 
 export default function EtkinlikIndexPage() {
-  const router = useRouter();
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<SubjectTab>("all");
+
+  const TABS: { id: SubjectTab; name: string; icon: React.ElementType; color: string }[] = [
+    { id: "all", name: "Tümü", icon: LayoutGrid, color: "bg-slate-500" },
+    { id: "cografya", name: "Coğrafya", icon: Map, color: "bg-emerald-500" },
+    { id: "tarih", name: "Tarih", icon: Milestone, color: "bg-amber-500" },
+    { id: "vatandaslik", name: "Vatandaşlık", icon: Scale, color: "bg-slate-500" },
+  ];
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-50/30 to-slate-100 dark:from-[#0a0f1e] dark:via-[#0f172a] dark:to-[#0a0f1e] pt-24 pb-12 px-4">
+    <main className="min-h-screen bg-slate-50 dark:bg-[#0f172a] pt-28 pb-12 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto">
+        {/* Header - Gamified Style */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-14"
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8"
         >
-          <h1 className="text-4xl md:text-5xl font-black text-slate-800 dark:text-white mb-4 tracking-tight">
-            Tüm <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">Etkinlikler</span>
-          </h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-xl mx-auto leading-relaxed">
-            Coğrafya bilginizi pekiştirmek için farklı öğrenme modüllerini keşfedin.
-          </p>
+          <div className="flex items-center gap-5">
+            <div className="relative w-16 h-16 rounded-full border-[3px] border-white dark:border-slate-800 shadow-sm overflow-hidden shrink-0 bg-white">
+              {user?.photoURL ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.photoURL} alt="Profil" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-2xl font-black">
+                  {user?.displayName?.charAt(0)?.toUpperCase() || "K"}
+                </div>
+              )}
+            </div>
+            <div>
+              <h1 className="text-3xl md:text-4xl font-black text-slate-800 dark:text-white tracking-tight">
+                Pratik Merkezi
+              </h1>
+              <div className="flex items-center gap-3 mt-1.5">
+                <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+                  Derslere Özel Etkinlikler
+                </p>
+              </div>
+            </div>
+          </div>
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Harita Modülü */}
-          <motion.button
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            whileHover={{ y: -6, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push("/etkinlik/harita")}
-            className="group text-left rounded-3xl overflow-hidden bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border border-white/40 dark:border-white/5 shadow-xl shadow-blue-500/10 hover:shadow-2xl hover:shadow-blue-500/20 transition-all"
-          >
-            <div className="h-3 bg-gradient-to-r from-blue-500 to-indigo-600" />
-            <div className="p-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white shadow-lg mb-6">
-                <Map className="w-8 h-8" />
-              </div>
-              <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-3">Türkiye Haritası</h3>
-              <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-                Tıkla-yerleştir mantığıyla Türkiye üzerindeki dağları, gölleri ve yeryüzü şekillerini harita üzerinde görsel olarak öğrenin.
-              </p>
-              <div className="flex items-center text-blue-600 font-bold group-hover:translate-x-2 transition-transform">
-                Haritaya Git <ArrowRight className="w-5 h-5 ml-2" />
-              </div>
-            </div>
-          </motion.button>
-
-          {/* Kart Modülü */}
-          <motion.button
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.2 }}
-            whileHover={{ y: -6, scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push("/etkinlik/kart")}
-            className="group text-left rounded-3xl overflow-hidden bg-white/80 dark:bg-slate-800/60 backdrop-blur-xl border border-white/40 dark:border-white/5 shadow-xl shadow-emerald-500/10 hover:shadow-2xl hover:shadow-emerald-500/20 transition-all"
-          >
-            <div className="h-3 bg-gradient-to-r from-emerald-500 to-teal-600" />
-            <div className="p-8">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white shadow-lg mb-6">
-                <Layers className="w-8 h-8" />
-              </div>
-              <h3 className="text-2xl font-black text-slate-800 dark:text-white mb-3">Bilgi Kartları (Flashcards)</h3>
-              <p className="text-slate-500 dark:text-slate-400 mb-8 leading-relaxed">
-                Hızlı tekrar yöntemiyle yeryüzü şekillerinin türlerini (kıvrım, kırık, tektonik vb.) arkalı-önlü kartlarla ezberleyin.
-              </p>
-              <div className="flex items-center text-emerald-600 font-bold group-hover:translate-x-2 transition-transform">
-                Kartlara Git <ArrowRight className="w-5 h-5 ml-2" />
-              </div>
-            </div>
-          </motion.button>
+        {/* Gamified Subject Filter (Segmented Control) */}
+        <div className="mb-10 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div className="flex items-center gap-3 w-max">
+            {TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`relative flex items-center gap-2.5 px-5 py-3 rounded-2xl font-bold text-sm transition-all ${
+                    isActive
+                      ? "text-white"
+                      : "bg-white dark:bg-[#1e293b] text-slate-500 dark:text-slate-400 border-2 border-slate-200 dark:border-slate-700/50 border-b-[4px] hover:-translate-y-0.5 active:border-b-2 active:translate-y-[2px]"
+                  }`}
+                >
+                  {isActive && (
+                    <motion.div
+                      layoutId="subjectTabBg"
+                      className={`absolute inset-0 rounded-2xl shadow-sm border-b-[4px] active:border-b-2 active:translate-y-[2px] ${tab.color} border-black/20`}
+                      initial={false}
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+                    />
+                  )}
+                  <Icon className={`relative z-10 w-5 h-5 ${isActive ? "drop-shadow-sm" : ""}`} />
+                  <span className="relative z-10">{tab.name}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
+
+        {/* Activities Grid */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="grid md:grid-cols-2 gap-6 max-w-4xl"
+          >
+            {/* Coğrafya: Harita Pratiği */}
+            {(activeTab === "all" || activeTab === "cografya") && (
+              <Link
+                href="/etkinlik/harita"
+                className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
+              >
+                <div className="flex flex-col sm:flex-row items-start gap-5">
+                  <div className="w-20 h-20 rounded-2xl bg-emerald-500 text-white shadow-sm border-b-4 border-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Map className="w-10 h-10 drop-shadow-sm" />
+                  </div>
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Coğrafya</span>
+                      </div>
+                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Harita Pratiği</h3>
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                        Türkiye üzerindeki dağları, gölleri ve ovaları yerleştirerek görsel hafızanı güçlendir.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-emerald-200 dark:border-emerald-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                      Hemen Başla
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+
+            {/* Coğrafya: Bilgi Kartları */}
+            {(activeTab === "all" || activeTab === "cografya") && (
+              <Link
+                href="/etkinlik/kart"
+                className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
+              >
+                <div className="flex flex-col sm:flex-row items-start gap-5">
+                  <div className="w-20 h-20 rounded-2xl bg-emerald-500 text-white shadow-sm border-b-4 border-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Layers className="w-10 h-10 drop-shadow-sm" />
+                  </div>
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Coğrafya</span>
+                      </div>
+                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Bilgi Kartları</h3>
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                        Hızlı tekrar yöntemiyle kavramları arkalı-önlü kartlarla ezberle ve serini koru.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-emerald-200 dark:border-emerald-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                      Kartları Çalış
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+
+            {/* Placeholder Tarih (Coming Soon) */}
+            {(activeTab === "tarih") && (
+              <div className="w-full h-full text-left relative bg-slate-100 dark:bg-[#1e293b]/50 rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-dashed block opacity-70">
+                <div className="flex flex-col sm:flex-row items-start gap-5">
+                  <div className="w-20 h-20 rounded-2xl bg-amber-500/20 text-amber-500/50 flex items-center justify-center shrink-0">
+                    <Lock className="w-10 h-10" />
+                  </div>
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-amber-500 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-md">Tarih</span>
+                      </div>
+                      <h3 className="text-xl font-black text-slate-500 dark:text-slate-400 mb-2">Kronoloji Zinciri</h3>
+                      <p className="text-sm font-medium text-slate-400 dark:text-slate-500 mb-4 leading-relaxed">
+                        Önemli tarihi olayları sıraya dizerek kronolojik hafızanı test et. Çok yakında eklenecek.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center justify-center bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 font-bold px-4 py-2.5 rounded-xl text-sm self-start">
+                      Yakında
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Placeholder Vatandaşlık (Coming Soon) */}
+            {(activeTab === "vatandaslik") && (
+              <div className="w-full h-full text-left relative bg-slate-100 dark:bg-[#1e293b]/50 rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-dashed block opacity-70">
+                <div className="flex flex-col sm:flex-row items-start gap-5">
+                  <div className="w-20 h-20 rounded-2xl bg-slate-500/20 text-slate-500/50 flex items-center justify-center shrink-0">
+                    <Lock className="w-10 h-10" />
+                  </div>
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-200 dark:bg-slate-700/50 px-2 py-0.5 rounded-md">Vatandaşlık</span>
+                      </div>
+                      <h3 className="text-xl font-black text-slate-500 dark:text-slate-400 mb-2">Anayasa Kartları</h3>
+                      <p className="text-sm font-medium text-slate-400 dark:text-slate-500 mb-4 leading-relaxed">
+                        Temel hukuk kurallarını ve anayasa maddelerini boşluk doldurma ile öğren. Çok yakında.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center justify-center bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 font-bold px-4 py-2.5 rounded-xl text-sm self-start">
+                      Yakında
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </div>
     </main>
   );

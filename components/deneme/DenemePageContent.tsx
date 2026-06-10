@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
-import { PlusCircle, ClipboardList, BarChart3, BookOpen, TrendingUp, Zap } from "lucide-react";
+import { PlusCircle, ClipboardList, BarChart3, BookOpen, TrendingUp, Zap, GraduationCap, Globe } from "lucide-react";
 import DenemeNav from "./DenemeNav";
 import DenemeEntryForm from "./DenemeEntryForm";
 import DenemeHistoryList from "./DenemeHistoryList";
@@ -199,57 +199,85 @@ export default function DenemePageContent() {
       </DenemeNav>
 
       <main className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-28 pb-12">
-        {/* Hero Section */}
-        <motion.section
-          initial={{ opacity: 0, y: 20 }}
+        {/* Unified EdTech Header & Tabs */}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-10"
+          transition={{ duration: 0.4, ease: "easeOut" }}
+          className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10"
         >
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
-            {/* Title Block */}
-            <div className="flex flex-col gap-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                  <Zap className="w-5 h-5 text-white" />
+          <div className="flex items-center gap-5">
+            <div className="relative w-16 h-16 rounded-full border-[3px] border-white dark:border-slate-800 shadow-sm overflow-hidden shrink-0 bg-white">
+              {user?.photoURL ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={user.photoURL} alt="Profil" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full bg-gradient-to-br from-blue-500 to-sky-500 flex items-center justify-center text-white text-2xl font-black">
+                  {user?.displayName?.charAt(0)?.toUpperCase() || "K"}
                 </div>
-                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">
-                  Gelişim ve İstatistik
-                </span>
-              </div>
-              <div className="flex items-center gap-4 flex-wrap">
-                <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-gray-900 dark:text-white">
-                  Deneme Merkezi
-                </h1>
-                {stats && (
-                  <div className="flex items-center gap-2">
-                    <span className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-white/5 border border-gray-200/50 dark:border-white/10 text-xs font-bold text-gray-600 dark:text-gray-300 flex items-center gap-1.5">
-                      <BookOpen className="w-3.5 h-3.5 text-gray-400" />
-                      {stats.count} sınav
-                    </span>
-                    <span className="px-3 py-1.5 rounded-full bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 text-xs font-bold text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
-                      <TrendingUp className="w-3.5 h-3.5" />
-                      {formatNet(stats.avg)} ort.
-                    </span>
-                  </div>
+              )}
+            </div>
+            <div>
+              <h1 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">
+                {tab === "yeni" ? "Yeni Deneme" : tab === "gecmis" ? "Kayıt Defteri" : "İstatistikler"}
+              </h1>
+              <div className="flex items-center gap-3 mt-1.5">
+                <p className="text-xs font-black uppercase tracking-widest text-slate-400">
+                  {tab === "yeni" ? "Sınav Sonucu Ekle" : tab === "gecmis" ? "Tüm Sınavların" : "Gelişim Analizin"}
+                </p>
+                {typeof window !== "undefined" && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const mocks: DenemeRecord[] = [];
+                      for (let i = 1; i <= 3; i++) {
+                        mocks.push({
+                          id: crypto.randomUUID(),
+                          name: `Mock Genel Deneme ${i}`,
+                          date: new Date(Date.now() - i * 86400000).toISOString().split("T")[0],
+                          examType: "kpss",
+                          scores: DENEME_SUBJECTS.map(s => ({
+                            subjectId: s.id,
+                            correct: Math.floor(s.questionCount * (0.6 + Math.random() * 0.3)),
+                            wrong: Math.floor(s.questionCount * (0.1 + Math.random() * 0.2)),
+                            empty: 0,
+                          })).map(s => ({ ...s, empty: DENEME_SUBJECTS.find(x => x.id === s.subjectId)!.questionCount - s.correct - s.wrong }))
+                        });
+                      }
+                      DENEME_SUBJECTS.forEach((sub) => {
+                        for (let i = 1; i <= 3; i++) {
+                          const correct = Math.floor(sub.questionCount * (0.5 + Math.random() * 0.4));
+                          const wrong = Math.floor(sub.questionCount * (0.1 + Math.random() * 0.2));
+                          mocks.push({
+                            id: crypto.randomUUID(),
+                            name: `Mock ${sub.title} Branş ${i}`,
+                            date: new Date(Date.now() - i * 86400000).toISOString().split("T")[0],
+                            examType: "brans",
+                            bransSubjectId: sub.id,
+                            scores: [{
+                              subjectId: sub.id,
+                              correct,
+                              wrong,
+                              empty: sub.questionCount - correct - wrong
+                            }]
+                          });
+                        }
+                      });
+                      const newData = [...denemeler, ...mocks];
+                      setDenemeler(newData);
+                      saveDenemeler(newData);
+                      toast.success("Test verileri başarıyla eklendi! (Firebase etkilenmedi)");
+                    }}
+                    className="px-2 py-0.5 bg-rose-100 text-rose-600 font-black rounded-lg text-[9px] uppercase tracking-wider border border-rose-200 hover:bg-rose-200 transition-colors"
+                  >
+                    🧪 Test Verisi
+                  </button>
                 )}
               </div>
-              <p className="text-gray-500 dark:text-gray-400 max-w-lg text-sm leading-relaxed font-medium">
-                Girdiğiniz her denemenin ders bazlı analizi çıkarılır, netleriniz otomatik hesaplanır ve gelişiminiz grafiklerle gösterilir.
-              </p>
             </div>
-
           </div>
-        </motion.section>
 
-        {/* Tab Navigation */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="mb-10"
-        >
-          <div className="flex gap-1 p-1 bg-white dark:bg-[#1e293b]/80 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm max-w-md">
+          <div className="flex gap-1 p-1.5 bg-white dark:bg-[#1e293b]/80 backdrop-blur-sm rounded-2xl border border-gray-100 dark:border-white/5 shadow-sm w-full md:w-auto">
             {TABS.map((t) => (
               <button
                 key={t.id}
@@ -258,17 +286,17 @@ export default function DenemePageContent() {
                   setTab(t.id);
                   if (t.id !== "yeni") setEditing(null);
                 }}
-                className="flex-1 py-3 px-4 rounded-xl text-xs font-bold uppercase tracking-wider transition-all relative flex items-center justify-center gap-2 cursor-pointer focus:outline-none"
+                className="flex-1 md:flex-none px-5 py-2.5 rounded-xl text-[11px] font-black uppercase tracking-widest transition-all relative flex items-center justify-center gap-2 cursor-pointer focus:outline-none"
               >
                 {tab === t.id && (
                   <motion.div
                     layoutId="denemeTabBg"
-                    className="absolute inset-0 bg-blue-500 rounded-xl shadow-lg shadow-blue-500/25"
+                    className="absolute inset-0 bg-blue-500 rounded-xl shadow-md shadow-blue-500/20"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
-                <t.icon className={`w-4 h-4 relative z-10 transition-colors ${tab === t.id ? "text-white" : "text-gray-400"}`} />
-                <span className={`relative z-10 transition-colors ${tab === t.id ? "text-white" : "text-gray-500 dark:text-gray-400"}`}>
+                <t.icon className={`w-4 h-4 relative z-10 transition-colors ${tab === t.id ? "text-white" : "text-slate-400"}`} />
+                <span className={`relative z-10 transition-colors ${tab === t.id ? "text-white" : "text-slate-500 dark:text-slate-400"}`}>
                   {t.label}
                 </span>
               </button>
@@ -281,10 +309,10 @@ export default function DenemePageContent() {
           {tab === "yeni" && (
             <motion.div
               key="yeni"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             >
               {editing && (
                 <div className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3 sm:justify-between">
@@ -323,43 +351,67 @@ export default function DenemePageContent() {
           {tab === "gecmis" && (
             <motion.div
               key="gecmis"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             >
-              <DenemeHistoryList
-                denemeler={filteredDenemeler}
-                onDelete={(id) => {
-                  setDenemeler(deleteDeneme(id));
-                  toast.success("Deneme kaydı silindi");
-                }}
-                onEdit={(d) => {
-                  setEditing(d);
-                  setTab("yeni");
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                }}
-                onAdd={() => setTab("yeni")}
-              />
+              {/* ViewType Switcher for Kayıt Defteri */}
+              <ViewTypeSwitcher viewType={viewType} onChange={setViewType} />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={viewType}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  <DenemeHistoryList
+                    denemeler={filteredDenemeler}
+                    onDelete={(id) => {
+                      setDenemeler(deleteDeneme(id));
+                      toast.success("Deneme kaydı silindi");
+                    }}
+                    onEdit={(d) => {
+                      setEditing(d);
+                      setTab("yeni");
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }}
+                    onAdd={() => setTab("yeni")}
+                  />
+                </motion.div>
+              </AnimatePresence>
             </motion.div>
           )}
 
           {tab === "analiz" && (
             <motion.div
               key="analiz"
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.25 }}
+              transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             >
-              <DenemeAnalytics
-                denemeler={filteredDenemeler}
-                allDenemeler={denemeler}
-                viewType={viewType}
-                targetNet={targetNet}
-                onTargetNetChange={handleTargetNetChange}
-                onAdd={() => setTab("yeni")}
-              />
+              {/* ViewType Switcher for Analiz */}
+              <ViewTypeSwitcher viewType={viewType} onChange={setViewType} />
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={viewType}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: 10 }}
+                  transition={{ duration: 0.3, ease: "easeOut" }}
+                >
+                  <DenemeAnalytics
+                    denemeler={filteredDenemeler}
+                    allDenemeler={denemeler}
+                    viewType={viewType}
+                    targetNet={targetNet}
+                    onTargetNetChange={handleTargetNetChange}
+                    onAdd={() => setTab("yeni")}
+                  />
+                </motion.div>
+              </AnimatePresence>
             </motion.div>
           )}
         </AnimatePresence>
@@ -371,6 +423,56 @@ export default function DenemePageContent() {
 /* ────────────────────────────
    Sub-components
    ──────────────────────────── */
+
+function ViewTypeSwitcher({
+  viewType,
+  onChange,
+}: {
+  viewType: "genel" | "brans";
+  onChange: (v: "genel" | "brans") => void;
+}) {
+  return (
+    <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-[#1e293b] p-2 rounded-2xl shadow-sm border border-slate-200 dark:border-white/5">
+      <div className="flex w-full sm:w-auto relative">
+        <button
+          onClick={() => onChange("genel")}
+          className={`flex-1 sm:flex-none relative px-6 py-3 text-sm font-bold transition-all rounded-xl z-10 flex items-center justify-center gap-2 ${
+            viewType === "genel" ? "text-blue-700 dark:text-blue-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
+          }`}
+        >
+          {viewType === "genel" && (
+            <motion.div
+              layoutId="edtechActiveTab"
+              className="absolute inset-0 bg-blue-50 dark:bg-blue-500/10 rounded-xl"
+              transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+            />
+          )}
+          <span className="relative z-10 text-lg">🌍</span>
+          <span className="relative z-10">Genel Deneme</span>
+        </button>
+        <button
+          onClick={() => onChange("brans")}
+          className={`flex-1 sm:flex-none relative px-6 py-3 text-sm font-bold transition-all rounded-xl z-10 flex items-center justify-center gap-2 ${
+            viewType === "brans" ? "text-violet-700 dark:text-violet-300" : "text-slate-500 hover:text-slate-700 dark:text-slate-400"
+          }`}
+        >
+          {viewType === "brans" && (
+            <motion.div
+              layoutId="edtechActiveTab"
+              className="absolute inset-0 bg-violet-50 dark:bg-violet-500/10 rounded-xl"
+              transition={{ type: "spring", bounce: 0.2, duration: 0.5 }}
+            />
+          )}
+          <span className="relative z-10 text-lg">🎯</span>
+          <span className="relative z-10">Branş Denemesi</span>
+        </button>
+      </div>
+      <div className="px-4 hidden sm:block text-xs font-medium text-slate-400">
+        {viewType === "genel" ? "KPSS GY-GK Sınavları" : "Ders Bazlı Sınavlar"}
+      </div>
+    </div>
+  );
+}
 
 function HeaderStat({
   label,
