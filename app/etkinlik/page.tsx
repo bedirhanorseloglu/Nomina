@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Map, Layers, LayoutGrid, Milestone, Scale, Lock } from "lucide-react";
+import { Map, Layers, LayoutGrid, Milestone, Scale, Lock, Droplets } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 
 type SubjectTab = "all" | "cografya" | "tarih" | "vatandaslik";
@@ -95,27 +95,84 @@ export default function EtkinlikIndexPage() {
             transition={{ duration: 0.3 }}
             className="grid md:grid-cols-2 gap-6 max-w-4xl"
           >
-            {/* Coğrafya: Harita Pratiği */}
+            {/* Coğrafya: Dağlar */}
             {(activeTab === "all" || activeTab === "cografya") && (
               <Link
-                href="/etkinlik/harita"
+                href="/etkinlik/harita?topic=daglar"
                 className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
               >
                 <div className="flex flex-col sm:flex-row items-start gap-5">
-                  <div className="w-20 h-20 rounded-2xl bg-emerald-500 text-white shadow-sm border-b-4 border-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                  <div className="w-20 h-20 rounded-2xl bg-red-500 text-white shadow-sm border-b-4 border-red-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                     <Map className="w-10 h-10 drop-shadow-sm" />
                   </div>
                   <div className="flex flex-col h-full justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Coğrafya</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Yer Şekilleri</span>
                       </div>
-                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Harita Pratiği</h3>
+                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Türkiye'nin Dağları</h3>
                       <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                        Türkiye üzerindeki dağları, gölleri ve ovaları yerleştirerek görsel hafızanı güçlendir.
+                        Türkiye üzerindeki dağları (kıvrım, kırık, volkanik) haritaya yerleştirerek öğren.
                       </p>
                     </div>
-                    <div className="inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-emerald-200 dark:border-emerald-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                    <div className="inline-flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-red-200 dark:border-red-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                      Hemen Başla
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+
+            {/* Coğrafya: Göller */}
+            {(activeTab === "all" || activeTab === "cografya") && (
+              <Link
+                href="/etkinlik/harita?topic=goller"
+                className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
+              >
+                <div className="flex flex-col sm:flex-row items-start gap-5">
+                  <div className="w-20 h-20 rounded-2xl bg-cyan-500 text-white shadow-sm border-b-4 border-cyan-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Map className="w-10 h-10 drop-shadow-sm" />
+                  </div>
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Su Kaynakları</span>
+                      </div>
+                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Türkiye'nin Gölleri</h3>
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                        Türkiye'deki gölleri oluşum türlerine göre haritada bul ve görsel hafızanı güçlendir.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center justify-center bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-cyan-200 dark:border-cyan-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                      Hemen Başla
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+
+            {/* Coğrafya: Akarsuların Serüveni */}
+            {(activeTab === "all" || activeTab === "cografya") && (
+              <Link
+                href="/etkinlik/akarsular"
+                className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
+              >
+                <div className="flex flex-col sm:flex-row items-start gap-5">
+                  <div className="w-20 h-20 rounded-2xl bg-blue-500 text-white shadow-sm border-b-4 border-blue-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Droplets className="w-10 h-10 drop-shadow-sm" />
+                  </div>
+                  <div className="flex flex-col h-full justify-between">
+                    <div>
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Su Kaynakları</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded-md">Yeni</span>
+                      </div>
+                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Akarsular</h3>
+                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                        Türkiye'nin akarsularını hikaye tarzında boşluk doldurarak öğren ve haritada yerlerini bul.
+                      </p>
+                    </div>
+                    <div className="inline-flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-blue-200 dark:border-blue-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
                       Hemen Başla
                     </div>
                   </div>
@@ -136,9 +193,9 @@ export default function EtkinlikIndexPage() {
                   <div className="flex flex-col h-full justify-between">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Coğrafya</span>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Genel Tekrar</span>
                       </div>
-                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Bilgi Kartları</h3>
+                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Tüm Konular (Bilgi Kartları)</h3>
                       <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
                         Hızlı tekrar yöntemiyle kavramları arkalı-önlü kartlarla ezberle ve serini koru.
                       </p>

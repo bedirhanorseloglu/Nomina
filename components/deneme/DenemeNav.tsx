@@ -55,14 +55,14 @@ export default function DenemeNav({ children }: { children?: React.ReactNode }) 
       } px-4 md:px-8 flex justify-center pointer-events-none`}
     >
       <div 
-        className={`pointer-events-auto flex items-center w-full max-w-7xl mx-auto rounded-2xl md:rounded-full px-6 py-3 transition-all duration-300 ${
+        className={`pointer-events-auto flex items-center justify-between w-full max-w-[90rem] mx-auto rounded-2xl md:rounded-full px-4 md:px-6 py-3 transition-all duration-300 ${
           isScrolled 
             ? "bg-white/70 dark:bg-[#1e293b]/70 backdrop-blur-xl shadow-lg border border-gray-200/50 dark:border-white/10" 
             : "bg-white/40 dark:bg-[#1e293b]/40 backdrop-blur-md shadow-sm border border-transparent"
         }`}
       >
         {/* Left Side: Logo + Nav */}
-        <div className="flex items-center gap-8 flex-1">
+        <div className="flex items-center gap-4 lg:gap-8 shrink-0">
           {/* Logo Area */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-inner">
@@ -83,7 +83,7 @@ export default function DenemeNav({ children }: { children?: React.ReactNode }) 
                 <Link 
                   key={link.label} 
                   href={link.href}
-                  className="relative px-4 py-2 rounded-full group transition-colors"
+                  className="relative px-2 xl:px-4 py-2 rounded-full group transition-colors"
                 >
                   {isActive && (
                     <motion.div
@@ -93,9 +93,9 @@ export default function DenemeNav({ children }: { children?: React.ReactNode }) 
                       transition={{ type: "spring", stiffness: 400, damping: 30 }}
                     />
                   )}
-                  <div className="relative z-10 flex items-center gap-2">
+                  <div className="relative z-10 flex items-center gap-1.5 xl:gap-2">
                     <Icon className={`w-4 h-4 ${isActive ? "text-blue-600 dark:text-blue-400" : "text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"}`} />
-                    <span className={`text-sm font-medium ${isActive ? "text-gray-900 dark:text-white" : "text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"}`}>
+                    <span className={`text-xs xl:text-sm font-medium ${isActive ? "text-gray-900 dark:text-white" : "text-gray-500 group-hover:text-gray-900 dark:group-hover:text-white transition-colors"}`}>
                       {link.label}
                     </span>
                   </div>
@@ -106,7 +106,7 @@ export default function DenemeNav({ children }: { children?: React.ReactNode }) 
         </div>
 
         {/* Right Side: Children + Profile */}
-        <div className="flex items-center justify-end gap-4 flex-1">
+        <div className="flex items-center gap-3 shrink-0">
           {/* Children (Stats, etc) */}
           {children && (
             <div className="hidden xl:block">

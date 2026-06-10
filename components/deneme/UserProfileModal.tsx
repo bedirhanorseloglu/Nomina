@@ -389,6 +389,7 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                 {kiyasType === "brans" && (
                   <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
                     {DENEME_SUBJECTS.map(subj => {
+                      const isActive = kiyasBransSubject === subj.id;
                       return (
                         <button
                           key={subj.id}

@@ -232,10 +232,10 @@ export default function DenemePageContent() {
                       const mocks: DenemeRecord[] = [];
                       for (let i = 1; i <= 3; i++) {
                         mocks.push({
-                          id: crypto.randomUUID(),
+                          id: `mock-${i}`,
                           name: `Mock Genel Deneme ${i}`,
                           date: new Date(Date.now() - i * 86400000).toISOString().split("T")[0],
-                          examType: "kpss",
+                          examType: "genel",
                           scores: DENEME_SUBJECTS.map(s => ({
                             subjectId: s.id,
                             correct: Math.floor(s.questionCount * (0.6 + Math.random() * 0.3)),

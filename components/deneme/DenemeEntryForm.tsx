@@ -360,7 +360,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
               <button
                 type="button"
                 onClick={() => setStep((s) => (s - 1) as any)}
-                className="flex items-center gap-2 px-5 py-3 rounded-xl text-xs font-bold text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-slate-800 transition-colors"
+                className="flex items-center gap-2 px-6 py-3 rounded-2xl text-[15px] font-black text-slate-500 bg-white border-2 border-slate-200 border-b-4 hover:bg-slate-50 active:bg-slate-100 active:border-b-2 active:translate-y-0.5 transition-all"
               >
                 <ArrowLeft className="w-4 h-4" /> Geri
               </button>
@@ -373,7 +373,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 type="button"
                 disabled={!name.trim() || (examType === "brans" && !bransSubjectId)}
                 onClick={() => setStep((s) => (s + 1) as any)}
-                className="flex items-center gap-2 px-7 py-3 rounded-xl text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 transition-colors disabled:opacity-30 disabled:cursor-not-allowed shadow-[0_4px_14px_rgba(0,0,0,0.15)]"
+                className="flex items-center gap-2 px-7 py-3 rounded-2xl text-[15px] font-black text-white bg-slate-800 hover:bg-slate-700 active:bg-slate-900 border-b-4 border-slate-950 hover:border-slate-800 active:border-b-0 active:translate-y-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:border-b-0 disabled:translate-y-1 shadow-sm"
               >
                 İleri <ArrowRight className="w-4 h-4" />
               </button>
@@ -382,7 +382,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 type="submit"
                 disabled={!name.trim() || !result.isValid}
                 whileTap={{ scale: 0.96 }}
-                className="flex items-center gap-2 px-8 py-3.5 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-accent to-emerald-500 hover:from-accent hover:to-emerald-400 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-[0_8px_20px_rgba(16,185,129,0.3)]"
+                className="flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[15px] font-black text-white bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 border-b-4 border-emerald-700 hover:border-emerald-500 active:border-b-0 active:translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:border-b-0 disabled:translate-y-1 shadow-sm"
               >
                 <Check className="w-4 h-4" />
                 {initial ? "Değişiklikleri Kaydet" : "Denemeyi Kaydet"}

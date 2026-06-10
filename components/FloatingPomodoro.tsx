@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Timer, Users, Play, Pause, RotateCcw, X, Coffee, Brain, Settings2, Target } from "lucide-react";
+import { Timer, Users, Play, Pause, RotateCcw, X, Coffee, Brain, Settings2, Target, Clock } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { updatePresence, getOnlineUsersCount } from "@/lib/firebaseService";
 
-type Mode = "focus" | "break";
+type Mode = "focus" | "break" | "stopwatch";
 
 export default function FloatingPomodoro() {
   const { user } = useAuth();
@@ -18,6 +18,9 @@ export default function FloatingPomodoro() {
   const [timeLeft, setTimeLeft] = useState(focusDuration * 60);
   const [isActive, setIsActive] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState(1);
+  const [isFinishedAlert, setIsFinishedAlert] = useState(false);
+  const [lapsCompleted, setLapsCompleted] = useState(0);
+  const [dailyGoalMinutes, setDailyGoalMinutes] = useState(240);
   
   const [totalFocusMinutes, setTotalFocusMinutes] = useState(0);
   const [totalBreakMinutes, setTotalBreakMinutes] = useState(0);
@@ -31,6 +34,8 @@ export default function FloatingPomodoro() {
     const savedBreak = localStorage.getItem("pomodoro_break");
     const savedTotalFocus = localStorage.getItem("pomodoro_total_focus");
     const savedTotalBreak = localStorage.getItem("pomodoro_total_break");
+    const savedLaps = localStorage.getItem("pomodoro_laps");
+    const savedGoal = localStorage.getItem("pomodoro_daily_goal");
     
     if (savedFocus) {
       setFocusDuration(parseInt(savedFocus));
@@ -41,6 +46,8 @@ export default function FloatingPomodoro() {
     }
     if (savedTotalFocus) setTotalFocusMinutes(parseInt(savedTotalFocus));
     if (savedTotalBreak) setTotalBreakMinutes(parseInt(savedTotalBreak));
+    if (savedLaps) setLapsCompleted(parseInt(savedLaps));
+    if (savedGoal) setDailyGoalMinutes(parseInt(savedGoal));
   }, []);
 
   const saveSettings = (f: number, b: number) => {
@@ -68,12 +75,12 @@ export default function FloatingPomodoro() {
   }, [user]);
 
   useEffect(() => {
-    if (isActive && timeLeft > 0) {
+    if (isActive && (timeLeft > 0 || mode === "stopwatch")) {
       timerRef.current = setInterval(() => {
         secondsElapsedRef.current += 1;
         if (secondsElapsedRef.current >= 60) {
            secondsElapsedRef.current = 0;
-           if (mode === "focus") {
+           if (mode === "focus" || mode === "stopwatch") {
               setTotalFocusMinutes(prev => {
                 const newVal = prev + 1;
                 localStorage.setItem("pomodoro_total_focus", newVal.toString());
@@ -87,15 +94,33 @@ export default function FloatingPomodoro() {
               });
            }
         }
-        setTimeLeft(prev => prev - 1);
+        
+        if (mode === "stopwatch") {
+          setTimeLeft(prev => prev + 1);
+        } else {
+          setTimeLeft(prev => prev - 1);
+        }
       }, 1000);
-    } else if (timeLeft === 0 && isActive) {
+    } else if (timeLeft === 0 && isActive && mode !== "stopwatch") {
       const audio = new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg");
-      audio.volume = 0.5;
-      audio.play().catch(e => console.log(e));
+      audio.volume = 1.0; // Artırılmış ses seviyesi
+      // Ses engellemesini aşmak için promise'i logluyoruz ama catch ile çökmesini engelliyoruz
+      audio.play().catch(e => console.log("Otomatik ses çalma tarayıcı tarafından engellendi", e));
       
+      // Sesi 3 saniye sonra zorla durdur (Sürekli çalmasını engeller)
+      setTimeout(() => {
+        audio.pause();
+        audio.currentTime = 0;
+      }, 3000);
+      
+      setIsFinishedAlert(true);
       secondsElapsedRef.current = 0;
       if (mode === "focus") {
+        setLapsCompleted(prev => {
+           const newLaps = prev + 1;
+           localStorage.setItem("pomodoro_laps", newLaps.toString());
+           return newLaps;
+        });
         setMode("break");
         setTimeLeft(breakDuration * 60);
       } else {
@@ -110,26 +135,49 @@ export default function FloatingPomodoro() {
     };
   }, [isActive, timeLeft, mode, focusDuration, breakDuration]);
 
-  const toggleTimer = () => setIsActive(!isActive);
+  const toggleTimer = () => {
+     setIsActive(!isActive);
+     setIsFinishedAlert(false);
+  };
   const resetTimer = () => {
     setIsActive(false);
+    setIsFinishedAlert(false);
     secondsElapsedRef.current = 0;
-    setTimeLeft(mode === "focus" ? focusDuration * 60 : breakDuration * 60);
+    setTimeLeft(mode === "stopwatch" ? 0 : (mode === "focus" ? focusDuration * 60 : breakDuration * 60));
   };
 
   const changeMode = (newMode: Mode) => {
     setMode(newMode);
     setIsActive(false);
+    setIsFinishedAlert(false);
     secondsElapsedRef.current = 0;
-    setTimeLeft(newMode === "focus" ? focusDuration * 60 : breakDuration * 60);
+    setTimeLeft(newMode === "stopwatch" ? 0 : (newMode === "focus" ? focusDuration * 60 : breakDuration * 60));
   };
 
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
-  const formatTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   
-  const totalSeconds = mode === "focus" ? focusDuration * 60 : breakDuration * 60;
-  const progress = ((totalSeconds - timeLeft) / totalSeconds) * 100;
+  // Kronometre modunda saat hesaplaması
+  const displayHours = Math.floor(timeLeft / 3600);
+  const displayMinutes = Math.floor((timeLeft % 3600) / 60);
+  const displaySeconds = timeLeft % 60;
+  
+  let formatTime = "";
+  if (mode === "stopwatch") {
+    formatTime = displayHours > 0 
+      ? `${displayHours.toString().padStart(2, '0')}:${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`
+      : `${displayMinutes.toString().padStart(2, '0')}:${displaySeconds.toString().padStart(2, '0')}`;
+  } else {
+    formatTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  }
+  
+  let progress = 0;
+  if (mode === "stopwatch") {
+    progress = (timeLeft % 60) / 60 * 100;
+  } else {
+    const totalSeconds = mode === "focus" ? focusDuration * 60 : breakDuration * 60;
+    progress = ((totalSeconds - timeLeft) / totalSeconds) * 100;
+  }
   
   const radius = 90;
   const circumference = 2 * Math.PI * radius;
@@ -137,6 +185,29 @@ export default function FloatingPomodoro() {
 
   const totalMinutesAll = totalFocusMinutes + totalBreakMinutes;
   const efficiencyScore = totalMinutesAll > 0 ? Math.round((totalFocusMinutes / totalMinutesAll) * 100) : 0;
+
+  // Tab Sync (Document Title)
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (isFinishedAlert) {
+      let toggle = false;
+      interval = setInterval(() => {
+        document.title = toggle ? "⏰ SÜRE BİTTİ!" : "⚠️ ZAMAN DOLDU";
+        toggle = !toggle;
+      }, 1000);
+      document.title = "⏰ SÜRE BİTTİ!";
+    } else if (isActive) {
+      document.title = `(${formatTime}) ${mode === 'stopwatch' ? '⏱️ Kronometre' : '🔥 Odak Odası'}`;
+    } else {
+      document.title = "KPSS 2026 Komuta Merkezi";
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+      document.title = "KPSS 2026 Komuta Merkezi";
+    };
+  }, [isActive, formatTime, isFinishedAlert, mode]);
 
   return (
     <>
@@ -146,19 +217,40 @@ export default function FloatingPomodoro() {
             initial={{ scale: 0, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0, opacity: 0, y: 20 }}
-            onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-white dark:bg-slate-900 text-slate-800 dark:text-white px-5 py-4 rounded-full shadow-2xl hover:scale-105 transition-all border border-slate-200/50 dark:border-slate-800/50 group backdrop-blur-md"
+            onClick={() => { setIsOpen(true); setIsFinishedAlert(false); }}
+            className="fixed bottom-6 right-6 z-50 overflow-hidden flex items-center gap-3 bg-white dark:bg-slate-900 text-slate-800 dark:text-white px-5 py-4 rounded-full shadow-2xl hover:scale-105 transition-all border border-slate-200/50 dark:border-slate-800/50 group backdrop-blur-md"
           >
-            <div className="relative flex items-center justify-center">
-              <div className={`absolute inset-0 rounded-full blur-md ${isActive ? (mode === 'focus' ? 'bg-emerald-500/50' : 'bg-orange-500/50') : 'bg-accent/30'} group-hover:blur-xl transition-all`} />
-              <Timer className={`w-5 h-5 relative z-10 ${isActive ? (mode === 'focus' ? 'text-emerald-500' : 'text-orange-500') : 'text-accent'}`} />
+            {/* Dynamic Island Progress Fill */}
+            {isActive && (
+               <div 
+                 className={`absolute left-0 top-0 bottom-0 opacity-15 dark:opacity-20 transition-all duration-1000 ${mode === 'focus' ? 'bg-emerald-500' : (mode === 'stopwatch' ? 'bg-blue-500' : 'bg-orange-500')}`} 
+                 style={{ width: `${progress}%` }} 
+               />
+            )}
+
+            <div className="relative flex items-center justify-center z-10">
+              <div className={`absolute inset-0 rounded-full blur-md ${isActive ? (mode === 'focus' ? 'bg-emerald-500/50' : (mode === 'stopwatch' ? 'bg-blue-500/50' : 'bg-orange-500/50')) : 'bg-accent/30'} group-hover:blur-xl transition-all`} />
+              <Timer className={`w-5 h-5 relative z-10 ${isActive ? (mode === 'focus' ? 'text-emerald-500' : (mode === 'stopwatch' ? 'text-blue-500' : 'text-orange-500')) : 'text-accent'}`} />
               {isActive && (
-                <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full animate-ping z-20 ${mode === 'focus' ? 'bg-emerald-500' : 'bg-orange-500'}`} />
+                <span className={`absolute -top-1 -right-1 w-2 h-2 rounded-full animate-ping z-20 ${mode === 'focus' ? 'bg-emerald-500' : (mode === 'stopwatch' ? 'bg-blue-500' : 'bg-orange-500')}`} />
               )}
             </div>
-            <span className="text-sm font-black tracking-widest uppercase hidden sm:block">
-              {isActive ? formatTime : 'Odak Odası'}
-            </span>
+            
+            <div className="relative z-10 flex flex-col items-start justify-center">
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-black tracking-widest uppercase hidden sm:block ${isActive ? 'font-mono' : ''}`}>
+                  {isFinishedAlert ? 'Süre Bitti!' : (isActive ? formatTime : (mode === 'stopwatch' ? 'Kronometre' : 'Odak Odası'))}
+                </span>
+                {isActive && (
+                  <span className="text-sm">{mode === 'stopwatch' ? '⏱️' : '🔥'}</span>
+                )}
+              </div>
+              {!isActive && totalFocusMinutes > 0 && (
+                <span className="text-[10px] mt-0.5 font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest hidden sm:block">
+                  Bugün: %{Math.min(100, Math.round((totalFocusMinutes / dailyGoalMinutes) * 100))} İlerleme
+                </span>
+              )}
+            </div>
           </motion.button>
         )}
       </AnimatePresence>
@@ -250,6 +342,29 @@ export default function FloatingPomodoro() {
                            <span>30</span>
                         </div>
                       </div>
+
+                      <div>
+                        <label className="flex items-center justify-between text-xs font-bold text-slate-600 dark:text-slate-400 mb-3">
+                          <span className="flex items-center gap-2"><Target className="w-4 h-4 text-blue-500" /> Günlük Hedef</span>
+                          <span className="text-blue-500 bg-blue-50 dark:bg-blue-500/10 px-2.5 py-1 rounded-md text-[10px]">
+                             {Math.floor(dailyGoalMinutes/60) > 0 ? `${Math.floor(dailyGoalMinutes/60)}s ` : ''}{dailyGoalMinutes%60}dk
+                          </span>
+                        </label>
+                        <input 
+                          type="range" 
+                          min="30" max="600" step="30"
+                          value={dailyGoalMinutes}
+                          onChange={(e) => {
+                             setDailyGoalMinutes(parseInt(e.target.value));
+                             localStorage.setItem("pomodoro_daily_goal", e.target.value);
+                          }}
+                          className="w-full h-2 bg-slate-200 dark:bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
+                        />
+                        <div className="flex justify-between mt-2 text-[10px] font-bold text-slate-400">
+                           <span>30dk</span>
+                           <span>10s</span>
+                        </div>
+                      </div>
                     </div>
 
                     <button 
@@ -267,42 +382,63 @@ export default function FloatingPomodoro() {
                     exit={{ opacity: 0, x: -20 }}
                     transition={{ duration: 0.2 }}
                   >
-                    {/* Online Users */}
-                    <div className="flex items-center justify-between mb-6 bg-blue-50/50 dark:bg-blue-500/5 border border-blue-100/50 dark:border-blue-500/10 px-4 py-3 rounded-2xl">
-                       <div className="flex -space-x-3">
-                          <img src="https://i.pravatar.cc/100?img=1" alt="user" className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 shadow-sm" />
-                          <img src="https://i.pravatar.cc/100?img=2" alt="user" className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 shadow-sm" />
-                          <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 shadow-sm bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center text-[10px] font-bold text-blue-600 dark:text-blue-400">
-                            +{onlineUsers > 2 ? onlineUsers - 2 : 0}
-                          </div>
-                       </div>
-                       <div className="flex flex-col items-end">
-                          <span className="text-xs font-black text-blue-600 dark:text-blue-400">{onlineUsers} Kişi</span>
-                          <span className="text-[9px] font-bold uppercase tracking-widest text-blue-400/80 dark:text-blue-500/80">Odaklanıyor</span>
-                       </div>
-                    </div>
+                      {/* Gamified Daily Progress */}
+                      <div className="mb-6 p-4 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 relative overflow-hidden group">
+                         <div className="absolute right-0 top-0 opacity-5">
+                            <Target className="w-24 h-24 -mr-4 -mt-4 text-emerald-500" />
+                         </div>
+                         <div className="flex justify-between items-end mb-3 relative z-10">
+                            <div>
+                              <div className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-1">Günlük Hedef</div>
+                              <div className="text-sm font-black text-slate-800 dark:text-slate-100">
+                                 {Math.floor(totalFocusMinutes/60)}s {totalFocusMinutes%60}dk <span className="text-slate-400 text-xs">/ {Math.floor(dailyGoalMinutes/60)}s {dailyGoalMinutes%60 > 0 ? `${dailyGoalMinutes%60}dk` : ''}</span>
+                              </div>
+                            </div>
+                            <div className="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-500/20 px-2.5 py-1.5 rounded-lg shadow-sm border border-emerald-200/50 dark:border-emerald-500/30">
+                               %{Math.min(100, Math.round((totalFocusMinutes / dailyGoalMinutes) * 100))}
+                            </div>
+                         </div>
+                         <div className="w-full h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden shadow-inner">
+                            <div 
+                               className="h-full bg-gradient-to-r from-emerald-400 to-emerald-500 transition-all duration-1000 rounded-full relative"
+                               style={{ width: `${Math.min(100, (totalFocusMinutes / dailyGoalMinutes) * 100)}%` }}
+                            >
+                               <div className="absolute inset-0 bg-white/20 w-full h-full animate-[shimmer_2s_infinite]" />
+                            </div>
+                         </div>
+                      </div>
 
                     {/* Mode Tabs */}
                     <div className="flex p-1.5 bg-slate-100/80 dark:bg-slate-800/80 rounded-2xl mb-8 border border-slate-200/50 dark:border-slate-700/50">
                       <button
                         onClick={() => changeMode("focus")}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 ${
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold rounded-xl transition-all duration-300 ${
                           mode === "focus" 
                             ? "bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm border-slate-200/50" 
                             : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-200/30 dark:hover:bg-slate-700/30"
                         }`}
                       >
-                        <Brain className="w-4 h-4" /> Odak
+                        <Brain className="w-3.5 h-3.5" /> Odak
+                      </button>
+                      <button
+                        onClick={() => changeMode("stopwatch")}
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold rounded-xl transition-all duration-300 ${
+                          mode === "stopwatch" 
+                            ? "bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm border-slate-200/50" 
+                            : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-200/30 dark:hover:bg-slate-700/30"
+                        }`}
+                      >
+                        <Clock className="w-3.5 h-3.5" /> Krono
                       </button>
                       <button
                         onClick={() => changeMode("break")}
-                        className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-xs font-bold rounded-xl transition-all duration-300 ${
+                        className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[11px] font-bold rounded-xl transition-all duration-300 ${
                           mode === "break" 
                             ? "bg-white dark:bg-slate-900 text-orange-500 dark:text-orange-400 shadow-sm border-slate-200/50" 
                             : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-slate-200/30 dark:hover:bg-slate-700/30"
                         }`}
                       >
-                        <Coffee className="w-4 h-4" /> Mola
+                        <Coffee className="w-3.5 h-3.5" /> Mola
                       </button>
                     </div>
 
@@ -319,7 +455,7 @@ export default function FloatingPomodoro() {
                           cx="100" cy="100" r={radius} 
                           fill="none" 
                           stroke="currentColor"
-                          className={`${mode === "focus" ? "text-emerald-500" : "text-orange-500"}`}
+                          className={`${mode === "focus" ? "text-emerald-500" : (mode === "stopwatch" ? "text-blue-500" : "text-orange-500")}`}
                           strokeWidth="8"
                           strokeLinecap="round"
                           strokeDasharray={circumference}
@@ -330,11 +466,11 @@ export default function FloatingPomodoro() {
                       
                       {/* Timer Text Inside */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                         <p className={`text-5xl font-black font-mono tracking-tighter ${mode === "focus" ? "text-emerald-500 dark:text-emerald-400" : "text-orange-500 dark:text-orange-400"}`}>
+                         <p className={`text-5xl font-black font-mono tracking-tighter ${mode === "focus" ? "text-emerald-500 dark:text-emerald-400" : (mode === "stopwatch" ? "text-blue-500 dark:text-blue-400" : "text-orange-500 dark:text-orange-400")}`}>
                            {formatTime}
                          </p>
                          <p className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mt-2">
-                           {mode === "focus" ? "Kesintisiz Odak" : "Dinlenme Vakti"}
+                           {mode === "focus" ? "Kesintisiz Odak" : (mode === "stopwatch" ? "Serbest Çalışma" : "Dinlenme Vakti")}
                          </p>
                       </div>
                     </div>
@@ -353,33 +489,36 @@ export default function FloatingPomodoro() {
                          className={`w-16 h-16 flex items-center justify-center rounded-[2rem] text-white shadow-xl hover:scale-105 active:scale-95 transition-all ${
                            isActive 
                              ? "bg-slate-900 dark:bg-slate-100 dark:text-slate-900 shadow-slate-900/30 dark:shadow-slate-100/30" 
-                             : (mode === "focus" ? "bg-emerald-500 shadow-emerald-500/40" : "bg-orange-500 shadow-orange-500/40")
+                             : (mode === "focus" ? "bg-emerald-500 shadow-emerald-500/40" : (mode === "stopwatch" ? "bg-blue-500 shadow-blue-500/40" : "bg-orange-500 shadow-orange-500/40"))
                          }`}
                        >
                          {isActive ? <Pause className="w-7 h-7" fill="currentColor" /> : <Play className="w-7 h-7 ml-1" fill="currentColor" />}
                        </button>
                     </div>
 
-                    {/* Stats */}
+                    {/* Visual Laps (Turlar) */}
                     <div className="pt-5 mt-2 border-t border-slate-100 dark:border-slate-800/50">
                       <div className="flex items-center justify-between mb-3">
-                         <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500">İstatistikler</h4>
-                         <span className="flex items-center gap-1 text-xs font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded">
-                            <Target className="w-3 h-3" /> %{efficiencyScore} Verim
-                         </span>
+                         <h4 className="text-[10px] font-black uppercase tracking-widest text-slate-500">Tamamlanan Turlar</h4>
+                         <span className="text-xs font-black text-slate-700 dark:text-slate-300">{lapsCompleted} Tur</span>
                       </div>
-                      <div className="flex gap-2">
-                         <div className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 flex flex-col items-center justify-center border border-slate-100 dark:border-slate-800">
-                            <Brain className="w-4 h-4 text-emerald-500 mb-1" />
-                            <span className="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Odak</span>
-                            <span className="text-sm font-black text-slate-700 dark:text-slate-300">{totalFocusMinutes} dk</span>
-                         </div>
-                         <div className="flex-1 bg-slate-50 dark:bg-slate-800/50 rounded-xl p-3 flex flex-col items-center justify-center border border-slate-100 dark:border-slate-800">
-                            <Coffee className="w-4 h-4 text-orange-500 mb-1" />
-                            <span className="text-[10px] text-slate-400 font-bold uppercase mb-0.5">Mola</span>
-                            <span className="text-sm font-black text-slate-700 dark:text-slate-300">{totalBreakMinutes} dk</span>
-                         </div>
+                      <div className="flex flex-wrap gap-2">
+                         {Array.from({ length: Math.ceil((lapsCompleted + 1) / 5) * 5 }).map((_, i) => (
+                            <div 
+                              key={i} 
+                              className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all ${
+                                i < lapsCompleted 
+                                  ? 'bg-orange-100 dark:bg-orange-500/20 text-orange-500 shadow-sm border border-orange-200/50 dark:border-orange-500/30 scale-110' 
+                                  : 'bg-slate-100 dark:bg-slate-800/50 text-slate-300 dark:text-slate-600 border border-transparent'
+                              }`}
+                            >
+                               {i < lapsCompleted ? '🔥' : ''}
+                            </div>
+                         ))}
                       </div>
+                       <p className="text-[8px] sm:text-[9px] text-slate-400 dark:text-slate-500 mt-4 leading-tight border-t border-slate-100 dark:border-slate-800/50 pt-2">
+                         * <span className="font-bold">Not:</span> Kronometre (serbest çalışma) modunda tur kazanılmaz; ancak çalışılan her dakika üstteki Günlük Hedefinize yansır.
+                       </p>
                     </div>
 
                   </motion.div>
