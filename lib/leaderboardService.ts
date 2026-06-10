@@ -43,7 +43,7 @@ export const updateLeaderboard = async (
       updatedAt: new Date().toISOString(),
     };
     await setDoc(docRef, data, { merge: true });
-    console.log("✅ Liderlik tablosu güncellendi");
+
   } catch (error) {
     console.error("❌ Liderlik tablosu güncelleme hatası:", error);
   }
@@ -90,7 +90,7 @@ export const removeFromLeaderboard = async (userId: string) => {
   try {
     const docRef = doc(db, LEADERBOARD_COLLECTION, userId);
     await deleteDoc(docRef);
-    console.log("✅ Liderlik tablosundan silindi");
+
   } catch (error) {
     console.error("❌ Liderlik tablosundan silme hatası:", error);
   }
@@ -127,7 +127,7 @@ export const updateBranchLeaderboard = async (
       updatedAt: new Date().toISOString(),
     };
     await setDoc(docRef, data, { merge: true });
-    console.log(`✅ Branş liderlik tablosu güncellendi (${subjectId})`);
+
   } catch (error) {
     console.error(`❌ Branş liderlik tablosu güncelleme hatası (${subjectId}):`, error);
   }
@@ -177,7 +177,7 @@ export const removeFromBranchLeaderboard = async (userId: string, subjectId: str
     const docId = `${userId}_${subjectId}`;
     const docRef = doc(db, BRANCH_LEADERBOARD_COLLECTION, docId);
     await deleteDoc(docRef);
-    console.log(`✅ Branş liderlik tablosundan silindi (${subjectId})`);
+
   } catch (error) {
     console.error("❌ Branş liderlik tablosundan silme hatası:", error);
   }

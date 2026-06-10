@@ -40,7 +40,7 @@ export const saveToFirebase = async (userId: string, data: AppData) => {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const sanitized = stripUndefined(data) as AppData;
     await setDoc(docRef, sanitized, { merge: true });
-    console.log("✅ Firebase'e kaydedildi");
+
   } catch (error) {
     console.error("❌ Firebase kayıt hatası:", error);
   }
@@ -53,7 +53,7 @@ export const forceUploadToFirebase = async (userId: string, data: AppData) => {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const sanitized = stripUndefined(data) as AppData;
     await setDoc(docRef, sanitized, { merge: false }); // merge:false → tamamen üstüne yazar
-    console.log("✅ Veriler zorla Firebase'e yüklendi");
+
   } catch (error) {
     console.error("❌ Force upload hatası:", error);
     throw error;
@@ -89,7 +89,7 @@ export const saveDenemeDataToFirebase = async (
       ...(denemeTargetNet !== undefined ? { denemeTargetNet } : {}),
     }) as Pick<AppData, "denemeler" | "denemeTargetNet">;
     await setDoc(docRef, payload, { merge: true });
-    console.log("✅ Deneme verileri Firebase'e kaydedildi");
+
   } catch (error) {
     console.error("❌ Deneme Firebase kayıt hatası:", error);
   }
@@ -102,7 +102,7 @@ export const loadFromFirebase = async (userId: string): Promise<AppData | null> 
     // getDocFromServer: cache'i bypass edip her zaman sunucudan taze veri çeker
     const docSnap = await getDocFromServer(docRef);
     if (docSnap.exists()) {
-      console.log("✅ Firebase'den yüklendi (sunucu)");
+
       return docSnap.data() as AppData;
     }
   } catch (error) {
@@ -111,7 +111,7 @@ export const loadFromFirebase = async (userId: string): Promise<AppData | null> 
       const docRef = doc(db, DATA_COLLECTION, userId);
       const docSnap = await getDocFromCache(docRef);
       if (docSnap.exists()) {
-        console.log("✅ Firebase'den yüklendi (cache)");
+
         return docSnap.data() as AppData;
       }
     } catch (fallbackError) {
@@ -160,6 +160,6 @@ export const deleteUserAllData = async (userId: string): Promise<void> => {
     ...collections.map((col) => deleteDoc(doc(db, col, userId))),
     ...branchSubjects.map((s) => deleteDoc(doc(db, "branch_leaderboards", `${userId}_${s}`)))
   ]);
-  console.log("✅ Kullanıcı verileri Firestore'dan silindi.");
+
 };
 
