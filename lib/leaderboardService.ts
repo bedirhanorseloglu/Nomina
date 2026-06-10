@@ -3,7 +3,13 @@ import { collection, doc, getDocs, limit, orderBy, query, setDoc, where, deleteD
 
 const LEADERBOARD_COLLECTION = "leaderboard";
 
-
+const isLocalhost = typeof window !== "undefined" && (
+  window.location.hostname === "localhost" || 
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname.startsWith("192.168.") ||
+  window.location.hostname.startsWith("10.") ||
+  window.location.hostname.startsWith("172.")
+);
 
 export interface LeaderboardEntry {
   userId: string;
@@ -24,6 +30,7 @@ export const updateLeaderboard = async (
   totalTrials: number
 ) => {
   if (!userId) return;
+  if (isLocalhost) return;
   try {
     const docRef = doc(db, LEADERBOARD_COLLECTION, userId);
     const data: LeaderboardEntry = {
@@ -55,6 +62,21 @@ export const getLeaderboard = async (limitCount: number = 10): Promise<Leaderboa
       results.push(doc.data() as LeaderboardEntry);
     });
     
+    if (isLocalhost) {
+      for (let i = 1; i <= 10; i++) {
+        results.push({
+          userId: `mock-user-${i}`,
+          displayName: `Rakiplerin ${i}`,
+          photoURL: "",
+          averageNet: 95 - (i * 3) + Math.random() * 2,
+          maxNet: 100,
+          totalTrials: 5 + i,
+          updatedAt: new Date().toISOString()
+        });
+      }
+      results.sort((a, b) => b.averageNet - a.averageNet);
+    }
+    
     return results;
   } catch (error) {
     console.error("❌ Liderlik tablosu yükleme hatası:", error);
@@ -64,6 +86,7 @@ export const getLeaderboard = async (limitCount: number = 10): Promise<Leaderboa
 
 export const removeFromLeaderboard = async (userId: string) => {
   if (!userId) return;
+  if (isLocalhost) return;
   try {
     const docRef = doc(db, LEADERBOARD_COLLECTION, userId);
     await deleteDoc(docRef);
@@ -89,6 +112,7 @@ export const updateBranchLeaderboard = async (
   totalTrials: number
 ) => {
   if (!userId || !subjectId) return;
+  if (isLocalhost) return;
   try {
     const docId = `${userId}_${subjectId}`;
     const docRef = doc(db, BRANCH_LEADERBOARD_COLLECTION, docId);
@@ -123,6 +147,22 @@ export const getBranchLeaderboard = async (subjectId: string, limitCount: number
       results.push(doc.data() as BranchLeaderboardEntry);
     });
     
+    if (isLocalhost) {
+      for (let i = 1; i <= 10; i++) {
+        results.push({
+          userId: `mock-branch-user-${i}`,
+          subjectId,
+          displayName: `Branş Rakibi ${i}`,
+          photoURL: "",
+          averageNet: 25 - i + Math.random() * 2,
+          maxNet: 30,
+          totalTrials: 3 + i,
+          updatedAt: new Date().toISOString()
+        });
+      }
+      results.sort((a, b) => b.averageNet - a.averageNet);
+    }
+    
     return results;
   } catch (error) {
     console.error("❌ Branş liderlik tablosu yükleme hatası:", error);
@@ -132,6 +172,7 @@ export const getBranchLeaderboard = async (subjectId: string, limitCount: number
 
 export const removeFromBranchLeaderboard = async (userId: string, subjectId: string) => {
   if (!userId || !subjectId) return;
+  if (isLocalhost) return;
   try {
     const docId = `${userId}_${subjectId}`;
     const docRef = doc(db, BRANCH_LEADERBOARD_COLLECTION, docId);

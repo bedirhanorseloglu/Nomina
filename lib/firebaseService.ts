@@ -32,6 +32,10 @@ function stripUndefined(obj: unknown): unknown {
 
 export const saveToFirebase = async (userId: string, data: AppData) => {
   if (!userId) return;
+  if (isLocalhost) {
+    console.log("🛠️ Lokal ortamdasınız: Firebase'e (user_data) kayıt yapılmadı.");
+    return;
+  }
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const sanitized = stripUndefined(data) as AppData;
@@ -74,6 +78,10 @@ export const saveDenemeDataToFirebase = async (
   denemeTargetNet?: number
 ) => {
   if (!userId) return;
+  if (isLocalhost) {
+    console.log("🛠️ Lokal ortamdasınız: Deneme verisi Firebase'e kaydedilmedi.");
+    return;
+  }
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const payload = stripUndefined({

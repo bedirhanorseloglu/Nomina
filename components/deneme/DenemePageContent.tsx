@@ -348,9 +348,8 @@ export default function DenemePageContent() {
                         name: editing.name,
                         date: editing.date,
                         publisher: editing.publisher,
+                        note: editing.note,
                         scores: editing.scores,
-                        examType: editing.examType,
-                        bransSubjectId: editing.bransSubjectId,
                       }
                     : undefined
                 }
