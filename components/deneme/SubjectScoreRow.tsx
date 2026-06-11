@@ -32,7 +32,7 @@ export default function SubjectScoreRow({
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.02, type: "spring", stiffness: 300, damping: 28 }}
-      className={`deneme-subject-row ${subject.error ? "deneme-subject-row--error" : ""}`}
+      className={`p-5 rounded-[1.25rem] bg-white dark:bg-slate-800/80 border border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-50 dark:hover:bg-slate-700 transition-all shadow-sm ${subject.error ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/50" : ""}`}
     >
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3.5 flex-1 min-w-0">
@@ -47,7 +47,7 @@ export default function SubjectScoreRow({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h4 className="font-bold text-[#1d1d1f] text-sm tracking-tight truncate">{subject.title}</h4>
+              <h4 className="font-bold text-[#1d1d1f] dark:text-white text-sm tracking-tight truncate">{subject.title}</h4>
               {answered > 0 && (
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide ${
                   accuracy >= 70 
@@ -68,7 +68,7 @@ export default function SubjectScoreRow({
 
         <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
           <div 
-            className="px-3.5 py-1.5 rounded-lg font-sans text-lg font-bold flex items-center gap-1 bg-[#f5f5f7] border border-slate-200/20"
+            className="px-3.5 py-1.5 rounded-lg font-sans text-lg font-bold flex items-center gap-1 bg-[#f5f5f7] dark:bg-slate-900/50 border border-slate-200/20 dark:border-slate-700/50"
             style={{ color: subject.color }}
           >
             <span>{formatNet(subject.net)}</span>
@@ -78,7 +78,7 @@ export default function SubjectScoreRow({
       </div>
 
       {/* Stacked D/Y/B Ratio Progress Bar (Apple Style - 4px Thin) */}
-      <div className="mt-3.5 h-1 w-full bg-[#e5e5ea] rounded-full overflow-hidden flex shadow-none">
+      <div className="mt-3.5 h-1 w-full bg-[#e5e5ea] dark:bg-slate-700 rounded-full overflow-hidden flex shadow-none">
         <motion.div 
           className="h-full bg-[#34c759] rounded-l-full" /* Apple Green */
           style={{ width: `${correctPct}%` }}

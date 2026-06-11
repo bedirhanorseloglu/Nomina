@@ -487,18 +487,27 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
             />
           </div>
 
-          <div className="space-y-2 mb-8 relative z-10">
-            <div className="flex justify-between text-[10px] font-black uppercase tracking-wider text-slate-400">
-              <span>Cevaplanan: {totalAnswered}</span>
-              <span>Kalan: {maxQuestions - totalAnswered}</span>
+          <div className="space-y-3 mb-8 relative z-10">
+            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+              <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                <span className="w-2 h-2 rounded-full bg-accent"></span>
+                Cevaplanan <span className="text-slate-800 dark:text-white">{totalAnswered}</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                Kalan <span className="text-slate-800 dark:text-white">{maxQuestions - totalAnswered}</span>
+                <span className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></span>
+              </div>
             </div>
-            <div className="h-2.5 w-full bg-slate-100 rounded-full overflow-hidden shadow-inner">
+            <div className="h-4 sm:h-5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full shadow-inner border border-slate-200/60 dark:border-slate-700 p-0.5 sm:p-1 relative">
               <motion.div 
-                className="h-full bg-gradient-to-r from-accent to-emerald-400 rounded-full"
+                className="h-full bg-accent rounded-full relative overflow-hidden"
                 initial={{ width: 0 }}
                 animate={{ width: `${answeredPercentage}%` }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-              />
+                transition={{ duration: 0.6, ease: "easeOut", type: "spring", stiffness: 120, damping: 15 }}
+              >
+                {/* Duolingo style 3D highlight */}
+                <div className="absolute top-[2px] left-[4px] right-[4px] h-[3px] bg-white/30 rounded-full"></div>
+              </motion.div>
             </div>
           </div>
 

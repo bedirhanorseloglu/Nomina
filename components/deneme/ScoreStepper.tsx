@@ -20,9 +20,9 @@ const variants = {
     activeBtn: "hover:bg-slate-200/50 active:bg-slate-300/40",
   },
   empty: {
-    label: "text-slate-500",
-    text: "text-slate-500",
-    activeBtn: "hover:bg-slate-200/50 active:bg-slate-300/40",
+    label: "text-slate-500 dark:text-slate-400",
+    text: "text-slate-500 dark:text-slate-400",
+    activeBtn: "hover:bg-slate-200/50 active:bg-slate-300/40 dark:hover:bg-slate-700 dark:active:bg-slate-600",
   },
 };
 
@@ -43,7 +43,7 @@ export default function ScoreStepper({
         {label}
       </span>
       <div
-        className="flex items-center justify-between rounded-full bg-[#f2f2f7] border border-slate-200/20 p-0.5 h-8.5 w-full transition-all duration-200"
+        className="flex items-center justify-between rounded-full bg-[#f2f2f7] dark:bg-slate-900/40 border border-slate-200/20 dark:border-slate-700/40 p-0.5 h-8.5 w-full transition-all duration-200"
       >
         <button
           type="button"
@@ -56,7 +56,7 @@ export default function ScoreStepper({
           </svg>
         </button>
         
-        <div className="w-px h-4 bg-slate-300/60 self-center" />
+        <div className="w-px h-4 bg-slate-300/60 dark:bg-slate-700 self-center" />
         
         <input
           type="number"
@@ -73,7 +73,7 @@ export default function ScoreStepper({
           className={`w-10 h-7.5 text-center font-sans text-sm font-bold bg-transparent border-0 focus:outline-none placeholder-slate-400 ${v.text}`}
         />
         
-        <div className="w-px h-4 bg-slate-300/60 self-center" />
+        <div className="w-px h-4 bg-slate-300/60 dark:bg-slate-700 self-center" />
         
         <button
           type="button"
