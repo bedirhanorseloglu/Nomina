@@ -120,7 +120,7 @@ export default function DenemeScoreRing({
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 350, damping: 25 }}
-            className="text-4xl sm:text-5xl font-black font-sans tracking-tight text-[#1d1d1f] leading-none"
+            className="text-4xl sm:text-5xl font-black font-sans tracking-tight text-[#1d1d1f] dark:text-white leading-none"
           >
             {value.toFixed(2).replace(/\.?0+$/, "")}
           </motion.span>
