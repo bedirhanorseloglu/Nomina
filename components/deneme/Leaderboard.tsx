@@ -88,7 +88,7 @@ export default function Leaderboard() {
            </div>
 
            {p3 && (
-             <div className="mt-2 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200/50">
+             <div className="mt-2 text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg">
                P3: {p3}
              </div>
            )}
@@ -243,9 +243,9 @@ export default function Leaderboard() {
 
                     <div className="flex items-center gap-4 shrink-0">
                       {p3 && (
-                        <div className="hidden sm:block text-center bg-amber-50 dark:bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-200/50 dark:border-amber-500/20">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-500/80">P3 Puan</p>
-                          <p className="font-mono font-black text-amber-700 dark:text-amber-400">{p3}</p>
+                        <div className="hidden sm:block text-center bg-indigo-50 dark:bg-indigo-500/10 px-3 py-2 rounded-xl border border-indigo-100 dark:border-indigo-500/20">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500">P3 Puan</p>
+                          <p className="font-mono font-black text-indigo-600">{p3}</p>
                         </div>
                       )}
                       <div className="text-center px-4 py-2 rounded-xl border shadow-sm bg-[#1cb0f6]/10 dark:bg-[#1cb0f6]/20 border-[#1cb0f6]/20 dark:border-[#1cb0f6]/30">
