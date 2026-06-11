@@ -819,8 +819,8 @@ function Section({ title, desc, icon, children }: { title: string; desc?: string
           </div>
         )}
         <div>
-          {desc && <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{desc}</p>}
           <h3 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-tight">{title}</h3>
+          {desc && <p className="text-sm font-black text-slate-400 mt-1">{desc}</p>}
         </div>
       </div>
       {children}

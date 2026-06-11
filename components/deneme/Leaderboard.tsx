@@ -88,7 +88,7 @@ export default function Leaderboard() {
            </div>
 
            {p3 && (
-             <div className="mt-2 text-[10px] font-black text-[#1cb0f6] bg-[#1cb0f6]/10 border border-[#1cb0f6]/20 px-2 py-1 rounded-lg">
+             <div className="mt-2 text-[10px] font-bold text-amber-700 bg-amber-50 px-2 py-1 rounded-lg border border-amber-200/50">
                P3: {p3}
              </div>
            )}
@@ -110,10 +110,10 @@ export default function Leaderboard() {
               <Trophy className="w-8 h-8" />
             </div>
             <div>
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">
+              <h3 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Şampiyonlar Ligi</h3>
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400 mt-1">
                 {leaderboardType === "genel" ? "Türkiye Geneli Sıralama" : "Branş Bazlı Sıralama"}
               </p>
-              <h3 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Şampiyonlar Ligi</h3>
             </div>
           </div>
           
@@ -243,18 +243,18 @@ export default function Leaderboard() {
 
                     <div className="flex items-center gap-4 shrink-0">
                       {p3 && (
-                        <div className="hidden sm:block text-center bg-[#1cb0f6]/10 px-3 py-2 rounded-xl border border-[#1cb0f6]/20">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-[#1cb0f6]">P3 Puan</p>
-                          <p className="font-mono font-black text-[#1cb0f6]">{p3}</p>
+                        <div className="hidden sm:block text-center bg-amber-50 dark:bg-amber-500/10 px-3 py-2 rounded-xl border border-amber-200/50 dark:border-amber-500/20">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-amber-600 dark:text-amber-500/80">P3 Puan</p>
+                          <p className="font-mono font-black text-amber-700 dark:text-amber-400">{p3}</p>
                         </div>
                       )}
                       <div className={`text-center px-4 py-2 rounded-xl border shadow-sm ${
                         isCurrentUser 
-                          ? "bg-[#58cc02]/10 border-[#58cc02]/30" 
+                          ? "bg-blue-100 dark:bg-blue-500/20 border-blue-200 dark:border-blue-500/30" 
                           : "bg-slate-50 dark:bg-white/5 border-slate-100 dark:border-white/10"
                       }`}>
-                        <p className={`text-[10px] font-black uppercase tracking-widest mb-0.5 ${isCurrentUser ? "text-[#58cc02]" : "text-slate-400"}`}>Ort. Net</p>
-                        <p className={`text-xl font-black font-mono leading-none ${isCurrentUser ? "text-[#58cc02]" : "text-slate-800 dark:text-white"}`}>
+                        <p className={`text-[10px] font-black uppercase tracking-widest mb-0.5 ${isCurrentUser ? "text-blue-600 dark:text-blue-400" : "text-slate-400"}`}>Ort. Net</p>
+                        <p className={`text-xl font-black font-mono leading-none ${isCurrentUser ? "text-blue-700 dark:text-blue-300" : "text-slate-800 dark:text-white"}`}>
                           {leader.averageNet.toFixed(2)}
                         </p>
                       </div>
