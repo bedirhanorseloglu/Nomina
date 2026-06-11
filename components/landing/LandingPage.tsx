@@ -47,7 +47,7 @@ export default function LandingPage() {
           </div>
           <button
             onClick={signInWithGoogle}
-            className="hidden sm:flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-full font-bold hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-slate-900/20"
+            className="hidden sm:flex items-center gap-2 bg-slate-900 text-white px-6 py-2.5 rounded-full font-black hover:bg-slate-800 transition-all hover:scale-105 active:scale-95 shadow-xl shadow-slate-900/20"
           >
             Giriş Yap / Kayıt Ol
           </button>
@@ -79,7 +79,7 @@ export default function LandingPage() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ type: "spring", damping: 20 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200/50 shadow-sm text-sm font-bold text-slate-600 mb-8 hover:shadow-md transition-shadow cursor-default"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200/50 shadow-sm text-sm font-black text-slate-600 mb-8 hover:shadow-md transition-shadow cursor-default"
           >
             <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
             Türkiye'nin En Modern KPSS Platformu
@@ -157,7 +157,7 @@ export default function LandingPage() {
             </motion.div>
           </div>
           <div className="order-1 md:order-2 space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 font-bold text-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 font-black text-sm">
               <Trophy className="w-4 h-4" /> Rekabet Et, Yüksel
             </div>
             <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">Oyunlaştırma ile Çalışmak Artık Zevkli.</h2>
@@ -173,7 +173,7 @@ export default function LandingPage() {
         <div className="absolute top-1/2 left-0 w-[500px] h-[500px] bg-blue-400/10 blur-[100px] rounded-full pointer-events-none -translate-y-1/2" />
         <div className="max-w-6xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
           <div className="space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 font-bold text-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-blue-50 border border-blue-200 text-blue-600 font-black text-sm">
               <TrendingUp className="w-4 h-4" /> Gelişmiş Analitik
             </div>
             <h2 className="text-4xl sm:text-5xl font-black text-slate-900 tracking-tight">Netlerinizi Kusursuz Şekilde Analiz Edin.</h2>
@@ -221,7 +221,7 @@ export default function LandingPage() {
             </motion.div>
           </div>
           <div className="order-1 md:order-2 space-y-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-purple-500/20 border border-purple-400/30 text-purple-300 font-bold text-sm">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl bg-purple-500/20 border border-purple-400/30 text-purple-300 font-black text-sm">
               <Sparkles className="w-4 h-4" /> Koleksiyonunu Tamamla
             </div>
             <h2 className="text-4xl sm:text-5xl font-black text-white tracking-tight">Emeklerinizin Karşılığı Olan 3D Rozetler.</h2>
