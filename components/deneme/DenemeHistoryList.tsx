@@ -198,7 +198,7 @@ export default function DenemeHistoryList({
               whileHover={{ y: -4 }}
               className={`bg-white dark:bg-[#1e293b] rounded-3xl transition-all duration-300 ${
                 expanded 
-                  ? "shadow-md ring-2 ring-blue-500 dark:ring-blue-500" 
+                  ? "shadow-md ring-2 ring-[#1cb0f6] dark:ring-[#1cb0f6]" 
                   : "shadow-sm hover:shadow-md ring-1 ring-slate-200 dark:hover:ring-white/10"
               } overflow-hidden group`}
             >
@@ -209,7 +209,7 @@ export default function DenemeHistoryList({
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h4 className={`text-xl font-black transition-colors ${expanded ? "text-blue-500" : "text-slate-800 dark:text-white group-hover:text-blue-500"}`}>
+                    <h4 className={`text-xl font-black transition-colors ${expanded ? "text-[#1cb0f6]" : "text-slate-800 dark:text-white group-hover:text-[#1cb0f6]"}`}>
                       {deneme.name}
                     </h4>
                     {trend === "up" && <span className="text-[10px] bg-[#58cc02]/10 text-[#58cc02] px-3 py-1.5 rounded-xl font-black uppercase tracking-widest flex items-center gap-1 border border-[#58cc02]/20"><span className="text-sm leading-none">↗</span> Yükseliş</span>}
