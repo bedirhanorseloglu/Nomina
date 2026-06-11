@@ -238,13 +238,13 @@ export default function DenemeHistoryList({
                   </div>
                   <div className="w-px h-8 bg-slate-100 dark:bg-white/5 hidden sm:block" />
                   <div className="flex flex-col items-center">
-                    <span className="text-[10px] font-black text-blue-500 dark:text-blue-400 uppercase tracking-widest mb-1">Toplam</span>
-                    <span className="font-mono font-black text-blue-600 dark:text-blue-400 text-2xl leading-none">{formatNet(result.totalNet)}</span>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Toplam</span>
+                    <span className="font-mono font-black text-slate-800 dark:text-white text-2xl leading-none">{formatNet(result.totalNet)}</span>
                   </div>
                   <div className="w-px h-8 bg-slate-100 dark:bg-white/5 hidden sm:block" />
                   <div className="flex flex-col items-center hidden sm:flex">
-                    <span className="text-[10px] font-black text-indigo-500 dark:text-indigo-400 uppercase tracking-widest mb-1">P3 Puan</span>
-                    <span className="font-mono font-black text-indigo-600 dark:text-indigo-400 text-2xl leading-none">{estimateP3Score(result.gyNet, result.gkNet).toFixed(2)}</span>
+                    <span className="text-[10px] font-black text-[#1cb0f6] dark:text-[#1cb0f6]/80 uppercase tracking-widest mb-1">P3 Puan</span>
+                    <span className="font-mono font-black text-[#1cb0f6] dark:text-[#1cb0f6] text-2xl leading-none">{estimateP3Score(result.gyNet, result.gkNet).toFixed(2)}</span>
                   </div>
                   <div className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all ml-2">
                     <svg className={`w-5 h-5 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -295,12 +295,12 @@ export default function DenemeHistoryList({
                       
                       <div className="mt-8 pt-6 border-t border-slate-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                          <div className="w-10 h-10 rounded-full bg-[#1cb0f6]/10 dark:bg-[#1cb0f6]/20 flex items-center justify-center text-[#1cb0f6]">
                             <AppleEmoji emoji="🎯" size={24} />
                           </div>
                           <div>
                             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tahmini P3 Puanı</p>
-                            <p className="text-lg font-black text-indigo-600 dark:text-indigo-400 font-mono leading-none mt-0.5">{estimateP3Score(result.gyNet, result.gkNet).toFixed(3)}</p>
+                            <p className="text-lg font-black text-[#1cb0f6] dark:text-[#1cb0f6] font-mono leading-none mt-0.5">{estimateP3Score(result.gyNet, result.gkNet).toFixed(3)}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">

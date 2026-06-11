@@ -88,7 +88,7 @@ export default function Leaderboard() {
            </div>
 
            {p3 && (
-             <div className="mt-2 text-[10px] font-bold text-indigo-500 bg-indigo-50 px-2 py-1 rounded-lg">
+             <div className="mt-2 text-[10px] font-bold text-[#1cb0f6] bg-[#1cb0f6]/10 px-2 py-1 rounded-lg">
                P3: {p3}
              </div>
            )}
@@ -242,18 +242,18 @@ export default function Leaderboard() {
                     </div>
 
                     <div className="flex items-center gap-4 shrink-0">
-                      {p3 && (
-                        <div className="hidden sm:block text-center bg-indigo-50 dark:bg-indigo-500/10 px-3 py-2 rounded-xl border border-indigo-100 dark:border-indigo-500/20">
-                          <p className="text-[10px] font-black uppercase tracking-widest text-indigo-500">P3 Puan</p>
-                          <p className="font-mono font-black text-indigo-600">{p3}</p>
-                        </div>
-                      )}
-                      <div className="text-center px-4 py-2 rounded-xl border shadow-sm bg-[#1cb0f6]/10 dark:bg-[#1cb0f6]/20 border-[#1cb0f6]/20 dark:border-[#1cb0f6]/30">
-                        <p className="text-[10px] font-black uppercase tracking-widest mb-0.5 text-[#1cb0f6] dark:text-[#1cb0f6]/80">Ort. Net</p>
-                        <p className="text-xl font-black font-mono leading-none text-[#1cb0f6] dark:text-[#1cb0f6]">
+                      <div className="text-center px-4 py-2 rounded-xl border shadow-sm bg-slate-50 dark:bg-white/5 border-slate-100 dark:border-white/10">
+                        <p className="text-[10px] font-black uppercase tracking-widest mb-0.5 text-slate-400">Ort. Net</p>
+                        <p className="text-xl font-black font-mono leading-none text-slate-800 dark:text-white">
                           {leader.averageNet.toFixed(2)}
                         </p>
                       </div>
+                      {p3 && (
+                        <div className="hidden sm:block text-center bg-[#1cb0f6]/10 dark:bg-[#1cb0f6]/20 px-3 py-2 rounded-xl border border-[#1cb0f6]/20 dark:border-[#1cb0f6]/30">
+                          <p className="text-[10px] font-black uppercase tracking-widest text-[#1cb0f6] dark:text-[#1cb0f6]/80">P3 Puan</p>
+                          <p className="font-mono font-black text-[#1cb0f6] dark:text-[#1cb0f6]">{p3}</p>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 );
