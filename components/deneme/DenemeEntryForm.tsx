@@ -133,7 +133,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
             <button
               key={tab.id}
               type="button"
-              disabled={tab.id > 1 && (!name.trim() || (examType === "brans" && !bransSubjectId))}
+              disabled={tab.id > 1 && (!name.trim() || !publisher.trim() || (examType === "brans" && !bransSubjectId))}
               onClick={() => setStep(tab.id as 1|2|3)}
               className="relative flex-1 py-3 px-4 text-center disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none"
             >
@@ -167,8 +167,8 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 className="space-y-8"
               >
                 <div className="pb-4 border-b border-slate-100/50 dark:border-slate-700/50">
-                  <h3 className="text-xl font-black tracking-tight text-slate-800 dark:text-white">Sınav Bilgileri</h3>
-                  <p className="text-xs font-semibold text-slate-400 mt-1">Deneme türünü ve detaylarını belirleyin.</p>
+                  <h3 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white">Sınav Bilgileri</h3>
+                  <p className="text-sm font-bold text-slate-400 mt-1">Deneme türünü ve detaylarını belirleyin.</p>
                 </div>
 
                 {/* Clean Apple Style Exam Type Cards using Site Palette */}
@@ -360,12 +360,13 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                   </div>
 
                   <div className="space-y-2">
-                    <span className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-1.5"><Tag className="w-3.5 h-3.5"/> Yayınevi</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-slate-400 ml-1 flex items-center gap-1.5"><Tag className="w-3.5 h-3.5"/> Yayınevi *</span>
                     <input
                       value={publisher}
                       onChange={(e) => setPublisher(e.target.value)}
                       placeholder="Örn: Yargı, Yediiklim"
                       className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-slate-200 placeholder:text-slate-400 outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all"
+                      required
                     />
                   </div>
 
@@ -384,10 +385,10 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 className="space-y-8"
               >
                 <div className="pb-4 border-b border-slate-100/50 dark:border-slate-700/50">
-                  <h3 className="text-xl font-black tracking-tight text-slate-800 dark:text-white">
+                  <h3 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white">
                     {examType === "genel" ? "Genel Yetenek" : "Net Girişi"}
                   </h3>
-                  <p className="text-xs font-semibold text-slate-400 mt-1">Doğru, yanlış ve boş sayılarınızı girin.</p>
+                  <p className="text-sm font-bold text-slate-400 mt-1">Doğru, yanlış ve boş sayılarınızı girin.</p>
                 </div>
                 
                 <div className="space-y-5">
@@ -413,8 +414,8 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 className="space-y-8"
               >
                 <div className="pb-4 border-b border-slate-100/50 dark:border-slate-700/50">
-                  <h3 className="text-xl font-black tracking-tight text-slate-800 dark:text-white">Genel Kültür</h3>
-                  <p className="text-xs font-semibold text-slate-400 mt-1">Sözel ve bilgi ağırlıklı testler.</p>
+                  <h3 className="text-2xl font-black tracking-tight text-slate-800 dark:text-white">Genel Kültür</h3>
+                  <p className="text-sm font-bold text-slate-400 mt-1">Genel kültür testinin doğru ve yanlışlarını girin.</p>
                 </div>
                 
                 <div className="space-y-5">
@@ -448,7 +449,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
             {(step < 3 && examType === "genel") || (step < 2 && examType === "brans") ? (
               <button
                 type="button"
-                disabled={!name.trim() || (examType === "brans" && !bransSubjectId)}
+                disabled={!name.trim() || !publisher.trim() || (examType === "brans" && !bransSubjectId)}
                 onClick={() => setStep((s) => (s + 1) as any)}
                 className="flex items-center gap-2 px-7 py-3 rounded-2xl text-[15px] font-black text-white bg-slate-800 hover:bg-slate-700 active:bg-slate-900 border-b-4 border-slate-950 hover:border-slate-800 active:border-b-0 active:translate-y-1 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:border-b-0 disabled:translate-y-1 shadow-sm"
               >
@@ -457,7 +458,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
             ) : (
               <motion.button
                 type="submit"
-                disabled={!name.trim() || !result.isValid}
+                disabled={!name.trim() || !publisher.trim() || !result.isValid}
                 whileTap={{ scale: 0.96 }}
                 className="flex items-center gap-2 px-8 py-3.5 rounded-2xl text-[15px] font-black text-white bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 border-b-4 border-emerald-700 hover:border-emerald-500 active:border-b-0 active:translate-y-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:border-b-0 disabled:translate-y-1 shadow-sm"
               >

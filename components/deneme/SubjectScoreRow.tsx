@@ -47,9 +47,9 @@ export default function SubjectScoreRow({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <h4 className="font-bold text-[#1d1d1f] dark:text-white text-sm tracking-tight truncate">{subject.title}</h4>
+              <h4 className="font-black text-[#1d1d1f] dark:text-white text-base tracking-tight truncate">{subject.title}</h4>
               {answered > 0 && (
-                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[9px] font-bold tracking-wide ${
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
                   accuracy >= 70 
                     ? "bg-[#e2f1e7] text-[#137333]" 
                     : accuracy >= 40 
@@ -60,8 +60,8 @@ export default function SubjectScoreRow({
                 </span>
               )}
             </div>
-            <p className="text-[10px] font-medium text-slate-400 mt-0.5">
-              Toplam Soru: <span className="font-sans text-slate-500 font-bold">{subject.questionCount}</span>
+            <p className="text-[11px] font-black uppercase tracking-widest text-slate-400 mt-0.5">
+              Toplam Soru: <span className="font-sans text-slate-500 font-black">{subject.questionCount}</span>
             </p>
           </div>
         </div>
@@ -72,7 +72,7 @@ export default function SubjectScoreRow({
             style={{ color: subject.color }}
           >
             <span>{formatNet(subject.net)}</span>
-            <span className="text-[9px] font-bold uppercase text-slate-400 mt-0.5 ml-0.5">Net</span>
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 mt-0.5 ml-0.5">Net</span>
           </div>
         </div>
       </div>
