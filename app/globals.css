@@ -37,7 +37,7 @@
   --color-error: var(--color-error);
   --color-warning: var(--color-warning);
 
-  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--font-nunito), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
   --font-mono: "SF Mono", "SFProMono-Regular", "Cascadia Code", Consolas, monospace;
 }
@@ -53,6 +53,15 @@ body {
 h1, h2, h3, h4, h5, h6, .font-heading {
   font-family: var(--font-heading);
   letter-spacing: -0.022em;
+}
+
+@layer base {
+  h1 { @apply text-4xl sm:text-5xl font-black tracking-tight; }
+  h2 { @apply text-3xl sm:text-4xl font-black tracking-tight; }
+  h3 { @apply text-2xl sm:text-3xl font-black tracking-tight; }
+  h4 { @apply text-xl sm:text-2xl font-bold tracking-tight; }
+  h5 { @apply text-lg sm:text-xl font-bold tracking-tight; }
+  h6 { @apply text-base sm:text-lg font-bold tracking-tight; }
 }
 
 /* Custom Scrollbar (macOS Style) */
