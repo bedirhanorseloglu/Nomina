@@ -122,7 +122,7 @@ export default function Leaderboard() {
               onClick={() => setLeaderboardType("genel")}
               className={`relative z-10 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors w-36 ${
                 leaderboardType === "genel" 
-                  ? "text-[#1cb0f6]" 
+                  ? "text-blue-600" 
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
@@ -135,7 +135,7 @@ export default function Leaderboard() {
               onClick={() => setLeaderboardType("brans")}
               className={`relative z-10 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors w-36 ${
                 leaderboardType === "brans" 
-                  ? "text-[#af52de]" 
+                  ? "text-indigo-600" 
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
