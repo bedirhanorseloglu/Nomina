@@ -8,6 +8,7 @@ import { PlusCircle, ClipboardList, BarChart3, BookOpen, TrendingUp, Zap, Gradua
 import DenemeNav from "./DenemeNav";
 import DenemeEntryForm from "./DenemeEntryForm";
 import DenemeHistoryList from "./DenemeHistoryList";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 
 const DenemeAnalytics = dynamic(() => import("./DenemeAnalytics"), { ssr: false });
@@ -24,7 +25,7 @@ import {
 } from "@/lib/denemeStorage";
 import { DenemeRecord } from "@/lib/denemeUtils";
 import { loadFromFirebase, saveDenemeDataToFirebase, isLocalhost } from "@/lib/firebaseService";
-import { averageNet, evaluateDeneme, formatNet, migrateDenemeler } from "@/lib/denemeUtils";
+import { averageNet, evaluateDeneme, formatNet, migrateDenemeler, createEmptyScores } from "@/lib/denemeUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateLeaderboard, updateBranchLeaderboard, removeFromLeaderboard, removeFromBranchLeaderboard } from "@/lib/leaderboardService";
 import { DENEME_SUBJECTS } from "@/lib/denemeConfig";
@@ -39,11 +40,15 @@ const TABS = [
 
 export default function DenemePageContent() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
+  const initialMode = searchParams.get("mode");
+  const initialSubject = searchParams.get("subject");
+
   const [denemeler, setDenemeler] = useState<DenemeRecord[]>([]);
   const [targetNet, setTargetNet] = useState(108);
   const [loaded, setLoaded] = useState(false);
   const [tab, setTab] = useState<Tab>("yeni");
-  const [viewType, setViewType] = useState<"genel" | "brans">("genel");
+  const [viewType, setViewType] = useState<"genel" | "brans">((initialMode as "genel" | "brans") || "genel");
   const [editing, setEditing] = useState<DenemeRecord | null>(null);
   // Tracks whether the initial async load (including Firebase merge) is still in progress.
   // While true, the "save back" effect is suppressed to prevent overwriting cloud data
@@ -362,8 +367,16 @@ export default function DenemePageContent() {
                         publisher: editing.publisher,
                         note: editing.note,
                         scores: editing.scores,
+                        examType: editing.examType,
+                        bransSubjectId: editing.bransSubjectId,
                       }
-                    : undefined
+                    : (initialMode || initialSubject) ? {
+                        name: "",
+                        date: new Date().toISOString().split("T")[0],
+                        scores: createEmptyScores(),
+                        examType: (initialMode as "genel" | "brans") || "genel",
+                        bransSubjectId: initialSubject || "",
+                      } : undefined
                 }
                 onSubmit={handleSave}
                 onCancel={editing ? () => setEditing(null) : undefined}

@@ -35,6 +35,7 @@ export default function ExamSimulatorPage() {
   const [showExitWarning, setShowExitWarning] = useState(false);
   const [isFinished, setIsFinished] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
+  const [realStartTimeSeconds, setRealStartTimeSeconds] = useState(36900); // 10:15 default
 
   const { user } = useAuth();
   const [dailyGoalTarget, setDailyGoalTarget] = useState(0);
@@ -97,6 +98,12 @@ export default function ExamSimulatorPage() {
 
   const startExam = async () => {
     setTimeLeft(customDuration * 60);
+    if (examMode === "brans") {
+      const now = new Date();
+      setRealStartTimeSeconds(now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds());
+    } else {
+      setRealStartTimeSeconds(36900); // 10:15
+    }
     try {
       if (document.documentElement.requestFullscreen) {
         await document.documentElement.requestFullscreen();
@@ -129,8 +136,7 @@ export default function ExamSimulatorPage() {
 
   const totalExamSeconds = customDuration * 60;
   const elapsedSeconds = totalExamSeconds - timeLeft;
-  // Simulated real-world time (Fixed start at 10:15)
-  const currentSimulatedSeconds = 36900 + elapsedSeconds;
+  const currentSimulatedSeconds = realStartTimeSeconds + elapsedSeconds;
   
   const simulatedHour = Math.floor((currentSimulatedSeconds / 3600) % 24);
   const simulatedMin = Math.floor((currentSimulatedSeconds % 3600) / 60);
@@ -159,10 +165,16 @@ export default function ExamSimulatorPage() {
             Harika bir odaklanmaydı! Gerçek bir sınav deneyimi yaşadın. Şimdi derin bir nefes al ve sonuçlarını deneme merkezine kaydet.
           </p>
           <button 
-            onClick={() => router.push("/liderlik")} 
+            onClick={() => router.push(examMode === "brans" ? `/deneme?mode=brans&subject=${selectedSubject?.id}` : "/deneme?mode=genel")} 
             className="w-full bg-[#58cc02] border-b-4 border-[#46a302] hover:bg-[#46a302] text-white font-black py-4 rounded-2xl transition-all active:translate-y-1 active:border-b-0 active:mb-1 text-lg"
           >
             Sonuçları Kaydet
+          </button>
+          <button 
+            onClick={() => router.push("/")} 
+            className="w-full mt-4 bg-white dark:bg-slate-700 border-2 border-slate-200 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-600 text-slate-700 dark:text-white font-bold py-3.5 rounded-2xl transition-all active:scale-95 text-lg"
+          >
+            Anasayfaya Dön
           </button>
         </motion.div>
       </div>
@@ -242,6 +254,7 @@ export default function ExamSimulatorPage() {
                   <button 
                     onClick={() => {
                       setExamMode("brans");
+                      setCustomDuration(0);
                       setSetupStep("duration");
                     }}
                     className="group bg-white dark:bg-slate-800/80 hover:bg-slate-50 dark:hover:bg-slate-800 border-2 border-slate-200 dark:border-slate-700/50 hover:border-[#1cb0f6] dark:hover:border-[#1cb0f6] rounded-3xl p-8 text-left transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-[#1cb0f6]/10"
@@ -326,7 +339,8 @@ export default function ExamSimulatorPage() {
 
                 <button 
                   onClick={startExam}
-                  className="bg-[#1cb0f6] border-b-4 border-[#1899d6] w-full max-w-md text-white font-black text-xl py-5 rounded-2xl flex items-center justify-center gap-3 hover:bg-[#1899d6] active:translate-y-1 active:border-b-0 active:mb-1 transition-all"
+                  disabled={customDuration <= 0}
+                  className="bg-[#1cb0f6] border-b-4 border-[#1899d6] w-full max-w-md text-white font-black text-xl py-5 rounded-2xl flex items-center justify-center gap-3 hover:bg-[#1899d6] active:translate-y-1 active:border-b-0 active:mb-1 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:border-b-0 disabled:translate-y-0"
                 >
                   <Play className="w-6 h-6 fill-current" />
                   Sınavı Başlat
@@ -395,7 +409,8 @@ export default function ExamSimulatorPage() {
              <motion.div
                className="absolute w-2 sm:w-2.5 rounded-full origin-bottom"
                style={{ bottom: '50%', height: '22%', backgroundColor: isDarkMode ? '#f8fafc' : '#0f172a' }}
-               animate={{ rotate: (simulatedHour % 12) * 30 + simulatedMin * 0.5 }}
+               initial={{ rotate: (currentSimulatedSeconds / 3600) * 30 }}
+               animate={{ rotate: (currentSimulatedSeconds / 3600) * 30 }}
                transition={{ type: "tween", ease: "linear", duration: 0.5 }}
              />
 
@@ -403,7 +418,8 @@ export default function ExamSimulatorPage() {
              <motion.div
                className="absolute w-1.5 sm:w-2 rounded-full origin-bottom"
                style={{ bottom: '50%', height: '35%', backgroundColor: isDarkMode ? '#94a3b8' : '#64748b' }}
-               animate={{ rotate: simulatedMin * 6 + simulatedSec * 0.1 }}
+               initial={{ rotate: (currentSimulatedSeconds / 60) * 6 }}
+               animate={{ rotate: (currentSimulatedSeconds / 60) * 6 }}
                transition={{ type: "tween", ease: "linear", duration: 0.5 }}
              />
 
@@ -411,7 +427,8 @@ export default function ExamSimulatorPage() {
              <motion.div
                className="absolute w-1 sm:w-1.5 bg-red-500 rounded-full origin-bottom"
                style={{ bottom: '50%', height: '42%' }}
-               animate={{ rotate: simulatedSec * 6 }}
+               initial={{ rotate: currentSimulatedSeconds * 6 }}
+               animate={{ rotate: currentSimulatedSeconds * 6 }}
                transition={{ type: "spring", stiffness: 300, damping: 20 }}
              />
 
@@ -438,7 +455,9 @@ export default function ExamSimulatorPage() {
         <div className={`w-full max-w-md p-6 rounded-3xl flex items-center justify-between transition-colors duration-700 ${isDarkMode ? 'bg-slate-800/50' : 'bg-white shadow-xl shadow-slate-200/40'}`}>
           <div className="text-center">
             <div className={`text-[10px] uppercase tracking-widest font-bold mb-1 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Başlangıç</div>
-            <div className={`text-lg font-black ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>10:15</div>
+            <div className={`text-lg font-black ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
+              {formatDigit(Math.floor(realStartTimeSeconds / 3600) % 24)}:{formatDigit(Math.floor(realStartTimeSeconds % 3600 / 60))}
+            </div>
           </div>
           
           <div className="flex-1 flex items-center px-4">
@@ -453,7 +472,7 @@ export default function ExamSimulatorPage() {
           <div className="text-center">
             <div className={`text-[10px] uppercase tracking-widest font-bold mb-1 ${isDarkMode ? 'text-slate-500' : 'text-slate-400'}`}>Bitiş</div>
             <div className={`text-lg font-black ${isDarkMode ? 'text-slate-300' : 'text-slate-700'}`}>
-              {formatDigit(Math.floor((36900 + customDuration * 60) / 3600) % 24)}:{formatDigit(Math.floor((36900 + customDuration * 60) % 3600 / 60))}
+              {formatDigit(Math.floor((realStartTimeSeconds + customDuration * 60) / 3600) % 24)}:{formatDigit(Math.floor((realStartTimeSeconds + customDuration * 60) % 3600 / 60))}
             </div>
           </div>
         </div>
