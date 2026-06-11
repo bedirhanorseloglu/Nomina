@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
 import { FileText, Brain, Compass, Calendar, Tag, Check, ArrowRight, ArrowLeft, ChevronDown, Globe, Target } from "lucide-react";
@@ -41,6 +42,7 @@ type Props = {
 };
 
 export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial }: Props) {
+  const router = useRouter();
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [examType, setExamType] = useState<"genel" | "brans">(initial?.examType ?? "genel");
   const [bransSubjectId, setBransSubjectId] = useState<string>(initial?.bransSubjectId ?? "");
@@ -138,7 +140,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
               {step === tab.id && (
                 <motion.div
                   layoutId="stepTabBg"
-                  className="absolute inset-0 bg-white rounded-[16px] shadow-[0_2px_10px_rgb(0,0,0,0.06)] border border-slate-200/40"
+                  className="absolute inset-0 bg-white dark:bg-slate-700 rounded-[16px] shadow-[0_2px_10px_rgb(0,0,0,0.06)] border border-slate-200/40 dark:border-slate-600/40"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
@@ -153,7 +155,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
         </div>
 
         {/* Premium Form Card */}
-        <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[32px] p-6 sm:p-10 relative overflow-hidden">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[32px] p-6 sm:p-10 relative overflow-hidden">
           <AnimatePresence mode="wait">
             {step === 1 && (
               <motion.section
@@ -176,7 +178,10 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                     {/* Genel Deneme Kartı */}
                     <button
                       type="button"
-                      onClick={() => setExamType("genel")}
+                      onClick={() => {
+                        setExamType("genel");
+                        router.replace("/deneme?mode=genel", { scroll: false });
+                      }}
                       className={`relative group flex flex-col items-start gap-3 p-4 rounded-2xl border-2 transition-all duration-200 text-left focus:outline-none
                         ${examType === "genel"
                           ? "border-blue-500 bg-blue-50/50 dark:bg-blue-900/20 shadow-[0_0_0_4px_rgba(59,130,246,0.12)]"
@@ -219,7 +224,11 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                     {/* Branş Denemesi Kartı */}
                     <button
                       type="button"
-                      onClick={() => { setExamType("brans"); setStep(1); }}
+                      onClick={() => { 
+                        setExamType("brans"); 
+                        setStep(1); 
+                        router.replace(`/deneme?mode=brans${bransSubjectId ? `&subject=${bransSubjectId}` : ""}`, { scroll: false });
+                      }}
                       className={`relative group flex flex-col items-start gap-3 p-4 rounded-2xl border-2 transition-all duration-200 text-left focus:outline-none
                         ${examType === "brans"
                           ? "border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20 shadow-[0_0_0_4px_rgba(99,102,241,0.12)]"
@@ -269,7 +278,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                         <button
                           type="button"
                           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                          className="w-full flex items-center justify-between bg-slate-50 border border-slate-200/60 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 outline-none hover:bg-slate-100/80 focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all text-left"
+                          className="w-full flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none hover:bg-slate-100/80 dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all text-left"
                         >
                           <span className={bransSubjectId ? "text-slate-800" : "text-slate-400"}>
                             {bransSubjectId 
@@ -291,7 +300,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
                                 transition={{ duration: 0.15 }}
-                                className="absolute top-full mt-2 w-full bg-white border border-slate-200 shadow-2xl rounded-2xl overflow-hidden z-50 py-1"
+                                className="absolute top-full mt-2 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-2xl rounded-2xl overflow-hidden z-50 py-1"
                               >
                                 {result.subjects.filter(s => s.subjectId !== "geometri").map((s) => {
                                   const subjectColor = DENEME_SUBJECTS.find(ds => ds.id === s.subjectId)?.color || "#3b82f6";
@@ -305,6 +314,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                                       onClick={() => {
                                         setBransSubjectId(s.subjectId);
                                         setIsDropdownOpen(false);
+                                        router.replace(`/deneme?mode=brans&subject=${s.subjectId}`, { scroll: false });
                                       }}
                                       onMouseEnter={() => setHoveredSubjectId(s.subjectId)}
                                       onMouseLeave={() => setHoveredSubjectId(null)}
@@ -333,7 +343,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Örn: Pegem 5. Türkiye Geneli"
-                      className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all"
+                      className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-slate-200 placeholder:text-slate-400 outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all"
                       required
                     />
                   </div>
@@ -344,7 +354,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                       type="date"
                       value={date}
                       onChange={(e) => setDate(e.target.value)}
-                      className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 outline-none focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all"
+                      className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all"
                       required
                     />
                   </div>
@@ -355,7 +365,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                       value={publisher}
                       onChange={(e) => setPublisher(e.target.value)}
                       placeholder="Örn: Yargı, Yediiklim"
-                      className="w-full bg-slate-50 border border-slate-200/60 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 placeholder:text-slate-400 outline-none focus:bg-white focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all"
+                      className="w-full bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-slate-200 placeholder:text-slate-400 outline-none focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all"
                     />
                   </div>
 
@@ -427,7 +437,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
               <button
                 type="button"
                 onClick={() => setStep((s) => (s - 1) as any)}
-                className="flex items-center gap-2 px-6 py-3 rounded-2xl text-[15px] font-black text-slate-500 bg-white border-2 border-slate-200 border-b-4 hover:bg-slate-50 active:bg-slate-100 active:border-b-2 active:translate-y-0.5 transition-all"
+                className="flex items-center gap-2 px-6 py-3 rounded-2xl text-[15px] font-black text-slate-500 bg-white dark:bg-slate-800 border-2 border-slate-200 dark:border-slate-700 border-b-4 hover:bg-slate-50 dark:hover:bg-slate-700 active:bg-slate-100 dark:active:bg-slate-800 active:border-b-2 active:translate-y-0.5 transition-all"
               >
                 <ArrowLeft className="w-4 h-4" /> Geri
               </button>
@@ -461,7 +471,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
 
       {/* ━━━ SAĞ PANEL: CANLI SKOR WIDGETLARI ━━━ */}
       <aside className="lg:sticky lg:top-28 h-fit space-y-6">
-        <div className="bg-white/80 backdrop-blur-2xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[32px] p-8 relative overflow-hidden">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-2xl border border-white dark:border-slate-800 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[32px] p-8 relative overflow-hidden">
           {/* Subtle glow background */}
           <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-accent/10 to-transparent rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none" />
 
@@ -552,9 +562,9 @@ function PremiumWidget({ label, value, color }: { label: string; value: string; 
   const colorStyles = {
     blue: "bg-blue-50/50 border-blue-100/50 text-blue-600",
     purple: "bg-purple-50/50 border-purple-100/50 text-purple-600",
-    emerald: "bg-emerald-50/50 border-emerald-100/50 text-emerald-600",
-    red: "bg-red-50/50 border-red-100/50 text-red-600",
-    slate: "bg-slate-50 border-slate-200/50 text-slate-600"
+    emerald: "bg-emerald-50/50 dark:bg-emerald-900/20 border-emerald-100/50 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400",
+    red: "bg-red-50/50 dark:bg-red-900/20 border-red-100/50 dark:border-red-800/50 text-red-600 dark:text-red-400",
+    slate: "bg-slate-50 dark:bg-slate-800 border-slate-200/50 dark:border-slate-700 text-slate-600 dark:text-slate-400"
   };
 
   return (

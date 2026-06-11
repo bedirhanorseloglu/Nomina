@@ -48,7 +48,7 @@ export default function RootLayout({
   return (
     <html lang="tr" suppressHydrationWarning className={nunito.variable}>
       <body className="antialiased min-h-screen flex flex-col font-sans">
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
           <AuthProvider>
             {children}
             <GlobalPomodoro />

@@ -380,7 +380,7 @@ function HomeContent() {
                 className="flex flex-col xl:flex-row xl:items-end justify-between gap-6 mb-4"
               >
                 <div className="flex items-center gap-5">
-                  <div className="relative w-16 h-16 rounded-full border-[3px] border-white dark:border-slate-800 shadow-sm overflow-hidden shrink-0 bg-white">
+                  <div className="relative w-16 h-16 rounded-full border-[3px] border-white dark:border-slate-800 shadow-sm overflow-hidden shrink-0 bg-white dark:bg-slate-800">
                     {user?.photoURL ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={user.photoURL} alt="Profil" className="w-full h-full object-cover" />
