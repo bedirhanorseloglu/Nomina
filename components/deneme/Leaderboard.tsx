@@ -110,10 +110,10 @@ export default function Leaderboard() {
               <Trophy className="w-8 h-8" />
             </div>
             <div>
-              <h3 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Şampiyonlar Ligi</h3>
-              <p className="text-xs font-black uppercase tracking-widest text-slate-400 mt-1">
+              <p className="text-xs font-black uppercase tracking-widest text-slate-400 mb-1">
                 {leaderboardType === "genel" ? "Türkiye Geneli Sıralama" : "Branş Bazlı Sıralama"}
               </p>
+              <h3 className="text-3xl font-black text-slate-800 dark:text-white tracking-tight">Şampiyonlar Ligi</h3>
             </div>
           </div>
           

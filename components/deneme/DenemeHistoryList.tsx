@@ -106,10 +106,10 @@ export default function DenemeHistoryList({
                     {subConfig.icon}
                   </div>
                   <div>
+                    <p className="text-xs font-black text-slate-400 uppercase tracking-widest mb-1">{list.length} Çözüm</p>
                     <h3 className="text-xl font-black text-slate-800 dark:text-white tracking-tight">
                       {subConfig.title}
                     </h3>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{list.length} Çözüm</p>
                   </div>
                 </div>
 
