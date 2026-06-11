@@ -37,7 +37,7 @@
   --color-error: var(--color-error);
   --color-warning: var(--color-warning);
 
-  --font-heading: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+  --font-heading: var(--font-nunito), -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
   --font-mono: "SF Mono", "SFProMono-Regular", "Cascadia Code", Consolas, monospace;
 }

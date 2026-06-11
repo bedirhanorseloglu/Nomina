@@ -74,8 +74,8 @@ export default function DenemeHistoryList({
           <div className="w-16 h-16 bg-blue-50 dark:bg-blue-500/10 text-blue-500 rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-sm">
             📭
           </div>
-          <h3 className="text-lg font-bold text-slate-800 dark:text-white">Henüz Deneme Yok</h3>
-          <p className="text-slate-500 mt-2 max-w-sm">
+          <h3 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">Henüz Deneme Yok</h3>
+          <p className="text-sm font-bold text-slate-500 mt-2 max-w-sm">
             İlk denemenizi ekleyerek ilerlemenizi görselleştirmeye ve istatistiklerinizi oluşturmaya başlayın.
           </p>
           <button
@@ -126,7 +126,7 @@ export default function DenemeHistoryList({
                       >
                         <div className="flex justify-between items-start mb-4">
                           <div>
-                            <h4 className="text-base font-bold text-slate-800 dark:text-white transition-colors" style={{ color: "var(--tw-text-opacity)" }}>
+                            <h4 className="text-lg font-black text-slate-800 dark:text-white transition-colors" style={{ color: "var(--tw-text-opacity)" }}>
                               {deneme.name}
                             </h4>
                             <div className="flex items-center gap-2 mt-1.5 text-xs font-medium text-slate-400">
@@ -271,13 +271,13 @@ export default function DenemeHistoryList({
                           <div key={s.subjectId} className="flex flex-col">
                             <div className="flex items-center gap-2 mb-3">
                               <div className="w-2 h-2 rounded-full" style={{ backgroundColor: subConfig?.color || '#3b82f6' }} />
-                              <h5 className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{s.title}</h5>
+                              <h5 className="text-[11px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider">{s.title}</h5>
                             </div>
                             <div className="flex items-baseline gap-2 mb-2">
                               <span className="font-mono font-black text-2xl text-slate-800 dark:text-white leading-none">
                                 {formatNet(s.net)}
                               </span>
-                              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Net</span>
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Net</span>
                             </div>
                             <div className="flex gap-2 text-[11px] font-bold font-mono mb-3">
                               <span className="text-emerald-500">{s.correct}D</span>
@@ -299,20 +299,20 @@ export default function DenemeHistoryList({
                             <AppleEmoji emoji="🎯" size={24} />
                           </div>
                           <div>
-                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tahmini P3 Puanı</p>
+                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tahmini P3 Puanı</p>
                             <p className="text-lg font-black text-indigo-600 dark:text-indigo-400 font-mono leading-none mt-0.5">{estimateP3Score(result.gyNet, result.gkNet).toFixed(3)}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => onEdit(deneme)}
-                            className="px-5 py-2.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 text-sm font-bold rounded-xl transition-colors"
+                            className="px-5 py-2.5 bg-slate-50 dark:bg-white/5 hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-slate-300 text-sm font-black rounded-xl transition-colors"
                           >
                             Düzenle
                           </button>
                           <button
                             onClick={() => requestDelete(deneme)}
-                            className="px-5 py-2.5 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-sm font-bold rounded-xl transition-colors"
+                            className="px-5 py-2.5 bg-rose-50 dark:bg-rose-500/10 hover:bg-rose-100 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-sm font-black rounded-xl transition-colors"
                           >
                             Sil
                           </button>

@@ -135,7 +135,7 @@ export default function DenemeNav({ children }: { children?: React.ReactNode }) 
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="flex items-center gap-2 cursor-pointer group focus:outline-none"
             >
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-bold shadow-sm group-hover:scale-105 transition-transform overflow-hidden">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 dark:from-indigo-900/50 dark:to-purple-900/50 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-indigo-700 dark:text-indigo-300 font-black shadow-sm group-hover:scale-105 transition-transform overflow-hidden">
                 {user?.photoURL ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={user.photoURL} alt="Avatar" className="w-full h-full object-cover" />
@@ -158,7 +158,7 @@ export default function DenemeNav({ children }: { children?: React.ReactNode }) 
                   className="absolute right-0 top-full mt-3 w-56 bg-white dark:bg-[#1e293b] rounded-2xl shadow-xl border border-gray-100 dark:border-white/10 overflow-hidden z-50 pointer-events-auto"
                 >
                   <div className="p-4 border-b border-gray-100 dark:border-white/5 bg-gray-50/50 dark:bg-white/5">
-                    <p className="text-sm font-bold text-gray-900 dark:text-white truncate">{user?.displayName || "Kullanıcı"}</p>
+                    <p className="text-sm font-black text-gray-900 dark:text-white truncate">{user?.displayName || "Kullanıcı"}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">{user?.email}</p>
                   </div>
                   <div className="p-2 space-y-1">

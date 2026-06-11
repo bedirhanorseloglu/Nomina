@@ -55,7 +55,7 @@ function Row({ label, value, color, bold }: { label: string; value: string; colo
   return (
     <div className="flex justify-between items-center text-[11px] gap-4">
       <span className="text-slate-500 font-medium">{label}</span>
-      <span className={`font-mono ${bold ? "font-black text-sm" : "font-bold"} ${color || "text-slate-900 dark:text-white"}`}>{value}</span>
+      <span className={`font-mono ${bold ? "font-black text-sm" : "font-black"} ${color || "text-slate-900 dark:text-white"}`}>{value}</span>
     </div>
   );
 }
@@ -210,7 +210,7 @@ export default function DenemeAnalytics({
         <p className="text-sm font-semibold text-slate-500 mt-6 max-w-xs leading-relaxed">
           Genel deneme analizlerini görmek için en az bir adet Genel Deneme kaydı {isReadOnly ? "bulunmuyor" : "girmelisiniz"}.
         </p>
-        {!isReadOnly && <button onClick={onAdd} className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/20">Deneme Girişi Yap</button>}
+        {!isReadOnly && <button onClick={onAdd} className="mt-6 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-black rounded-xl shadow-lg shadow-blue-500/20">Deneme Girişi Yap</button>}
       </div>
     );
   }
@@ -221,11 +221,11 @@ export default function DenemeAnalytics({
         <div className="w-16 h-16 bg-violet-50 dark:bg-violet-500/10 text-violet-500 rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-sm">
           🎯
         </div>
-        <h3 className="text-lg font-bold text-slate-800 dark:text-white">Branş Analizi Bekleniyor</h3>
+        <h3 className="text-lg font-black text-slate-800 dark:text-white">Branş Analizi Bekleniyor</h3>
         <p className="text-sm font-semibold text-slate-500 mt-2 max-w-xs leading-relaxed">
           Branş deneme grafiklerini ve analizlerini görmek için önce "Yeni Giriş" kısmından bir Branş Denemesi {isReadOnly ? "bulunmuyor" : "kaydetmelisiniz"}.
         </p>
-        {!isReadOnly && <button onClick={onAdd} className="mt-6 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-bold rounded-xl shadow-lg shadow-violet-500/20">Branş Denemesi Gir</button>}
+        {!isReadOnly && <button onClick={onAdd} className="mt-6 px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white font-black rounded-xl shadow-lg shadow-violet-500/20">Branş Denemesi Gir</button>}
       </div>
     );
   }
@@ -241,12 +241,12 @@ export default function DenemeAnalytics({
         <div className="flex p-1 bg-white dark:bg-[#1e293b] rounded-xl border border-slate-200/50 dark:border-white/10 w-fit shadow-sm">
           {(["all", "5", "10"] as Range[]).map((r) => (
             <button key={r} type="button" onClick={() => setRange(r)}
-              className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${range === r ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-300 shadow-sm" : "text-slate-500 hover:text-slate-800 dark:hover:text-white"}`}>
+              className={`px-4 py-2 rounded-lg text-xs font-black transition-all cursor-pointer ${range === r ? "bg-blue-50 dark:bg-blue-500/20 text-blue-600 dark:text-blue-300 shadow-sm" : "text-slate-500 hover:text-slate-800 dark:hover:text-white"}`}>
               {r === "all" ? "Tüm Zamanlar" : `Son ${r} Sınav`}
             </button>
           ))}
         </div>
-        <span className="text-[11px] font-bold text-slate-400 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
+        <span className="text-[11px] font-black text-slate-400 bg-slate-100 dark:bg-white/5 px-3 py-1.5 rounded-full">
           {viewType === "genel" ? `${stats?.count} genel deneme` : `${bransStats?.count} branş denemesi`} gösteriliyor
         </span>
       </div>
@@ -283,7 +283,7 @@ export default function DenemeAnalytics({
             desc="Sınavdan sınava olan net değişimlerinizi ve trendinizi gösterir."
             icon={<TrendingUp className="w-8 h-8 text-indigo-500" />}
           >
-            <div className="flex p-1.5 bg-slate-100/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/50 dark:border-white/5 text-xs font-bold w-fit mb-8 shadow-inner backdrop-blur-sm">
+            <div className="flex p-1.5 bg-slate-100/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200/50 dark:border-white/5 text-xs font-black w-fit mb-8 shadow-inner backdrop-blur-sm">
               {([
                 { key: "total" as const, label: "Toplam Net", icon: "🌟" },
                 { key: "gy" as const, label: "Genel Yetenek", icon: "🧠" },
@@ -427,7 +427,7 @@ export default function DenemeAnalytics({
 
             {stats.improvement !== 0 && stats.count > 1 && (
               <div className="mt-4 flex justify-center">
-                <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold shadow-sm ${stats.improvement > 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400"}`}>
+                <span className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-black shadow-sm ${stats.improvement > 0 ? "bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400" : "bg-red-50 text-red-500 dark:bg-red-500/10 dark:text-red-400"}`}>
                   {stats.improvement > 0 ? "🚀" : "📉"} İlk denemeden bu yana {stats.improvement > 0 ? "+" : ""}{formatNet(stats.improvement)} net {stats.improvement > 0 ? "ilerleme!" : "gerileme."}
                 </span>
               </div>
@@ -451,7 +451,7 @@ export default function DenemeAnalytics({
                         <p className="text-5xl sm:text-6xl font-black font-mono text-slate-800 dark:text-white leading-none">
                           {formatNet(stats.avg)}
                         </p>
-                        <span className="text-xl font-bold text-slate-400">net</span>
+                        <span className="text-xl font-black text-slate-400">net</span>
                       </div>
                     </div>
 
@@ -464,7 +464,7 @@ export default function DenemeAnalytics({
                           transition={{ type: "spring", stiffness: 50, damping: 20 }}
                         />
                       </div>
-                      <p className="text-center text-xs font-bold text-slate-400 mt-3">
+                      <p className="text-center text-xs font-black text-slate-400 mt-3">
                         Hedefin %{Math.round(Math.min(100, (stats.avg / targetNet) * 100))}'ine ulaştın!
                       </p>
                     </div>
@@ -477,7 +477,7 @@ export default function DenemeAnalytics({
                         <p className="text-5xl sm:text-6xl font-black font-mono leading-none">
                           {targetNet}
                         </p>
-                        <span className="text-xl font-bold opacity-80">net</span>
+                        <span className="text-xl font-black opacity-80">net</span>
                       </div>
                     </div>
                   </div>
@@ -490,7 +490,7 @@ export default function DenemeAnalytics({
                           <AppleEmoji emoji="🎯" size={24} />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-slate-800 dark:text-white">Hedefini Güncelle</p>
+                          <p className="text-sm font-black text-slate-800 dark:text-white">Hedefini Güncelle</p>
                           <p className="text-xs font-semibold text-slate-500">Hedefini artır, daha iyisini başar!</p>
                         </div>
                       </div>
@@ -518,7 +518,7 @@ export default function DenemeAnalytics({
                         <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-[#1cb0f6]" />
                       </Slider.Thumb>
                     </Slider.Root>
-                    <div className="flex justify-between w-full mt-3 text-sm font-bold text-slate-400 px-2">
+                    <div className="flex justify-between w-full mt-3 text-sm font-black text-slate-400 px-2">
                       <span>60 Net</span>
                       <span>115 Net</span>
                     </div>
@@ -527,12 +527,12 @@ export default function DenemeAnalytics({
                   {/* Bottom: Motivation Badge */}
                   <div className="flex justify-center">
                     {remaining > 0 ? (
-                      <div className="inline-flex items-center gap-3 px-6 py-4 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl font-bold border-2 border-amber-200 dark:border-amber-500/20">
+                      <div className="inline-flex items-center gap-3 px-6 py-4 bg-amber-50 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400 rounded-2xl font-black border-2 border-amber-200 dark:border-amber-500/20">
                         <AppleEmoji emoji="🔥" size={24} className="animate-bounce" />
                         <span className="text-sm sm:text-base">Hedefe ulaşmana sadece <span className="font-black text-amber-500 text-lg sm:text-xl px-1">{formatNet(remaining)} net</span> kaldı! Devam et!</span>
                       </div>
                     ) : (
-                      <div className="inline-flex items-center gap-3 px-6 py-4 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl font-bold border-2 border-emerald-200 dark:border-emerald-500/20">
+                      <div className="inline-flex items-center gap-3 px-6 py-4 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded-2xl font-black border-2 border-emerald-200 dark:border-emerald-500/20">
                         <AppleEmoji emoji="🎉" size={28} className="animate-bounce" /> 
                         <span className="text-sm sm:text-base">Mükemmel! Mevcut hedefini aştın. Yeni bir hedef belirleme zamanı!</span>
                       </div>
@@ -559,11 +559,11 @@ export default function DenemeAnalytics({
                           {getSubjectIcon(s.id, s.color)}
                         </div>
                         <div>
-                          <p className="text-[15px] font-bold text-slate-800 dark:text-white leading-tight">{s.title}</p>
+                          <p className="text-[15px] font-black text-slate-800 dark:text-white leading-tight">{s.title}</p>
                           <p className="text-[11px] font-semibold text-slate-400 mt-0.5">{s.category} • {s.questionCount} Soru</p>
                         </div>
                       </div>
-                      <div className={`px-2.5 py-1 rounded-lg text-[11px] font-bold flex flex-col items-center justify-center border ${
+                      <div className={`px-2.5 py-1 rounded-lg text-[11px] font-black flex flex-col items-center justify-center border ${
                         s.accuracy >= 70 ? "bg-emerald-50 border-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20" : 
                         s.accuracy >= 45 ? "bg-amber-50 border-amber-100 text-amber-600 dark:bg-amber-500/10 dark:border-amber-500/20" : 
                         "bg-rose-50 border-rose-100 text-rose-600 dark:bg-rose-500/10 dark:border-rose-500/20"
@@ -574,7 +574,7 @@ export default function DenemeAnalytics({
                     </div>
 
                     <div className="flex justify-between items-end mb-2">
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Ortalama Net</p>
+                      <p className="text-[11px] font-black text-slate-400 uppercase tracking-widest">Ortalama Net</p>
                       <div className="flex items-baseline gap-1">
                         <p className="text-2xl font-black font-mono leading-none" style={{ color: s.color }}>{formatNet(s.avgNet)}</p>
                       </div>
@@ -585,7 +585,7 @@ export default function DenemeAnalytics({
                         initial={{ width: 0 }} animate={{ width: `${Math.min(100, pct)}%` }} transition={{ type: "spring", stiffness: 60, damping: 15 }} />
                     </div>
 
-                    <div className="flex justify-between text-xs font-bold px-1">
+                    <div className="flex justify-between text-xs font-black px-1">
                       <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5"/> {s.avgCorrect.toFixed(1)} D</span>
                       <span className="text-rose-600 dark:text-rose-400 flex items-center gap-1"><XCircle className="w-3.5 h-3.5"/> {s.avgWrong.toFixed(1)} Y</span>
                       <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1"><MinusCircle className="w-3.5 h-3.5"/> {s.avgEmpty.toFixed(1)} B</span>
@@ -601,12 +601,12 @@ export default function DenemeAnalytics({
             <div className="grid md:grid-cols-2 gap-4">
               {stats.mostWrong && (
                 <Tip icon={<AlertTriangle className="w-6 h-6 text-rose-500" />} title="Dikkat: Çok Hata Yapıyorsun" colorClass="bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20">
-                  <strong className="font-bold text-slate-700 dark:text-slate-200">{stats.mostWrong.title}</strong> dersinde soruların %{Math.round(stats.mostWrong.wr * 100)}'unu yanlış yapıyorsun. Yanlış yaptığın konuları tekrar etmeden yeni denemeye geçme!
+                  <strong className="font-black text-slate-700 dark:text-slate-200">{stats.mostWrong.title}</strong> dersinde soruların %{Math.round(stats.mostWrong.wr * 100)}'unu yanlış yapıyorsun. Yanlış yaptığın konuları tekrar etmeden yeni denemeye geçme!
                 </Tip>
               )}
               {stats.mostEmpty && (
                 <Tip icon={<Clock className="w-6 h-6 text-amber-500" />} title="Süre veya Bilgi Eksikliği" colorClass="bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20">
-                  <strong className="font-bold text-slate-700 dark:text-slate-200">{stats.mostEmpty.title}</strong> dersinde soruların %{Math.round(stats.mostEmpty.er * 100)}'unu boş bırakıyorsun. Turlama tekniğini daha iyi kullanarak süreni yönetebilirsin.
+                  <strong className="font-black text-slate-700 dark:text-slate-200">{stats.mostEmpty.title}</strong> dersinde soruların %{Math.round(stats.mostEmpty.er * 100)}'unu boş bırakıyorsun. Turlama tekniğini daha iyi kullanarak süreni yönetebilirsin.
                 </Tip>
               )}
               <Tip icon={<Scale className="w-6 h-6 text-blue-500" />} title="GY / GK Dengen" colorClass="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20">
@@ -615,7 +615,7 @@ export default function DenemeAnalytics({
                   : "Genel Kültür puanın daha düşük. Tarih, Coğrafya ve Vatandaşlık okumalarını sıklaştır."}
               </Tip>
               <Tip icon={<Sparkles className="w-6 h-6 text-emerald-500" />} title="Gizli Potansiyelin" colorClass="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-100 dark:border-emerald-500/20">
-                Tüm yanlış ve boş sorularını doğruya çevirirsen <strong className="font-bold text-emerald-600 dark:text-emerald-400">+{formatNet(120 - stats.avg)} net</strong> kazanabilirsin. Hatalarından öğrenmek en büyük sıçramayı yaptırır!
+                Tüm yanlış ve boş sorularını doğruya çevirirsen <strong className="font-black text-emerald-600 dark:text-emerald-400">+{formatNet(120 - stats.avg)} net</strong> kazanabilirsin. Hatalarından öğrenmek en büyük sıçramayı yaptırır!
               </Tip>
             </div>
           </Section>
@@ -632,7 +632,7 @@ export default function DenemeAnalytics({
               <button
                 key={sub.id}
                 onClick={() => setSelectedBransSubjectId(sub.id)}
-                className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-[1rem] font-bold transition-all snap-start ${
+                className={`flex-shrink-0 flex items-center gap-2 px-5 py-3 rounded-[1rem] font-black transition-all snap-start ${
                   selectedBransSubjectId === sub.id 
                     ? "text-white transform scale-105" 
                     : "bg-white dark:bg-[#1e293b] text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-white/5 hover:bg-slate-50 dark:hover:bg-white/5"
@@ -658,22 +658,22 @@ export default function DenemeAnalytics({
             </div>
 
               <div className="mt-5 p-6 rounded-[2rem] bg-white dark:bg-[#1e293b] border border-slate-200/60 dark:border-white/5 shadow-sm">
-              <h4 className="text-xs font-bold text-slate-500 uppercase tracking-widest text-center mb-6">Ortalama Doğru / Yanlış Dağılımı</h4>
+              <h4 className="text-xs font-black text-slate-500 uppercase tracking-widest text-center mb-6">Ortalama Doğru / Yanlış Dağılımı</h4>
               <div className="grid grid-cols-3 gap-4">
                 <div className="flex flex-col items-center p-4 bg-emerald-50 dark:bg-emerald-500/10 rounded-2xl border border-emerald-100 dark:border-emerald-500/20">
                   <CheckCircle2 className="text-emerald-500 w-7 h-7 mb-2" />
                   <span className="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400">{bransStats.avgC.toFixed(1)}</span>
-                  <span className="text-[10px] font-bold text-emerald-600/70 uppercase tracking-wider mt-1">Doğru</span>
+                  <span className="text-[10px] font-black text-emerald-600/70 uppercase tracking-wider mt-1">Doğru</span>
                 </div>
                 <div className="flex flex-col items-center p-4 bg-rose-50 dark:bg-rose-500/10 rounded-2xl border border-rose-100 dark:border-rose-500/20">
                   <XCircle className="text-rose-500 w-7 h-7 mb-2" />
                   <span className="text-2xl font-black font-mono text-rose-600 dark:text-rose-400">{bransStats.avgW.toFixed(1)}</span>
-                  <span className="text-[10px] font-bold text-rose-600/70 uppercase tracking-wider mt-1">Yanlış</span>
+                  <span className="text-[10px] font-black text-rose-600/70 uppercase tracking-wider mt-1">Yanlış</span>
                 </div>
                 <div className="flex flex-col items-center p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-200 dark:border-white/10">
                   <MinusCircle className="text-slate-400 w-7 h-7 mb-2" />
                   <span className="text-2xl font-black font-mono text-slate-600 dark:text-slate-300">{bransStats.avgE.toFixed(1)}</span>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mt-1">Boş</span>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider mt-1">Boş</span>
                 </div>
               </div>
             </div>
@@ -820,7 +820,7 @@ function Section({ title, desc, icon, children }: { title: string; desc?: string
         )}
         <div>
           <h3 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-tight leading-tight">{title}</h3>
-          {desc && <p className="text-sm font-bold text-slate-400 mt-1">{desc}</p>}
+          {desc && <p className="text-sm font-black text-slate-400 mt-1">{desc}</p>}
         </div>
       </div>
       {children}
@@ -842,12 +842,12 @@ function SummaryCard({ label, value, sub, accent, highlight, emoji }: { label: s
       "bg-white dark:bg-[#1e293b] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-white"
     }`}>
       <div className="flex justify-between items-start mb-4 relative z-10">
-        <p className={`text-[11px] font-bold uppercase tracking-widest ${accent || highlight ? "text-white/90" : "text-slate-400"}`}>{label}</p>
+        <p className={`text-[11px] font-black uppercase tracking-widest ${accent || highlight ? "text-white/90" : "text-slate-400"}`}>{label}</p>
         {emoji && <AppleEmoji emoji={emoji} size={32} className="relative z-10 drop-shadow-sm hover:scale-110 transition-transform" />}
       </div>
       <div className="relative z-10">
         <p className={`text-4xl leading-none font-black tracking-tight ${accent || highlight ? "text-white" : "text-slate-800 dark:text-white"}`}>{value}</p>
-        {sub && <p className={`text-xs font-bold mt-2 ${accent || highlight ? "text-white/90" : "text-slate-400"}`}>{sub}</p>}
+        {sub && <p className={`text-xs font-black mt-2 ${accent || highlight ? "text-white/90" : "text-slate-400"}`}>{sub}</p>}
       </div>
       {(accent || highlight) && <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-white/20 rounded-full blur-2xl pointer-events-none" />}
     </motion.div>
@@ -859,10 +859,10 @@ function BalanceBar({ label, value, max, color, textColor }: { label: string; va
   return (
     <div className="flex flex-col gap-3">
       <div className="flex justify-between items-end">
-        <span className="font-bold text-slate-700 dark:text-slate-200 text-[15px]">{label}</span>
+        <span className="font-black text-slate-700 dark:text-slate-200 text-[15px]">{label}</span>
         <div className="flex items-baseline gap-1">
           <span className={`font-black text-xl ${textColor}`}>{formatNet(value)}</span>
-          <span className="text-xs font-bold text-slate-400">/ {max}</span>
+          <span className="text-xs font-black text-slate-400">/ {max}</span>
         </div>
       </div>
       <div className="h-4 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
@@ -884,7 +884,7 @@ function Tip({ icon, title, colorClass, children }: { icon: React.ReactNode; tit
         {icon}
       </div>
       <div>
-        <h4 className="text-base font-bold text-slate-800 dark:text-white mb-1.5">{title}</h4>
+        <h4 className="text-base font-black text-slate-800 dark:text-white mb-1.5">{title}</h4>
         <p className="text-[13px] font-medium leading-relaxed text-slate-500 dark:text-slate-400">{children}</p>
       </div>
     </div>
