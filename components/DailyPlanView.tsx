@@ -6,7 +6,7 @@ import { Topic, Subject } from "@/types"
 import { useDroppable } from "@dnd-kit/core"
 import { UNIVERSITY_CLASSES } from "@/lib/data"
 import { motion, AnimatePresence } from "framer-motion"
-import { useState, useMemo } from "react"
+import { useState, useMemo, useEffect } from "react"
 
 interface DailyPlanViewProps {
   date: Date
@@ -161,10 +161,53 @@ function TimeSlot({ hour, dateStr, topic, revision, isLocked, lockedTitle, locke
 
 export default function DailyPlanView({ date, topics, subjects, isDragging, onDateChange, onRemoveTopic, slotNotes, completedNotes, onUpdateNote, onToggleNote, holidays, onToggleHoliday }: DailyPlanViewProps) {
   const [activeTab, setActiveTab] = useState<'morning' | 'afternoon' | 'evening'>('morning')
+  const [pomodoroFocusMins, setPomodoroFocusMins] = useState(0)
+
   const dateStr = format(date, "yyyy-MM-dd")
   const isHoliday = holidays.includes(dateStr)
   const isExamDay = dateStr === EXAM_DATE
   const topicsForDay = topics.filter(t => t.scheduledDate === dateStr)
+
+  useEffect(() => {
+    // Initial load
+    try {
+      const historyRaw = localStorage.getItem("pomodoro_history")
+      if (historyRaw) {
+        const history = JSON.parse(historyRaw)
+        if (history[dateStr]) {
+          setPomodoroFocusMins(history[dateStr])
+        } else {
+          setPomodoroFocusMins(0)
+        }
+      } else {
+        // Fallback for current day if history not yet saved but current day is today
+        const getStudyDay = () => {
+          const now = new Date();
+          if (now.getHours() < 4) {
+            now.setDate(now.getDate() - 1);
+          }
+          return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        };
+        if (dateStr === getStudyDay()) {
+          const savedTotalFocus = localStorage.getItem("pomodoro_total_focus");
+          if (savedTotalFocus) setPomodoroFocusMins(parseInt(savedTotalFocus));
+          else setPomodoroFocusMins(0);
+        } else {
+          setPomodoroFocusMins(0)
+        }
+      }
+    } catch (e) {}
+
+    // Event listener
+    const handlePomodoroUpdate = (e: any) => {
+      if (e.detail && e.detail.date === dateStr) {
+        setPomodoroFocusMins(e.detail.focus)
+      }
+    }
+
+    window.addEventListener("pomodoro_update", handlePomodoroUpdate)
+    return () => window.removeEventListener("pomodoro_update", handlePomodoroUpdate)
+  }, [dateStr])
 
   const morningHours = [8, 9, 10, 11, 12]
   const afternoonHours = [13, 14, 15, 16, 17]
@@ -297,7 +340,7 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
               <h2 className="text-2xl font-black text-slate-800 dark:text-white tracking-tight">
                 {format(date, "EEEE", { locale: tr })}
               </h2>
-              <div className="flex items-center justify-center lg:justify-start gap-3 mt-2">
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 mt-2">
                 <button 
                   onClick={() => onToggleHoliday(dateStr)}
                   className={`text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full border-2 transition-all ${
@@ -308,6 +351,15 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
                 >
                   {isHoliday ? "🏖 Tatili İptal Et" : "🏖 Tatil Modu"}
                 </button>
+                {pomodoroFocusMins > 0 && (
+                  <div className="flex items-center gap-1.5 bg-[#1cb0f6]/10 text-[#1cb0f6] px-3 py-1.5 rounded-full border-2 border-[#1cb0f6]/20 shadow-sm transition-all hover:bg-[#1cb0f6]/20 cursor-default">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <span className="text-[10px] font-black uppercase tracking-widest">
+                      {Math.floor(pomodoroFocusMins / 60) > 0 && `${Math.floor(pomodoroFocusMins / 60)}s `}
+                      {pomodoroFocusMins % 60}dk Çalışıldı
+                    </span>
+                  </div>
+                )}
               </div>
            </div>
         </div>

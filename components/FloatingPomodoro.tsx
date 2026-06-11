@@ -36,9 +36,22 @@ export default function FloatingPomodoro() {
     if (now.getHours() < 4) {
       now.setDate(now.getDate() - 1);
     }
-    return now.toDateString();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   };
   const currentStudyDayRef = useRef(getStudyDay());
+
+  const updateHistory = (dayStr: string, focusMins: number) => {
+    try {
+      const historyRaw = localStorage.getItem("pomodoro_history");
+      const history = historyRaw ? JSON.parse(historyRaw) : {};
+      history[dayStr] = focusMins;
+      localStorage.setItem("pomodoro_history", JSON.stringify(history));
+      // Dispatch event to notify other components (like DailyPlanView)
+      window.dispatchEvent(new CustomEvent("pomodoro_update", { detail: { date: dayStr, focus: focusMins } }));
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   const [isRestored, setIsRestored] = useState(false);
   const [pendingMode, setPendingMode] = useState<Mode | null>(null);
@@ -184,6 +197,7 @@ export default function FloatingPomodoro() {
                 setTotalFocusMinutes(prev => {
                   const newVal = prev + earnedMins;
                   localStorage.setItem("pomodoro_total_focus", newVal.toString());
+                  updateHistory(currentStudyDayRef.current, newVal);
                   return newVal;
                 });
              } else {
