@@ -166,8 +166,8 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className="space-y-8"
               >
-                <div className="pb-4 border-b border-slate-100/50">
-                  <h3 className="text-xl font-black tracking-tight text-slate-800">Sınav Bilgileri</h3>
+                <div className="pb-4 border-b border-slate-100/50 dark:border-slate-700/50">
+                  <h3 className="text-xl font-black tracking-tight text-slate-800 dark:text-white">Sınav Bilgileri</h3>
                   <p className="text-xs font-semibold text-slate-400 mt-1">Deneme türünü ve detaylarını belirleyin.</p>
                 </div>
 
@@ -280,7 +280,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                           className="w-full flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-700 rounded-2xl px-5 py-3.5 text-sm font-bold text-slate-800 dark:text-slate-200 outline-none hover:bg-slate-100/80 dark:hover:bg-slate-800 focus:bg-white dark:focus:bg-slate-800 focus:ring-4 focus:ring-accent/10 focus:border-accent/40 transition-all text-left"
                         >
-                          <span className={bransSubjectId ? "text-slate-800" : "text-slate-400"}>
+                          <span className={bransSubjectId ? "text-slate-800 dark:text-slate-200" : "text-slate-400 dark:text-slate-500"}>
                             {bransSubjectId 
                               ? result.subjects.find(s => s.subjectId === bransSubjectId)?.title + ` (${result.subjects.find(s => s.subjectId === bransSubjectId)?.subjectId === "matematik" ? 30 : result.subjects.find(s => s.subjectId === bransSubjectId)?.questionCount} Soru)`
                               : "Lütfen bir branş seçin..."}
@@ -383,8 +383,8 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className="space-y-8"
               >
-                <div className="pb-4 border-b border-slate-100/50">
-                  <h3 className="text-xl font-black tracking-tight text-slate-800">
+                <div className="pb-4 border-b border-slate-100/50 dark:border-slate-700/50">
+                  <h3 className="text-xl font-black tracking-tight text-slate-800 dark:text-white">
                     {examType === "genel" ? "Genel Yetenek" : "Net Girişi"}
                   </h3>
                   <p className="text-xs font-semibold text-slate-400 mt-1">Doğru, yanlış ve boş sayılarınızı girin.</p>
@@ -412,8 +412,8 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 transition={{ duration: 0.3, ease: "easeOut" }}
                 className="space-y-8"
               >
-                <div className="pb-4 border-b border-slate-100/50">
-                  <h3 className="text-xl font-black tracking-tight text-slate-800">Genel Kültür</h3>
+                <div className="pb-4 border-b border-slate-100/50 dark:border-slate-700/50">
+                  <h3 className="text-xl font-black tracking-tight text-slate-800 dark:text-white">Genel Kültür</h3>
                   <p className="text-xs font-semibold text-slate-400 mt-1">Sözel ve bilgi ağırlıklı testler.</p>
                 </div>
                 
