@@ -124,7 +124,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
       <div className="space-y-6 min-w-0">
         
         {/* Apple Style Segmented Header */}
-        <div className="flex p-1 bg-slate-100/60 backdrop-blur-xl rounded-[20px] shadow-sm border border-slate-200/50 mb-8 overflow-hidden">
+        <div className="flex p-1 bg-slate-100/60 dark:bg-slate-800/40 backdrop-blur-xl rounded-[20px] shadow-sm border border-slate-200/50 dark:border-slate-700/50 mb-8 overflow-hidden">
           {([
             { id: 1, label: "Giriş Bilgileri", icon: FileText },
             { id: 2, label: examType === "genel" ? "Genel Yetenek" : "Net Girişi", icon: Brain },
@@ -145,8 +145,8 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 />
               )}
               <div className="relative z-10 flex items-center justify-center gap-2">
-                <tab.icon className={`w-4 h-4 transition-colors ${step === tab.id ? "text-accent" : "text-slate-400"}`} />
-                <span className={`text-xs font-bold transition-colors tracking-wide ${step === tab.id ? "text-slate-900" : "text-slate-500"}`}>
+                <tab.icon className={`w-4 h-4 transition-colors ${step === tab.id ? "text-accent dark:text-white" : "text-slate-400 dark:text-slate-500"}`} />
+                <span className={`text-xs font-bold transition-colors tracking-wide ${step === tab.id ? "text-slate-900 dark:text-white" : "text-slate-500 dark:text-slate-400"}`}>
                   {tab.label}
                 </span>
               </div>
@@ -510,9 +510,9 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                 <PremiumWidget label="Doğru" value={String(result.totalCorrect)} color="emerald" />
                 <PremiumWidget label="Yanlış" value={String(result.totalWrong)} color="red" />
                 
-                <div className="col-span-2 rounded-[20px] p-5 text-center bg-gradient-to-br from-amber-50 to-orange-50/50 border border-amber-200/50 shadow-sm mt-2">
-                  <p className="text-[10px] font-black uppercase tracking-[0.15em] text-amber-600 mb-1">P3 Puan Tahmini</p>
-                  <p className="text-3xl font-black font-mono text-amber-800 tracking-tight">
+                <div className="col-span-2 rounded-[20px] p-5 text-center bg-gradient-to-br from-amber-50 to-orange-50/50 dark:from-amber-900/20 dark:to-orange-900/10 border border-amber-200/50 dark:border-amber-800/30 shadow-sm mt-2">
+                  <p className="text-[10px] font-black uppercase tracking-[0.15em] text-amber-600 dark:text-amber-500 mb-1">P3 Puan Tahmini</p>
+                  <p className="text-3xl font-black font-mono text-amber-800 dark:text-amber-400 tracking-tight">
                     {estimateP3Score(result.gyNet, result.gkNet).toFixed(3)}
                   </p>
                 </div>
@@ -560,8 +560,8 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
 
 function PremiumWidget({ label, value, color }: { label: string; value: string; color: "blue"|"purple"|"emerald"|"red"|"slate" }) {
   const colorStyles = {
-    blue: "bg-blue-50/50 border-blue-100/50 text-blue-600",
-    purple: "bg-purple-50/50 border-purple-100/50 text-purple-600",
+    blue: "bg-blue-50/50 dark:bg-blue-900/20 border-blue-100/50 dark:border-blue-800/50 text-blue-600 dark:text-blue-400",
+    purple: "bg-purple-50/50 dark:bg-purple-900/20 border-purple-100/50 dark:border-purple-800/50 text-purple-600 dark:text-purple-400",
     emerald: "bg-emerald-50/50 dark:bg-emerald-900/20 border-emerald-100/50 dark:border-emerald-800/50 text-emerald-600 dark:text-emerald-400",
     red: "bg-red-50/50 dark:bg-red-900/20 border-red-100/50 dark:border-red-800/50 text-red-600 dark:text-red-400",
     slate: "bg-slate-50 dark:bg-slate-800 border-slate-200/50 dark:border-slate-700 text-slate-600 dark:text-slate-400"
