@@ -39,7 +39,7 @@ export default function ScoreStepper({
 
   return (
     <div className="flex flex-col gap-1 rounded-xl">
-      <span className={`text-[10px] font-semibold text-slate-400 ml-1.5`}>
+      <span className={`text-[10px] font-black uppercase tracking-wider text-slate-400 ml-1.5`}>
         {label}
       </span>
       <div
@@ -70,7 +70,7 @@ export default function ScoreStepper({
             const n = raw === "" ? 0 : parseInt(raw, 10) || 0;
             onChange(Math.min(max, Math.max(0, n)));
           }}
-          className={`w-10 h-7.5 text-center font-sans text-sm font-bold bg-transparent border-0 focus:outline-none placeholder-slate-400 ${v.text}`}
+          className={`w-10 h-7.5 text-center font-sans text-base font-black bg-transparent border-0 focus:outline-none placeholder-slate-400 ${v.text}`}
         />
         
         <div className="w-px h-4 bg-slate-300/60 dark:bg-slate-700 self-center" />

@@ -68,7 +68,7 @@ export default function SubjectScoreRow({
 
         <div className="flex items-center gap-3 shrink-0 self-end sm:self-center">
           <div 
-            className="px-3.5 py-1.5 rounded-lg font-sans text-lg font-bold flex items-center gap-1 bg-[#f5f5f7] dark:bg-slate-900/50 border border-slate-200/20 dark:border-slate-700/50"
+            className="px-3.5 py-1.5 rounded-lg font-sans text-lg font-black flex items-center gap-1 bg-[#f5f5f7] dark:bg-slate-900/50 border border-slate-200/20 dark:border-slate-700/50"
             style={{ color: subject.color }}
           >
             <span>{formatNet(subject.net)}</span>
@@ -80,22 +80,33 @@ export default function SubjectScoreRow({
       {/* Stacked D/Y/B Ratio Progress Bar (Apple/Duolingo Style) */}
       <div className="mt-4 h-3.5 sm:h-4 w-full bg-slate-100 dark:bg-slate-900/60 rounded-full shadow-inner border border-slate-200/60 dark:border-slate-700/60 p-[2px] relative">
         <div className="w-full h-full rounded-full overflow-hidden flex relative bg-slate-200/50 dark:bg-slate-700/50">
-          <motion.div 
-            className="h-full bg-[#34c759]"
-            style={{ width: `${correctPct}%` }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-          />
-          <motion.div 
-            className="h-full bg-[#ff3b30]"
-            style={{ width: `${wrongPct}%` }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
-          />
+          {correctPct > 0 && (
+            <motion.div 
+              className="h-full bg-emerald-500"
+              style={{ width: `${correctPct}%` }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+          )}
+          {wrongPct > 0 && (
+            <motion.div 
+              className="h-full bg-red-500"
+              style={{ width: `${wrongPct}%` }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+          )}
+          {emptyPct > 0 && (
+            <motion.div 
+              className="h-full bg-slate-400 dark:bg-slate-500"
+              style={{ width: `${emptyPct}%` }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+          )}
           
           {/* Duolingo style 3D highlight over answered portion */}
-          {(correctPct > 0 || wrongPct > 0) && (
+          {(correctPct > 0 || wrongPct > 0 || emptyPct > 0) && (
             <motion.div 
               className="absolute top-0 left-0 h-[2px] bg-white/30 rounded-full z-10 pointer-events-none mt-[1px] mx-[2px]"
-              style={{ width: `calc(${correctPct + wrongPct}% - 4px)` }}
+              style={{ width: `calc(${correctPct + wrongPct + emptyPct}% - 4px)` }}
               transition={{ duration: 0.4, ease: "easeOut" }}
             />
           )}
