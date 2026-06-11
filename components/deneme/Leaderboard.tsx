@@ -248,13 +248,9 @@ export default function Leaderboard() {
                           <p className="font-mono font-black text-amber-700 dark:text-amber-400">{p3}</p>
                         </div>
                       )}
-                      <div className={`text-center px-4 py-2 rounded-xl border shadow-sm ${
-                        isCurrentUser 
-                          ? "bg-blue-100 dark:bg-blue-500/20 border-blue-200 dark:border-blue-500/30" 
-                          : "bg-slate-50 dark:bg-white/5 border-slate-100 dark:border-white/10"
-                      }`}>
-                        <p className={`text-[10px] font-black uppercase tracking-widest mb-0.5 ${isCurrentUser ? "text-blue-600 dark:text-blue-400" : "text-slate-400"}`}>Ort. Net</p>
-                        <p className={`text-xl font-black font-mono leading-none ${isCurrentUser ? "text-blue-700 dark:text-blue-300" : "text-slate-800 dark:text-white"}`}>
+                      <div className="text-center px-4 py-2 rounded-xl border shadow-sm bg-[#1cb0f6]/10 dark:bg-[#1cb0f6]/20 border-[#1cb0f6]/20 dark:border-[#1cb0f6]/30">
+                        <p className="text-[10px] font-black uppercase tracking-widest mb-0.5 text-[#1cb0f6] dark:text-[#1cb0f6]/80">Ort. Net</p>
+                        <p className="text-xl font-black font-mono leading-none text-[#1cb0f6] dark:text-[#1cb0f6]">
                           {leader.averageNet.toFixed(2)}
                         </p>
                       </div>
