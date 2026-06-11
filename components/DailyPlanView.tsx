@@ -169,34 +169,38 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
   const topicsForDay = topics.filter(t => t.scheduledDate === dateStr)
 
   useEffect(() => {
-    // Initial load
+    const getStudyDay = () => {
+      const now = new Date();
+      if (now.getHours() < 4) {
+        now.setDate(now.getDate() - 1);
+      }
+      return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    };
+
+    let focusMins = 0;
     try {
       const historyRaw = localStorage.getItem("pomodoro_history")
       if (historyRaw) {
         const history = JSON.parse(historyRaw)
-        if (history[dateStr]) {
-          setPomodoroFocusMins(history[dateStr])
-        } else {
-          setPomodoroFocusMins(0)
+        if (history[dateStr] !== undefined) {
+          focusMins = history[dateStr]
         }
-      } else {
-        // Fallback for current day if history not yet saved but current day is today
-        const getStudyDay = () => {
-          const now = new Date();
-          if (now.getHours() < 4) {
-            now.setDate(now.getDate() - 1);
+      }
+      
+      // If it's today, we should also check pomodoro_total_focus in case it has more recent data
+      // or history wasn't updated yet.
+      if (dateStr === getStudyDay()) {
+        const savedTotalFocus = localStorage.getItem("pomodoro_total_focus");
+        if (savedTotalFocus) {
+          const parsed = parseInt(savedTotalFocus);
+          if (parsed > focusMins) {
+            focusMins = parsed;
           }
-          return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        };
-        if (dateStr === getStudyDay()) {
-          const savedTotalFocus = localStorage.getItem("pomodoro_total_focus");
-          if (savedTotalFocus) setPomodoroFocusMins(parseInt(savedTotalFocus));
-          else setPomodoroFocusMins(0);
-        } else {
-          setPomodoroFocusMins(0)
         }
       }
     } catch (e) {}
+
+    setPomodoroFocusMins(focusMins);
 
     // Event listener
     const handlePomodoroUpdate = (e: any) => {
