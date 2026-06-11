@@ -198,7 +198,7 @@ export default function DenemeHistoryList({
               whileHover={{ y: -4 }}
               className={`bg-white dark:bg-[#1e293b] rounded-3xl transition-all duration-300 ${
                 expanded 
-                  ? "shadow-md ring-2 ring-blue-500 dark:ring-blue-500" 
+                  ? "shadow-md ring-2 ring-accent dark:ring-accent" 
                   : "shadow-sm hover:shadow-md ring-1 ring-slate-200 dark:hover:ring-white/10"
               } overflow-hidden group`}
             >
@@ -209,7 +209,7 @@ export default function DenemeHistoryList({
               >
                 <div className="flex-1">
                   <div className="flex items-center gap-3 mb-1">
-                    <h4 className={`text-xl font-black transition-colors ${expanded ? "text-blue-500" : "text-slate-800 dark:text-white group-hover:text-blue-500"}`}>
+                    <h4 className={`text-xl font-black transition-colors ${expanded ? "text-accent" : "text-slate-800 dark:text-white group-hover:text-accent"}`}>
                       {deneme.name}
                     </h4>
                     {trend === "up" && <span className="text-[10px] bg-[#58cc02]/10 text-[#58cc02] px-3 py-1.5 rounded-xl font-black uppercase tracking-widest flex items-center gap-1 border border-[#58cc02]/20"><span className="text-sm leading-none">↗</span> Yükseliş</span>}
@@ -246,7 +246,7 @@ export default function DenemeHistoryList({
                     <span className="text-[10px] font-black text-amber-600 dark:text-amber-500/80 uppercase tracking-widest mb-1">P3 Puan</span>
                     <span className="font-mono font-black text-amber-700 dark:text-amber-400 text-2xl leading-none">{estimateP3Score(result.gyNet, result.gkNet).toFixed(2)}</span>
                   </div>
-                  <div className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 text-slate-400 group-hover:bg-blue-50 group-hover:text-blue-500 transition-all ml-2">
+                  <div className="hidden md:flex items-center justify-center w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 text-slate-400 group-hover:bg-accent/10 group-hover:text-accent transition-all ml-2">
                     <svg className={`w-5 h-5 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
                     </svg>

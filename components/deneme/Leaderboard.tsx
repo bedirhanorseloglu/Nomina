@@ -122,7 +122,7 @@ export default function Leaderboard() {
               onClick={() => setLeaderboardType("genel")}
               className={`relative z-10 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors w-36 ${
                 leaderboardType === "genel" 
-                  ? "text-blue-600" 
+                  ? "text-accent" 
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
@@ -135,7 +135,7 @@ export default function Leaderboard() {
               onClick={() => setLeaderboardType("brans")}
               className={`relative z-10 px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-colors w-36 ${
                 leaderboardType === "brans" 
-                  ? "text-indigo-600" 
+                  ? "text-accent2" 
                   : "text-slate-500 hover:text-slate-800 dark:hover:text-white"
               }`}
             >
@@ -207,12 +207,12 @@ export default function Leaderboard() {
                     onClick={() => setSelectedUser(leader)}
                     className={`flex items-center gap-4 p-4 sm:p-5 rounded-[2rem] border transition-all cursor-pointer group hover:-translate-y-1 ${
                       isCurrentUser 
-                        ? "bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 shadow-md ring-2 ring-blue-500/20" 
+                        ? "bg-accent/5 dark:bg-accent/10 border-accent/20 dark:border-accent/30 shadow-md ring-2 ring-accent/20" 
                         : "bg-white dark:bg-[#1e293b] border-slate-200/60 dark:border-white/5 hover:border-slate-300 dark:hover:border-white/10 hover:shadow-lg"
                     }`}
                   >
                     <div className="w-12 text-center shrink-0">
-                      <span className={`text-xl font-black ${isCurrentUser ? 'text-blue-500' : 'text-slate-400'}`}>#{rankInGlobal}</span>
+                      <span className={`text-xl font-black ${isCurrentUser ? 'text-accent' : 'text-slate-400'}`}>#{rankInGlobal}</span>
                     </div>
                     
                     <div className="relative shrink-0">
@@ -227,11 +227,11 @@ export default function Leaderboard() {
 
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <p className={`font-black text-slate-800 dark:text-white text-lg truncate group-hover:text-blue-600 transition-colors`}>
+                        <p className={`font-black text-slate-800 dark:text-white text-lg truncate group-hover:text-accent transition-colors`}>
                           {leader.displayName}
                         </p>
                         {isCurrentUser && (
-                          <span className="text-[10px] font-black uppercase text-blue-700 bg-blue-100 px-2 py-0.5 rounded-lg border border-blue-200">
+                          <span className="text-[10px] font-black uppercase text-accent bg-accent/10 px-2 py-0.5 rounded-lg border border-accent/20">
                             Sen
                           </span>
                         )}
@@ -250,11 +250,11 @@ export default function Leaderboard() {
                       )}
                       <div className={`text-center px-4 py-2 rounded-xl border shadow-sm ${
                         isCurrentUser 
-                          ? "bg-blue-100 dark:bg-blue-500/20 border-blue-200 dark:border-blue-500/30" 
+                          ? "bg-accent/10 dark:bg-accent/20 border-accent/20 dark:border-accent/30" 
                           : "bg-slate-50 dark:bg-white/5 border-slate-100 dark:border-white/10"
                       }`}>
-                        <p className={`text-[10px] font-black uppercase tracking-widest mb-0.5 ${isCurrentUser ? "text-blue-600 dark:text-blue-400" : "text-slate-400"}`}>Ort. Net</p>
-                        <p className={`text-xl font-black font-mono leading-none ${isCurrentUser ? "text-blue-700 dark:text-blue-300" : "text-slate-800 dark:text-white"}`}>
+                        <p className={`text-[10px] font-black uppercase tracking-widest mb-0.5 ${isCurrentUser ? "text-accent dark:text-accent" : "text-slate-400"}`}>Ort. Net</p>
+                        <p className={`text-xl font-black font-mono leading-none ${isCurrentUser ? "text-accent dark:text-accent" : "text-slate-800 dark:text-white"}`}>
                           {leader.averageNet.toFixed(2)}
                         </p>
                       </div>
