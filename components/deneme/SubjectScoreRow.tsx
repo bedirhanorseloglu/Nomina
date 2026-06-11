@@ -77,23 +77,29 @@ export default function SubjectScoreRow({
         </div>
       </div>
 
-      {/* Stacked D/Y/B Ratio Progress Bar (Apple Style - 4px Thin) */}
-      <div className="mt-3.5 h-1 w-full bg-[#e5e5ea] dark:bg-slate-700 rounded-full overflow-hidden flex shadow-none">
-        <motion.div 
-          className="h-full bg-[#34c759] rounded-l-full" /* Apple Green */
-          style={{ width: `${correctPct}%` }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        />
-        <motion.div 
-          className="h-full bg-[#ff3b30]" /* Apple Red */
-          style={{ width: `${wrongPct}%` }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        />
-        <motion.div 
-          className="h-full bg-[#d1d1d6] rounded-r-full" /* Apple Grey */
-          style={{ width: `${emptyPct}%` }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        />
+      {/* Stacked D/Y/B Ratio Progress Bar (Apple/Duolingo Style) */}
+      <div className="mt-4 h-3.5 sm:h-4 w-full bg-slate-100 dark:bg-slate-900/60 rounded-full shadow-inner border border-slate-200/60 dark:border-slate-700/60 p-[2px] relative">
+        <div className="w-full h-full rounded-full overflow-hidden flex relative bg-slate-200/50 dark:bg-slate-700/50">
+          <motion.div 
+            className="h-full bg-[#34c759]"
+            style={{ width: `${correctPct}%` }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          />
+          <motion.div 
+            className="h-full bg-[#ff3b30]"
+            style={{ width: `${wrongPct}%` }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+          />
+          
+          {/* Duolingo style 3D highlight over answered portion */}
+          {(correctPct > 0 || wrongPct > 0) && (
+            <motion.div 
+              className="absolute top-0 left-0 h-[2px] bg-white/30 rounded-full z-10 pointer-events-none mt-[1px] mx-[2px]"
+              style={{ width: `calc(${correctPct + wrongPct}% - 4px)` }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+            />
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4 mt-4">

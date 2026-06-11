@@ -488,27 +488,55 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
           </div>
 
           <div className="space-y-3 mb-8 relative z-10">
-            <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
-              <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                <span className="w-2 h-2 rounded-full bg-accent"></span>
-                Cevaplanan <span className="text-slate-800 dark:text-white">{totalAnswered}</span>
-              </div>
-              <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
-                Kalan <span className="text-slate-800 dark:text-white">{maxQuestions - totalAnswered}</span>
-                <span className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></span>
-              </div>
-            </div>
-            <div className="h-4 sm:h-5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full shadow-inner border border-slate-200/60 dark:border-slate-700 p-0.5 sm:p-1 relative">
-              <motion.div 
-                className="h-full bg-accent rounded-full relative overflow-hidden"
-                initial={{ width: 0 }}
-                animate={{ width: `${answeredPercentage}%` }}
-                transition={{ duration: 0.6, ease: "easeOut", type: "spring", stiffness: 120, damping: 15 }}
-              >
-                {/* Duolingo style 3D highlight */}
-                <div className="absolute top-[2px] left-[4px] right-[4px] h-[3px] bg-white/30 rounded-full"></div>
-              </motion.div>
-            </div>
+            {(() => {
+              const correctCount = examType === "genel" ? result.totalCorrect : (selectedBranchSubject?.correct ?? 0);
+              const wrongCount = examType === "genel" ? result.totalWrong : (selectedBranchSubject?.wrong ?? 0);
+              const correctPct = maxQuestions === 0 ? 0 : (correctCount / maxQuestions) * 100;
+              const wrongPct = maxQuestions === 0 ? 0 : (wrongCount / maxQuestions) * 100;
+              
+              return (
+                <>
+                  <div className="flex justify-between items-center text-[11px] font-black uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                      <div className="flex gap-0.5">
+                        <span className="w-2 h-2 rounded-l-full bg-[#34c759]"></span>
+                        <span className="w-2 h-2 rounded-r-full bg-[#ff3b30]"></span>
+                      </div>
+                      Cevaplanan <span className="text-slate-800 dark:text-white">{totalAnswered}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+                      Kalan <span className="text-slate-800 dark:text-white">{maxQuestions - totalAnswered}</span>
+                      <span className="w-2 h-2 rounded-full bg-slate-200 dark:bg-slate-700"></span>
+                    </div>
+                  </div>
+                  <div className="h-4 sm:h-5 w-full bg-slate-100 dark:bg-slate-800/80 rounded-full shadow-inner border border-slate-200/60 dark:border-slate-700 p-0.5 sm:p-1 relative">
+                    <div className="w-full h-full rounded-full overflow-hidden flex relative">
+                      <motion.div 
+                        className="h-full bg-[#34c759]"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${correctPct}%` }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                      />
+                      <motion.div 
+                        className="h-full bg-[#ff3b30]"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${wrongPct}%` }}
+                        transition={{ duration: 0.6, ease: "easeOut" }}
+                      />
+                      {/* Duolingo style 3D highlight */}
+                      {totalAnswered > 0 && (
+                        <motion.div 
+                          className="absolute top-0 left-0 h-[3px] bg-white/30 rounded-full z-10 pointer-events-none mt-[2px] mx-[2px]"
+                          initial={{ width: 0 }}
+                          animate={{ width: `calc(${correctPct + wrongPct}% - 4px)` }}
+                          transition={{ duration: 0.6, ease: "easeOut" }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
 
           <div className="grid grid-cols-2 gap-3 relative z-10">
