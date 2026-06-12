@@ -15,7 +15,7 @@ const DenemeAnalytics = dynamic(() => import("./DenemeAnalytics"), { ssr: false 
 import DenemeAlert from "./DenemeAlert";
 import AppleEmoji from "../AppleEmoji";
 import { DenemeRecord } from "@/lib/denemeUtils";
-import { loadFromFirebase, saveDenemeDataToFirebase } from "@/lib/firebaseService";
+import { loadDenemeYeniden, saveDenemeYeniden } from "@/lib/firebaseService";
 import { averageNet, evaluateDeneme, formatNet, migrateDenemeler, createEmptyScores } from "@/lib/denemeUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateLeaderboard, updateBranchLeaderboard, removeFromLeaderboard, removeFromBranchLeaderboard } from "@/lib/leaderboardService";
@@ -49,8 +49,8 @@ export default function DenemePageContent() {
   const persistData = useCallback(async (newDenemeler: DenemeRecord[], newTargetNet: number) => {
     if (!user?.uid) return;
 
-    // 1. Firebase'e doğrudan kaydet
-    await saveDenemeDataToFirebase(user.uid, newDenemeler, newTargetNet);
+    // 1. Firebase'e doğrudan kaydet (YENİ İZOLE YAPI)
+    await saveDenemeYeniden(user.uid, newDenemeler, newTargetNet);
 
     // 2. Liderlik tablolarını güncelle
     const genelDenemeler = newDenemeler.filter((d) => d.examType !== "brans");
@@ -99,7 +99,7 @@ export default function DenemePageContent() {
       }
 
       try {
-        const data = await loadFromFirebase(user.uid);
+        const data = await loadDenemeYeniden(user.uid);
         if (data) {
           if (data.denemeler && (data.denemeler as any[]).length > 0) {
             const migrated = migrateDenemeler(data.denemeler as DenemeRecord[]);

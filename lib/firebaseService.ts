@@ -14,6 +14,7 @@ import {
 import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
+const DENEME_COLLECTION = "user_denemeler";
 
 /**
  * Tek doğruluk kaynağı: ortam tespiti.
@@ -98,26 +99,53 @@ export const updateUserProfile = async (
   }
 };
 
-export const saveDenemeDataToFirebase = async (
+export const saveDenemeYeniden = async (
   userId: string,
   denemeler: AppData["denemeler"],
   denemeTargetNet?: number
 ) => {
   if (!userId) return;
   try {
-    const docRef = doc(db, DATA_COLLECTION, userId);
+    const docRef = doc(db, DENEME_COLLECTION, userId);
     const payload = stripUndefined({
       denemeler,
-      lastUpdated: Date.now(),
-      ...(denemeTargetNet !== undefined ? { denemeTargetNet } : {}),
-    }) as Pick<AppData, "denemeler" | "denemeTargetNet" | "lastUpdated">;
-    await setDoc(docRef, payload, { merge: true });
-    // TOAST EKLENDİ - KAYIT BAŞARILI MI GÖRMEK İÇİN
-    console.log("Buluta kaydedildi!");
+      denemeTargetNet,
+      lastUpdated: Date.now()
+    }) as Record<string, any>;
+    // Eski sistemdeki merge karışıklıklarını önlemek için tamamen yeni döküman yazılır
+    await setDoc(docRef, payload, { merge: false });
+    console.log("Yeni bağımsız tabloya kaydedildi!");
   } catch (error) {
-    // alert() yerine sadece konsola yaz — kullanıcıya ham hata göstermek güvensiz
-    console.error("❌ Deneme Firebase kayıt hatası:", error);
+    console.error("❌ Yeni Deneme Kayıt Hatası:", error);
     throw error;
+  }
+};
+
+export const loadDenemeYeniden = async (userId: string) => {
+  if (!userId) return null;
+  try {
+    // 1. Önce yeni bağımsız tablodan çekmeyi dene
+    const docRef = doc(db, DENEME_COLLECTION, userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+    
+    // 2. Yeni tabloda veri yoksa, geçiş (Migration) amaçlı eski tablodan çekmeyi dene
+    const oldDocRef = doc(db, DATA_COLLECTION, userId);
+    const oldDocSnap = await getDoc(oldDocRef);
+    if (oldDocSnap.exists()) {
+      const oldData = oldDocSnap.data() as AppData;
+      if (oldData.denemeler && oldData.denemeler.length > 0) {
+        console.log("Eski veritabanından yeni veritabanına taşıma yapılıyor...");
+        await saveDenemeYeniden(userId, oldData.denemeler, oldData.denemeTargetNet);
+        return { denemeler: oldData.denemeler, denemeTargetNet: oldData.denemeTargetNet };
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("❌ Yeni Deneme Yükleme Hatası:", error);
+    return null;
   }
 };
 
@@ -178,7 +206,7 @@ export const getOnlineUsersCount = async (): Promise<number> => {
 export const deleteUserAllData = async (userId: string): Promise<void> => {
   if (!userId) return;
 
-  const collections = ["user_data", "leaderboard", "active_users"];
+  const collections = ["user_data", "leaderboard", "active_users", "user_denemeler"];
   const branchSubjects = [
     "turkce",
     "matematik",
