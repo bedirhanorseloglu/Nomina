@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
@@ -14,17 +14,8 @@ import dynamic from "next/dynamic";
 const DenemeAnalytics = dynamic(() => import("./DenemeAnalytics"), { ssr: false });
 import DenemeAlert from "./DenemeAlert";
 import AppleEmoji from "../AppleEmoji";
-import {
-  addDeneme,
-  deleteDeneme,
-  loadDenemeler,
-  loadTargetNet,
-  saveDenemeler,
-  saveTargetNet,
-  updateDeneme,
-} from "@/lib/denemeStorage";
 import { DenemeRecord } from "@/lib/denemeUtils";
-import { loadFromFirebase, saveDenemeDataToFirebase, isLocalhost } from "@/lib/firebaseService";
+import { loadFromFirebase, saveDenemeDataToFirebase } from "@/lib/firebaseService";
 import { averageNet, evaluateDeneme, formatNet, migrateDenemeler, createEmptyScores } from "@/lib/denemeUtils";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateLeaderboard, updateBranchLeaderboard, removeFromLeaderboard, removeFromBranchLeaderboard } from "@/lib/leaderboardService";
@@ -38,6 +29,8 @@ const TABS = [
   { id: "analiz" as Tab, label: "Analiz", icon: BarChart3 },
 ];
 
+const DEFAULT_TARGET_NET = 90;
+
 export default function DenemePageContent() {
   const { user } = useAuth();
   const searchParams = useSearchParams();
@@ -45,69 +38,65 @@ export default function DenemePageContent() {
   const initialSubject = searchParams.get("subject");
 
   const [denemeler, setDenemeler] = useState<DenemeRecord[]>([]);
-  const [targetNet, setTargetNet] = useState(108);
+  const [targetNet, setTargetNet] = useState(DEFAULT_TARGET_NET);
   const [loaded, setLoaded] = useState(false);
   const [tab, setTab] = useState<Tab>("yeni");
   const [viewType, setViewType] = useState<"genel" | "brans">((initialMode as "genel" | "brans") || "genel");
   const [editing, setEditing] = useState<DenemeRecord | null>(null);
-  // Tracks whether the initial async load (including Firebase merge) is still in progress.
-  // While true, the "save back" effect is suppressed to prevent overwriting cloud data
-  // with a stale/incomplete local snapshot.
-  const isSyncing = useRef(false);
-  // Remembers the userId that was used during the last completed sync so that
-  // a user-object refresh (token renewal, profile update) doesn't trigger an
-  // unintended Firebase write.
-  const syncedUserId = useRef<string | null>(null);
+  // Tracks whether the initial load from Firebase is done.
+  // The save-back effect is suppressed until this is true.
+  const [initialLoadDone, setInitialLoadDone] = useState(false);
 
+  // ─── LOAD: Firebase is the single source of truth ───────────────────────
   useEffect(() => {
-    const init = async () => {
-      isSyncing.current = true;
-      const localDenemeler = migrateDenemeler(loadDenemeler());
-      const localTarget = loadTargetNet();
-      setDenemeler(localDenemeler);
-      saveDenemeler(localDenemeler);
-      setTargetNet(localTarget);
-
-      if (user?.uid) {
-        try {
-          const remote = await loadFromFirebase(user.uid);
-          if (remote?.denemeler !== undefined) {
-            const remoteDenemeler = migrateDenemeler(remote.denemeler as DenemeRecord[]);
-            // Her zaman lokal ve remote'u id'ye göre birleştir (veri kaybını önler)
-            const localIds = new Set(localDenemeler.map(d => d.id));
-            const newRemotes = remoteDenemeler.filter(r => !localIds.has(r.id));
-            const mergedDenemeler = [...localDenemeler, ...newRemotes];
-            // Tarihe göre sırala
-            mergedDenemeler.sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
-            setDenemeler(mergedDenemeler);
-            saveDenemeler(mergedDenemeler);
-          }
-          if (remote?.denemeTargetNet !== undefined) {
-            setTargetNet(remote.denemeTargetNet);
-            saveTargetNet(remote.denemeTargetNet);
-          }
-        } catch (e) {
-          console.error("Init Firebase load failed:", e);
-        }
+    const loadData = async () => {
+      if (!user?.uid) {
+        setDenemeler([]);
+        setTargetNet(DEFAULT_TARGET_NET);
+        setLoaded(true);
+        return;
       }
 
-      syncedUserId.current = user?.uid ?? null;
-      isSyncing.current = false;
-      setLoaded(true);
+      try {
+        const data = await loadFromFirebase(user.uid);
+        if (data) {
+          if (data.denemeler && (data.denemeler as any[]).length > 0) {
+            const migrated = migrateDenemeler(data.denemeler as DenemeRecord[]);
+            setDenemeler(migrated);
+          } else {
+            setDenemeler([]);
+          }
+          if (data.denemeTargetNet !== undefined) {
+            setTargetNet(data.denemeTargetNet);
+          }
+        }
+      } catch (error) {
+        console.error("Firebase load failed:", error);
+        toast.error("Veriler yüklenirken hata oluştu. Lütfen sayfayı yenileyin.");
+      } finally {
+        setLoaded(true);
+        // Mark initial load as done AFTER state is set,
+        // so the save-back effect doesn't fire with stale data.
+        // We use setTimeout to let React batch the state updates first.
+        setTimeout(() => setInitialLoadDone(true), 0);
+      }
     };
-    init();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.uid]); // Only re-run when the actual UID changes, not on every user object refresh
+    
+    setLoaded(false);
+    setInitialLoadDone(false);
+    loadData();
+  }, [user?.uid]);
 
+  // ─── SAVE: Auto-persist to Firebase on every change ─────────────────────
   useEffect(() => {
-    // Do not save back to Firebase while the initial sync is still running or
-    // before the local+remote merge has completed.
-    if (!loaded || isSyncing.current) return;
-    // Only fire for the user whose data we actually loaded.
-    if (!user?.uid || user.uid !== syncedUserId.current) return;
+    // Don't save during initial load
+    if (!initialLoadDone) return;
+    if (!user?.uid) return;
 
+    // Save denemeler + targetNet to Firebase
     saveDenemeDataToFirebase(user.uid, denemeler, targetNet);
-      
+
+    // Update leaderboards
     const genelDenemeler = denemeler.filter((d) => d.examType !== "brans");
     if (genelDenemeler.length > 0) {
       const nets = genelDenemeler.map((d) => evaluateDeneme(d.scores).totalNet);
@@ -118,7 +107,6 @@ export default function DenemePageContent() {
       removeFromLeaderboard(user.uid);
     }
 
-    // Update branch leaderboards
     const bransDenemeler = denemeler.filter((d) => d.examType === "brans" && d.bransSubjectId);
     const bransGroups = bransDenemeler.reduce((acc: any, d: any) => {
       if (!acc[d.bransSubjectId]) acc[d.bransSubjectId] = [];
@@ -142,11 +130,11 @@ export default function DenemePageContent() {
         removeFromBranchLeaderboard(user.uid, subjectId);
       }
     }
-  }, [denemeler, targetNet, loaded, user]);
+  }, [denemeler, targetNet, initialLoadDone, user]);
 
+  // ─── CRUD helpers (state-only, useEffect auto-saves) ────────────────────
   const handleTargetNetChange = (value: number) => {
     setTargetNet(value);
-    saveTargetNet(value);
   };
 
   const filteredDenemeler = useMemo(() => {
@@ -172,27 +160,31 @@ export default function DenemePageContent() {
     scores: DenemeRecord["scores"];
   }) => {
     if (editing) {
-      setDenemeler(updateDeneme({ ...editing, ...payload }));
+      // Update existing
+      setDenemeler(prev =>
+        prev.map(d => d.id === editing.id ? { ...editing, ...payload } : d)
+      );
       setEditing(null);
       setTab("gecmis");
       toast.success("Deneme sınavı başarıyla güncellendi");
-      confetti({
-        particleCount: 80,
-        spread: 50,
-        origin: { y: 0.7 }
-      });
+      confetti({ particleCount: 80, spread: 50, origin: { y: 0.7 } });
       return;
     }
-    setDenemeler(
-      addDeneme({ id: crypto.randomUUID(), ...payload })
-    );
+    // Add new
+    const newRecord: DenemeRecord = { id: crypto.randomUUID(), ...payload };
+    setDenemeler(prev => {
+      const updated = [newRecord, ...prev];
+      updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+      return updated;
+    });
     setTab("gecmis");
     toast.success("Yeni deneme sınav sonucu kaydedildi! 🎉");
-    confetti({
-      particleCount: 150,
-      spread: 80,
-      origin: { y: 0.6 }
-    });
+    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+  };
+
+  const handleDelete = (id: string) => {
+    setDenemeler(prev => prev.filter(d => d.id !== id));
+    toast.success("Deneme kaydı silindi");
   };
 
   if (!loaded) {
@@ -291,10 +283,8 @@ export default function DenemePageContent() {
                           });
                         }
                       });
-                      const newData = [...denemeler, ...mocks];
-                      setDenemeler(newData);
-                      saveDenemeler(newData);
-                      toast.success("Test verileri başarıyla eklendi! (Firebase etkilenmedi)");
+                      setDenemeler(prev => [...prev, ...mocks]);
+                      toast.success("Test verileri başarıyla eklendi!");
                     }}
                     className="px-3 py-1 bg-rose-100 text-rose-600 font-black rounded-xl text-[10px] uppercase tracking-wider border border-rose-200 hover:bg-rose-200 transition-colors"
                   >
@@ -392,7 +382,6 @@ export default function DenemePageContent() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             >
-              {/* ViewType Switcher for Kayıt Defteri */}
               <ViewTypeSwitcher viewType={viewType} onChange={setViewType} />
               <AnimatePresence mode="wait">
                 <motion.div
@@ -404,10 +393,7 @@ export default function DenemePageContent() {
                 >
                   <DenemeHistoryList
                     denemeler={filteredDenemeler}
-                    onDelete={(id) => {
-                      setDenemeler(deleteDeneme(id));
-                      toast.success("Deneme kaydı silindi");
-                    }}
+                    onDelete={handleDelete}
                     onEdit={(d) => {
                       setEditing(d);
                       setTab("yeni");
@@ -428,7 +414,6 @@ export default function DenemePageContent() {
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.4, delay: 0.1, ease: "easeOut" }}
             >
-              {/* ViewType Switcher for Analiz */}
               <ViewTypeSwitcher viewType={viewType} onChange={setViewType} />
               <AnimatePresence mode="wait">
                 <motion.div

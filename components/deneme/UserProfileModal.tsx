@@ -9,7 +9,7 @@ import { evaluateDeneme } from "@/lib/denemeUtils";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, Legend } from "recharts";
 import { format } from "date-fns";
 import { tr } from "date-fns/locale";
-import { loadDenemeler } from "@/lib/denemeStorage";
+
 import { useAuth } from "@/contexts/AuthContext";
 import { BADGES, getEarnedBadges } from "@/lib/badgesConfig";
 import DenemeAnalytics from "./DenemeAnalytics";
@@ -70,6 +70,7 @@ interface UserProfileModalProps {
 
 export default function UserProfileModal({ userEntry, isOpen, onClose }: UserProfileModalProps) {
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const [chartData, setChartData] = useState<any[]>([]);
   const [stats, setStats] = useState({ 
     gkgyNet: 0, 
@@ -102,10 +103,16 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
     const fetchUserData = async () => {
       if (!userEntry) return;
       setLoading(true);
+      setLoadError(null);
       try {
+        console.log(`[UserProfileModal] Fetching data for userId: ${userEntry.userId} (${userEntry.displayName})`);
         const data = await loadFromFirebase(userEntry.userId);
+        console.log(`[UserProfileModal] Data received:`, data ? `${(data.denemeler as any[])?.length ?? 0} denemeler` : 'null');
+        if (!data) {
+          setLoadError(`${userEntry.displayName} adlı kullanıcının verisi bulunamadı. Kullanıcı henüz deneme kaydetmemiş olabilir.`);
+        }
         if (data) {
-          if (data.denemeler) {
+          if (data.denemeler && (data.denemeler as any[]).length > 0) {
             const migrated = migrateDenemeler(data.denemeler as DenemeRecord[]);
             data.denemeler = migrated as any;
             setUserDenemeler(migrated);
@@ -223,13 +230,16 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
         }
       } catch (error) {
         console.error("Kullanıcı verisi çekilemedi:", error);
+        setLoadError(`Kullanıcı verisi yüklenirken hata oluştu: ${(error as Error)?.message || 'Bilinmeyen hata'}`);
       } finally {
         setLoading(false);
       }
     };
 
-    const fetchCurrentUserStats = () => {
-      const local = loadDenemeler();
+    const fetchCurrentUserStats = async () => {
+      if (!user) return;
+      const data = await loadFromFirebase(user.uid);
+      const local = migrateDenemeler((data?.denemeler as DenemeRecord[]) || []);
       setCurrentUserDenemeler(local);
       const genel = local.filter(d => d.examType !== "brans");
       const brans = local.filter(d => d.examType === "brans");
@@ -271,7 +281,7 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
       fetchUserData();
       fetchCurrentUserStats();
     }
-  }, [userEntry, isOpen]);
+  }, [userEntry, isOpen, user]);
 
   if (!isOpen || !userEntry) return null;
 
