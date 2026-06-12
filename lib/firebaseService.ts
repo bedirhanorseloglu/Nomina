@@ -53,8 +53,7 @@ function stripUndefined(obj: unknown): unknown {
 export const saveToFirebase = async (userId: string, data: AppData) => {
   if (!userId) return;
   if (isLocalhost) {
-    console.log("🛠️ Lokal ortam: Firebase'e (user_data) kayıt yapılmadı.");
-    return;
+    console.log("🛠️ Lokal ortamdasınız: Veriler Firebase'e YAZILIYOR.");
   }
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
@@ -85,7 +84,6 @@ export const updateUserProfile = async (
   email: string | null
 ) => {
   if (!userId) return;
-  if (isLocalhost) return;
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     await setDoc(docRef, { displayName, email }, { merge: true });
@@ -101,8 +99,7 @@ export const saveDenemeDataToFirebase = async (
 ) => {
   if (!userId) return;
   if (isLocalhost) {
-    console.log("🛠️ Lokal ortam: Deneme verisi Firebase'e kaydedilmedi.");
-    return;
+    console.log("🛠️ Lokal ortamdasınız: Deneme verisi Firebase'e YAZILIYOR.");
   }
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
@@ -149,7 +146,6 @@ export const loadFromFirebase = async (
 
 export const updatePresence = async (userId: string) => {
   if (!userId) return;
-  if (isLocalhost) return;
   try {
     const docRef = doc(db, "active_users", userId);
     // serverTimestamp() kullan: client saati manipüle edilebilir
@@ -186,8 +182,7 @@ export const getOnlineUsersCount = async (): Promise<number> => {
 export const deleteUserAllData = async (userId: string): Promise<void> => {
   if (!userId) return;
   if (isLocalhost) {
-    console.log("🛠️ Lokal ortam: Silme işlemi iptal edildi.");
-    return;
+    console.log("🛠️ Lokal ortamdasınız: Silme işlemi Firebase üzerinde GERÇEKLEŞTİRİLİYOR.");
   }
   const collections = ["user_data", "leaderboard", "active_users"];
   const branchSubjects = [
