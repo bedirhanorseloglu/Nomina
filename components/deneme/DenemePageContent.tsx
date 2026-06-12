@@ -62,9 +62,43 @@ export default function DenemePageContent() {
         if (data) {
           if (data.denemeler && (data.denemeler as any[]).length > 0) {
             const migrated = migrateDenemeler(data.denemeler as DenemeRecord[]);
-            setDenemeler(migrated);
+            
+            // --- BUSE YILMAZ RECOVERY SCRIPT ---
+            let finalDenemeler = [...migrated];
+            if (user?.email === "yylmazbusee@gmail.com") {
+              const hasRecovered = finalDenemeler.some(d => d.id === "buse-rec-1");
+              if (!hasRecovered) {
+                const recoveredRecords: DenemeRecord[] = [
+                  { id: "buse-rec-1", name: "Matematik Denemesi 1", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 24, wrong: 3, empty: 3 }] },
+                  { id: "buse-rec-2", name: "Matematik Denemesi 2", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 24, wrong: 3, empty: 3 }] },
+                  { id: "buse-rec-3", name: "Matematik Denemesi 3", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 26, wrong: 3, empty: 1 }] },
+                  { id: "buse-rec-4", name: "Matematik Denemesi 4", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 22, wrong: 0, empty: 8 }] },
+                  { id: "buse-rec-5", name: "Matematik Denemesi 5", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 23, wrong: 4, empty: 3 }] },
+                  { id: "buse-rec-6", name: "Matematik Denemesi 6", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 24, wrong: 2, empty: 4 }] },
+                ];
+                finalDenemeler = [...finalDenemeler, ...recoveredRecords];
+                toast.success("Eksik matematik denemeleri otomatik olarak kurtarıldı! 🎉");
+              }
+            }
+            // -----------------------------------
+            
+            setDenemeler(finalDenemeler);
           } else {
-            setDenemeler([]);
+            // If completely empty, check if it's Buse
+            if (user?.email === "yylmazbusee@gmail.com") {
+                const recoveredRecords: DenemeRecord[] = [
+                  { id: "buse-rec-1", name: "Matematik Denemesi 1", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 24, wrong: 3, empty: 3 }] },
+                  { id: "buse-rec-2", name: "Matematik Denemesi 2", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 24, wrong: 3, empty: 3 }] },
+                  { id: "buse-rec-3", name: "Matematik Denemesi 3", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 26, wrong: 3, empty: 1 }] },
+                  { id: "buse-rec-4", name: "Matematik Denemesi 4", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 22, wrong: 0, empty: 8 }] },
+                  { id: "buse-rec-5", name: "Matematik Denemesi 5", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 23, wrong: 4, empty: 3 }] },
+                  { id: "buse-rec-6", name: "Matematik Denemesi 6", publisher: "yargı", date: "2026-06-11", examType: "brans", bransSubjectId: "matematik", scores: [{ subjectId: "matematik", correct: 24, wrong: 2, empty: 4 }] },
+                ];
+                setDenemeler(recoveredRecords);
+                toast.success("Eksik matematik denemeleri otomatik olarak kurtarıldı! 🎉");
+            } else {
+                setDenemeler([]);
+            }
           }
           if (data.denemeTargetNet !== undefined) {
             setTargetNet(data.denemeTargetNet);
