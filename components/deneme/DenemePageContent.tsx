@@ -43,9 +43,12 @@ export default function DenemePageContent() {
   const [tab, setTab] = useState<Tab>("yeni");
   const [viewType, setViewType] = useState<"genel" | "brans">((initialMode as "genel" | "brans") || "genel");
   const [editing, setEditing] = useState<DenemeRecord | null>(null);
-  // Tracks whether the initial load from Firebase is done.
-  // The save-back effect is suppressed until this is true.
   const [initialLoadDone, setInitialLoadDone] = useState(false);
+  
+  // Verinin kullanıcı tarafından değiştirilip değiştirilmediğini takip eder.
+  // Bu sayede sayfa yüklendiğinde eski verinin tekrar sunucuya yazılıp 
+  // çakışma (veri kaybı) yaratması engellenir.
+  const isDataModified = React.useRef(false);
 
   // ─── LOAD: Firebase is the single source of truth ───────────────────────
   useEffect(() => {
@@ -123,9 +126,10 @@ export default function DenemePageContent() {
 
   // ─── SAVE: Auto-persist to Firebase on every change ─────────────────────
   useEffect(() => {
-    // Don't save during initial load
     if (!initialLoadDone) return;
     if (!user?.uid) return;
+    // Sadece veri gerçekten kullanıcı tarafından değiştirildiyse kaydet
+    if (!isDataModified.current) return;
 
     // Save denemeler + targetNet to Firebase
     saveDenemeDataToFirebase(user.uid, denemeler, targetNet);
@@ -168,6 +172,7 @@ export default function DenemePageContent() {
 
   // ─── CRUD helpers (state-only, useEffect auto-saves) ────────────────────
   const handleTargetNetChange = (value: number) => {
+    isDataModified.current = true;
     setTargetNet(value);
   };
 
@@ -193,6 +198,8 @@ export default function DenemePageContent() {
     note?: string;
     scores: DenemeRecord["scores"];
   }) => {
+    isDataModified.current = true;
+    
     if (editing) {
       // Update existing
       setDenemeler(prev =>
@@ -217,6 +224,7 @@ export default function DenemePageContent() {
   };
 
   const handleDelete = (id: string) => {
+    isDataModified.current = true;
     setDenemeler(prev => prev.filter(d => d.id !== id));
     toast.success("Deneme kaydı silindi");
   };
