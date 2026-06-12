@@ -180,7 +180,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                       type="button"
                       onClick={() => {
                         setExamType("genel");
-                        router.replace("/deneme?mode=genel", { scroll: false });
+                        window.history.replaceState(null, '', "?mode=genel");
                       }}
                       className={`relative group flex flex-col items-start gap-3 p-4 rounded-2xl border-2 transition-all duration-200 text-left focus:outline-none
                         ${examType === "genel"
@@ -227,7 +227,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                       onClick={() => { 
                         setExamType("brans"); 
                         setStep(1); 
-                        router.replace(`/deneme?mode=brans${bransSubjectId ? `&subject=${bransSubjectId}` : ""}`, { scroll: false });
+                        window.history.replaceState(null, '', `?mode=brans${bransSubjectId ? `&subject=${bransSubjectId}` : ""}`);
                       }}
                       className={`relative group flex flex-col items-start gap-3 p-4 rounded-2xl border-2 transition-all duration-200 text-left focus:outline-none
                         ${examType === "brans"
@@ -314,7 +314,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
                                       onClick={() => {
                                         setBransSubjectId(s.subjectId);
                                         setIsDropdownOpen(false);
-                                        router.replace(`/deneme?mode=brans&subject=${s.subjectId}`, { scroll: false });
+                                        window.history.replaceState(null, '', `?mode=brans&subject=${s.subjectId}`);
                                       }}
                                       onMouseEnter={() => setHoveredSubjectId(s.subjectId)}
                                       onMouseLeave={() => setHoveredSubjectId(null)}
