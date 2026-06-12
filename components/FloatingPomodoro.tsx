@@ -629,6 +629,7 @@ export default function FloatingPomodoro() {
                                    changeMode("break");
                                    setTimeLeft(earnedBreakData.earnedMins * 60);
                                    setEarnedBreakData(null);
+                                   lastTickRef.current = Date.now();
                                    setIsActive(true);
                                  }}
                                  className="w-full group relative py-3 bg-emerald-500 text-white text-xs font-black uppercase tracking-widest rounded-2xl transition-all active:scale-95 shadow-lg shadow-emerald-500/30 overflow-hidden"

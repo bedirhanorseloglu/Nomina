@@ -1,5 +1,4 @@
 import { db } from "./firebase";
-import { isLocalhost } from "./firebaseService";
 import {
   collection,
   doc,
@@ -41,7 +40,6 @@ export const updateLeaderboard = async (
   totalTrials: number
 ) => {
   if (!userId) return;
-  if (isLocalhost) return;
   try {
     const docRef = doc(db, LEADERBOARD_COLLECTION, userId);
     await setDoc(
@@ -62,6 +60,7 @@ export const updateLeaderboard = async (
     );
   } catch (error) {
     console.error("❌ Liderlik tablosu güncelleme hatası:", error);
+    throw error;
   }
 };
 
@@ -80,22 +79,6 @@ export const getLeaderboard = async (
       results.push(d.data() as LeaderboardEntry);
     });
 
-    // Lokalde gerçek veri zaten gelmez; sadece mock göster
-    if (isLocalhost) {
-      for (let i = 1; i <= 10; i++) {
-        results.push({
-          userId: `mock-user-${i}`,
-          displayName: `Rakibin ${i}`,
-          photoURL: "",
-          averageNet: 95 - i * 3 + Math.random() * 2,
-          maxNet: 100,
-          totalTrials: 5 + i,
-          updatedAt: null,
-        });
-      }
-      results.sort((a, b) => (b.averageNet as number) - (a.averageNet as number));
-    }
-
     return results;
   } catch (error) {
     console.error("❌ Liderlik tablosu yükleme hatası:", error);
@@ -105,11 +88,11 @@ export const getLeaderboard = async (
 
 export const removeFromLeaderboard = async (userId: string) => {
   if (!userId) return;
-  if (isLocalhost) return;
   try {
     await deleteDoc(doc(db, LEADERBOARD_COLLECTION, userId));
   } catch (error) {
     console.error("❌ Liderlik tablosundan silme hatası:", error);
+    throw error;
   }
 };
 
@@ -125,7 +108,6 @@ export const updateBranchLeaderboard = async (
   totalTrials: number
 ) => {
   if (!userId || !subjectId) return;
-  if (isLocalhost) return;
   try {
     const docId = `${userId}_${subjectId}`;
     const docRef = doc(db, BRANCH_LEADERBOARD_COLLECTION, docId);
@@ -145,6 +127,7 @@ export const updateBranchLeaderboard = async (
     );
   } catch (error) {
     console.error(`❌ Branş liderlik tablosu güncelleme hatası (${subjectId}):`, error);
+    throw error;
   }
 };
 
@@ -165,22 +148,6 @@ export const getBranchLeaderboard = async (
       results.push(d.data() as BranchLeaderboardEntry);
     });
 
-    if (isLocalhost) {
-      for (let i = 1; i <= 10; i++) {
-        results.push({
-          userId: `mock-branch-user-${i}`,
-          subjectId,
-          displayName: `Branş Rakibi ${i}`,
-          photoURL: "",
-          averageNet: 25 - i + Math.random() * 2,
-          maxNet: 30,
-          totalTrials: 3 + i,
-          updatedAt: null,
-        });
-      }
-      results.sort((a, b) => (b.averageNet as number) - (a.averageNet as number));
-    }
-
     return results;
   } catch (error) {
     console.error("❌ Branş liderlik tablosu yükleme hatası:", error);
@@ -193,12 +160,12 @@ export const removeFromBranchLeaderboard = async (
   subjectId: string
 ) => {
   if (!userId || !subjectId) return;
-  if (isLocalhost) return;
   try {
     await deleteDoc(
       doc(db, BRANCH_LEADERBOARD_COLLECTION, `${userId}_${subjectId}`)
     );
   } catch (error) {
     console.error("❌ Branş liderlik tablosundan silme hatası:", error);
+    throw error;
   }
 };

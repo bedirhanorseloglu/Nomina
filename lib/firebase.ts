@@ -17,22 +17,12 @@ const firebaseConfig = {
 const isFirstInit = getApps().length === 0;
 const app = isFirstInit ? initializeApp(firebaseConfig) : getApp();
 
-// Firestore: tarayıcıda ilk kez başlatılıyorsa IndexedDB kalıcı cache ile aç.
-// persistentLocalCache → enableIndexedDbPersistence'ın modern karşılığı.
-// persistentMultipleTabManager → birden fazla sekme açık olsa da sorunsuz çalışır.
-// Sunucu tarafında (SSR/SSG) veya ikinci init'te düz getFirestore kullan.
+// IndexedDB önbelleğini siliyoruz çünkü sekme erken kapatıldığında
+// verilerin "kaydedildi" gibi görünüp aslında sadece yerel önbellekte kalmasına yol açıyor.
+// Sunucuya anında senkronizasyon için Memory Cache (varsayılan) kullanıyoruz.
 let db: ReturnType<typeof getFirestore>;
-if (typeof window !== "undefined" && isFirstInit) {
-  try {
-    db = initializeFirestore(app, {
-      localCache: persistentLocalCache({
-        tabManager: persistentMultipleTabManager(),
-      }),
-    });
-  } catch {
-    // Nadir durum: başka bir modül daha önce getFirestore çağırdıysa
-    db = getFirestore(app);
-  }
+if (typeof window !== "undefined") {
+  db = getFirestore(app);
 } else {
   db = getFirestore(app);
 }

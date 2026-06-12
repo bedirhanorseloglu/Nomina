@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import confetti from "canvas-confetti";
 import { toast } from "sonner";
@@ -44,11 +44,49 @@ export default function DenemePageContent() {
   const [viewType, setViewType] = useState<"genel" | "brans">((initialMode as "genel" | "brans") || "genel");
   const [editing, setEditing] = useState<DenemeRecord | null>(null);
   const [initialLoadDone, setInitialLoadDone] = useState(false);
-  
-  // Verinin kullanıcı tarafından değiştirilip değiştirilmediğini takip eder.
-  // Bu sayede sayfa yüklendiğinde eski verinin tekrar sunucuya yazılıp 
-  // çakışma (veri kaybı) yaratması engellenir.
-  const isDataModified = React.useRef(false);
+
+  // ─── SAVE: Explicit persistence function ─────────────────────
+  const persistData = useCallback(async (newDenemeler: DenemeRecord[], newTargetNet: number) => {
+    if (!user?.uid) return;
+
+    // 1. Firebase'e doğrudan kaydet
+    await saveDenemeDataToFirebase(user.uid, newDenemeler, newTargetNet);
+
+    // 2. Liderlik tablolarını güncelle
+    const genelDenemeler = newDenemeler.filter((d) => d.examType !== "brans");
+    if (genelDenemeler.length > 0) {
+      const nets = genelDenemeler.map((d) => evaluateDeneme(d.scores).totalNet);
+      const avg = averageNet(genelDenemeler);
+      const max = Math.max(...nets);
+      await updateLeaderboard(user.uid, user.displayName, user.photoURL, avg, max, genelDenemeler.length);
+    } else {
+      await removeFromLeaderboard(user.uid);
+    }
+
+    const bransDenemeler = newDenemeler.filter((d) => d.examType === "brans" && d.bransSubjectId);
+    const bransGroups = bransDenemeler.reduce((acc: any, d: any) => {
+      if (!acc[d.bransSubjectId]) acc[d.bransSubjectId] = [];
+      acc[d.bransSubjectId].push(d);
+      return acc;
+    }, {});
+
+    for (const subject of DENEME_SUBJECTS) {
+      const subjectId = subject.id;
+      const subjectDenemeler = bransGroups[subjectId];
+      
+      if (subjectDenemeler && subjectDenemeler.length > 0) {
+        const nets = subjectDenemeler.map((d: any) => {
+          const score = d.scores.find((s: any) => s.subjectId === subjectId);
+          return score ? score.correct - (score.wrong / 4) : 0;
+        });
+        const avg = nets.reduce((a: number, b: number) => a + b, 0) / nets.length;
+        const max = Math.max(...nets);
+        await updateBranchLeaderboard(user.uid, user.displayName, user.photoURL, subjectId, avg, max, subjectDenemeler.length);
+      } else {
+        await removeFromBranchLeaderboard(user.uid, subjectId);
+      }
+    }
+  }, [user]);
 
   // ─── LOAD: Firebase is the single source of truth ───────────────────────
   useEffect(() => {
@@ -81,6 +119,7 @@ export default function DenemePageContent() {
                 ];
                 finalDenemeler = [...finalDenemeler, ...recoveredRecords];
                 toast.success("Eksik matematik denemeleri otomatik olarak kurtarıldı! 🎉");
+                persistData(finalDenemeler, data.denemeTargetNet !== undefined ? data.denemeTargetNet : DEFAULT_TARGET_NET);
               }
             }
             // -----------------------------------
@@ -99,6 +138,7 @@ export default function DenemePageContent() {
                 ];
                 setDenemeler(recoveredRecords);
                 toast.success("Eksik matematik denemeleri otomatik olarak kurtarıldı! 🎉");
+                persistData(recoveredRecords, data.denemeTargetNet !== undefined ? data.denemeTargetNet : DEFAULT_TARGET_NET);
             } else {
                 setDenemeler([]);
             }
@@ -112,9 +152,6 @@ export default function DenemePageContent() {
         toast.error("Veriler yüklenirken hata oluştu. Lütfen sayfayı yenileyin.");
       } finally {
         setLoaded(true);
-        // Mark initial load as done AFTER state is set,
-        // so the save-back effect doesn't fire with stale data.
-        // We use setTimeout to let React batch the state updates first.
         setTimeout(() => setInitialLoadDone(true), 0);
       }
     };
@@ -122,58 +159,12 @@ export default function DenemePageContent() {
     setLoaded(false);
     setInitialLoadDone(false);
     loadData();
-  }, [user?.uid]);
+  }, [user?.uid, persistData]);
 
-  // ─── SAVE: Auto-persist to Firebase on every change ─────────────────────
-  useEffect(() => {
-    if (!initialLoadDone) return;
-    if (!user?.uid) return;
-    // Sadece veri gerçekten kullanıcı tarafından değiştirildiyse kaydet
-    if (!isDataModified.current) return;
-
-    // Save denemeler + targetNet to Firebase
-    saveDenemeDataToFirebase(user.uid, denemeler, targetNet);
-
-    // Update leaderboards
-    const genelDenemeler = denemeler.filter((d) => d.examType !== "brans");
-    if (genelDenemeler.length > 0) {
-      const nets = genelDenemeler.map((d) => evaluateDeneme(d.scores).totalNet);
-      const avg = averageNet(genelDenemeler);
-      const max = Math.max(...nets);
-      updateLeaderboard(user.uid, user.displayName, user.photoURL, avg, max, genelDenemeler.length);
-    } else {
-      removeFromLeaderboard(user.uid);
-    }
-
-    const bransDenemeler = denemeler.filter((d) => d.examType === "brans" && d.bransSubjectId);
-    const bransGroups = bransDenemeler.reduce((acc: any, d: any) => {
-      if (!acc[d.bransSubjectId]) acc[d.bransSubjectId] = [];
-      acc[d.bransSubjectId].push(d);
-      return acc;
-    }, {});
-
-    for (const subject of DENEME_SUBJECTS) {
-      const subjectId = subject.id;
-      const subjectDenemeler = bransGroups[subjectId];
-      
-      if (subjectDenemeler && subjectDenemeler.length > 0) {
-        const nets = subjectDenemeler.map((d: any) => {
-          const score = d.scores.find((s: any) => s.subjectId === subjectId);
-          return score ? score.correct - (score.wrong / 4) : 0;
-        });
-        const avg = nets.reduce((a: number, b: number) => a + b, 0) / nets.length;
-        const max = Math.max(...nets);
-        updateBranchLeaderboard(user.uid, user.displayName, user.photoURL, subjectId, avg, max, subjectDenemeler.length);
-      } else {
-        removeFromBranchLeaderboard(user.uid, subjectId);
-      }
-    }
-  }, [denemeler, targetNet, initialLoadDone, user]);
-
-  // ─── CRUD helpers (state-only, useEffect auto-saves) ────────────────────
+  // ─── CRUD helpers (state-only, explicit save) ────────────────────
   const handleTargetNetChange = (value: number) => {
-    isDataModified.current = true;
     setTargetNet(value);
+    persistData(denemeler, value);
   };
 
   const filteredDenemeler = useMemo(() => {
@@ -191,42 +182,59 @@ export default function DenemePageContent() {
     };
   }, [filteredDenemeler]);
 
-  const handleSave = (payload: {
+  const handleSave = async (payload: {
     name: string;
     date: string;
     publisher?: string;
     note?: string;
     scores: DenemeRecord["scores"];
   }) => {
-    isDataModified.current = true;
-    
     if (editing) {
-      // Update existing
-      setDenemeler(prev =>
-        prev.map(d => d.id === editing.id ? { ...editing, ...payload } : d)
-      );
-      setEditing(null);
-      setTab("gecmis");
-      toast.success("Deneme sınavı başarıyla güncellendi");
-      confetti({ particleCount: 80, spread: 50, origin: { y: 0.7 } });
+      const updated = denemeler.map(d => d.id === editing.id ? { ...editing, ...payload } : d);
+      
+      const savePromise = persistData(updated, targetNet).then(() => {
+        setDenemeler(updated);
+        setEditing(null);
+        setTab("gecmis");
+        confetti({ particleCount: 80, spread: 50, origin: { y: 0.7 } });
+      });
+
+      toast.promise(savePromise, {
+        loading: 'Buluta kaydediliyor...',
+        success: 'Deneme sınavı başarıyla güncellendi',
+        error: 'Kayıt sırasında bir hata oluştu'
+      });
       return;
     }
-    // Add new
+    
     const newRecord: DenemeRecord = { id: crypto.randomUUID(), ...payload };
-    setDenemeler(prev => {
-      const updated = [newRecord, ...prev];
-      updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-      return updated;
+    const updated = [newRecord, ...denemeler];
+    updated.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    
+    const savePromise = persistData(updated, targetNet).then(() => {
+      setDenemeler(updated);
+      setTab("gecmis");
+      confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
     });
-    setTab("gecmis");
-    toast.success("Yeni deneme sınav sonucu kaydedildi! 🎉");
-    confetti({ particleCount: 150, spread: 80, origin: { y: 0.6 } });
+
+    toast.promise(savePromise, {
+      loading: 'Sunucuya güvenle kaydediliyor, lütfen bekleyin...',
+      success: 'Yeni deneme sınav sonucu buluta kaydedildi! 🎉',
+      error: 'İnternet bağlantınızı kontrol edin.'
+    });
   };
 
   const handleDelete = (id: string) => {
-    isDataModified.current = true;
-    setDenemeler(prev => prev.filter(d => d.id !== id));
-    toast.success("Deneme kaydı silindi");
+    const updated = denemeler.filter(d => d.id !== id);
+    const delPromise = persistData(updated, targetNet).then(() => {
+      setDenemeler(updated);
+    });
+
+    toast.promise(delPromise, {
+      loading: 'Siliniyor...',
+      success: 'Deneme kaydı buluttan silindi',
+      error: 'Silinirken hata oluştu'
+    });
   };
 
   if (!loaded) {

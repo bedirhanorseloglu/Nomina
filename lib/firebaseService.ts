@@ -15,7 +15,18 @@ import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
 
-
+/**
+ * Tek doğruluk kaynağı: ortam tespiti.
+ * leaderboardService gibi diğer modüller buradan import eder,
+ * kod tekrarını ve tutarsızlığı önler.
+ */
+export const isLocalhost =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" ||
+    window.location.hostname === "127.0.0.1" ||
+    window.location.hostname.startsWith("192.168.") ||
+    window.location.hostname.startsWith("10.") ||
+    window.location.hostname.startsWith("172."));
 
 // Firestore undefined değerlere izin vermez — özyinelemeli temizle
 function stripUndefined(obj: unknown): unknown {
@@ -47,6 +58,7 @@ export const saveToFirebase = async (userId: string, data: AppData) => {
     await setDoc(docRef, sanitized, { merge: true });
   } catch (error) {
     console.error("❌ Firebase kayıt hatası:", error);
+    throw error;
   }
 };
 
@@ -75,6 +87,7 @@ export const updateUserProfile = async (
     await setDoc(docRef, { displayName, email }, { merge: true });
   } catch (error) {
     console.error("Profile update error:", error);
+    throw error;
   }
 };
 
@@ -91,9 +104,12 @@ export const saveDenemeDataToFirebase = async (
       ...(denemeTargetNet !== undefined ? { denemeTargetNet } : {}),
     }) as Pick<AppData, "denemeler" | "denemeTargetNet">;
     await setDoc(docRef, payload, { merge: true });
+    // TOAST EKLENDİ - KAYIT BAŞARILI MI GÖRMEK İÇİN
+    console.log("Buluta kaydedildi!");
   } catch (error) {
     // alert() yerine sadece konsola yaz — kullanıcıya ham hata göstermek güvensiz
     console.error("❌ Deneme Firebase kayıt hatası:", error);
+    throw error;
   }
 };
 
@@ -103,25 +119,13 @@ export const loadFromFirebase = async (
   if (!userId) return null;
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
-    // getDoc: persistence açıkken hem ağı hem cache'i birleştirerek döner.
-    // Ağ kesilirse IndexedDB'deki son sürümü kullanır.
+    // getDoc ağ isteğini bekleyecektir.
     const docSnap = await getDoc(docRef);
     if (docSnap.exists()) {
       return docSnap.data() as AppData;
     }
     return null;
   } catch (error) {
-    // Ağ tamamen erişilemezse cache'den son bilinen veriyi al
-    try {
-      const docRef = doc(db, DATA_COLLECTION, userId);
-      const docSnap = await getDocFromCache(docRef);
-      if (docSnap.exists()) {
-        console.warn("⚠️ Sunucu erişilemedi, cache'den yüklendi.");
-        return docSnap.data() as AppData;
-      }
-    } catch {
-      // Cache de boşsa veri yok — sessizce null dön
-    }
     console.error("❌ Firebase yükleme hatası:", error);
     return null;
   }
@@ -139,6 +143,7 @@ export const updatePresence = async (userId: string) => {
     );
   } catch (error) {
     console.error("Presence update error:", error);
+    throw error;
   }
 };
 
@@ -164,6 +169,7 @@ export const getOnlineUsersCount = async (): Promise<number> => {
 
 export const deleteUserAllData = async (userId: string): Promise<void> => {
   if (!userId) return;
+
   const collections = ["user_data", "leaderboard", "active_users"];
   const branchSubjects = [
     "turkce",
