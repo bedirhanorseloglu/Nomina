@@ -54,8 +54,15 @@ export const saveToFirebase = async (userId: string, data: AppData) => {
   if (!userId) return;
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
-    const sanitized = stripUndefined(data) as AppData;
-    await setDoc(docRef, sanitized, { merge: true });
+    
+    // Kök Neden Çözümü: localStorage'dan gelen 'data' içindeki 'denemeler' eskidir!
+    // Dashboard sadece kendi yönettiği alanları kaydetmeli, deneme verilerini EZMEMELİDİR.
+    const { denemeler, denemeTargetNet, ...dashboardData } = data;
+
+    const payload = stripUndefined(dashboardData) as Partial<AppData>;
+    
+    // user verisini merge true ile güncelle
+    await setDoc(docRef, payload, { merge: true });
   } catch (error) {
     console.error("❌ Firebase kayıt hatası:", error);
     throw error;
@@ -101,8 +108,9 @@ export const saveDenemeDataToFirebase = async (
     const docRef = doc(db, DATA_COLLECTION, userId);
     const payload = stripUndefined({
       denemeler,
+      lastUpdated: Date.now(),
       ...(denemeTargetNet !== undefined ? { denemeTargetNet } : {}),
-    }) as Pick<AppData, "denemeler" | "denemeTargetNet">;
+    }) as Pick<AppData, "denemeler" | "denemeTargetNet" | "lastUpdated">;
     await setDoc(docRef, payload, { merge: true });
     // TOAST EKLENDİ - KAYIT BAŞARILI MI GÖRMEK İÇİN
     console.log("Buluta kaydedildi!");
