@@ -15,18 +15,7 @@ import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
 
-/**
- * Tek doğruluk kaynağı: ortam tespiti.
- * leaderboardService gibi diğer modüller buradan import eder,
- * kod tekrarını ve tutarsızlığı önler.
- */
-export const isLocalhost =
-  typeof window !== "undefined" &&
-  (window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1" ||
-    window.location.hostname.startsWith("192.168.") ||
-    window.location.hostname.startsWith("10.") ||
-    window.location.hostname.startsWith("172."));
+
 
 // Firestore undefined değerlere izin vermez — özyinelemeli temizle
 function stripUndefined(obj: unknown): unknown {
@@ -52,9 +41,6 @@ function stripUndefined(obj: unknown): unknown {
 
 export const saveToFirebase = async (userId: string, data: AppData) => {
   if (!userId) return;
-  if (isLocalhost) {
-    console.log("🛠️ Lokal ortamdasınız: Veriler Firebase'e YAZILIYOR.");
-  }
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const sanitized = stripUndefined(data) as AppData;
@@ -98,9 +84,6 @@ export const saveDenemeDataToFirebase = async (
   denemeTargetNet?: number
 ) => {
   if (!userId) return;
-  if (isLocalhost) {
-    console.log("🛠️ Lokal ortamdasınız: Deneme verisi Firebase'e YAZILIYOR.");
-  }
   try {
     const docRef = doc(db, DATA_COLLECTION, userId);
     const payload = stripUndefined({
@@ -181,9 +164,6 @@ export const getOnlineUsersCount = async (): Promise<number> => {
 
 export const deleteUserAllData = async (userId: string): Promise<void> => {
   if (!userId) return;
-  if (isLocalhost) {
-    console.log("🛠️ Lokal ortamdasınız: Silme işlemi Firebase üzerinde GERÇEKLEŞTİRİLİYOR.");
-  }
   const collections = ["user_data", "leaderboard", "active_users"];
   const branchSubjects = [
     "turkce",
