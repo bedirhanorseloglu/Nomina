@@ -1,9 +1,9 @@
-import { Subject, AppData } from "@/types"
+import { Subject, AppData, LocalDashboardData } from "@/types"
 import { initialData } from "./data"
 
 const STORAGE_KEY = "kpss_2026_data"
 
-export const loadData = (): AppData => {
+export const loadData = (): LocalDashboardData => {
   if (typeof window === "undefined") {
     return { subjects: initialData, streak: 0, lastActiveDate: null }
   }
@@ -11,7 +11,7 @@ export const loadData = (): AppData => {
   try {
     const saved = localStorage.getItem(STORAGE_KEY)
     if (saved) {
-      const parsed = JSON.parse(saved) as AppData
+      const parsed = JSON.parse(saved) as LocalDashboardData
       return {
         ...parsed,
         subjects: mergeWithInitialData(parsed.subjects),
@@ -49,7 +49,7 @@ const mergeWithInitialData = (savedSubjects: Subject[] = []) => {
   })
 }
 
-export const saveData = (data: AppData) => {
+export const saveData = (data: LocalDashboardData) => {
   if (typeof window === "undefined") return
   
   // Her kayıtta lastUpdated damgasını yenile

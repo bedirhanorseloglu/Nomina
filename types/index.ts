@@ -48,19 +48,25 @@ export type DenemeRecordData = {
   bransSubjectId?: string
 }
 
-export type AppData = {
+export type PlannerData = {
   subjects: Subject[]
-  streak: number
-  lastActiveDate: string | null
   slotNotes?: Record<string, string> // Key: "YYYY-MM-DD_HH:mm"
   completedNotes?: Record<string, boolean> // Key: "YYYY-MM-DD_HH:mm"
   holidays?: string[] // Array of "YYYY-MM-DD"
-  denemeler?: DenemeRecordData[]
-  denemeTargetNet?: number
   dailyGoals?: Record<string, number> // Key: "YYYY-MM-DD", Value: questions solved
   dailyGoalTarget?: number
+}
+
+export type AppData = {
+  streak: number
+  lastActiveDate: string | null
+  denemeler?: DenemeRecordData[]
+  denemeTargetNet?: number
   lastUpdated?: number // Timestamp for auto-sync
 }
+
+// Geriye dönük uyumluluk ve tek state tutmak için
+export type LocalDashboardData = AppData & PlannerData;
 
 export type UniversityClass = {
   id: string

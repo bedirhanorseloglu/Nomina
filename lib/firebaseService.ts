@@ -15,6 +15,7 @@ import { AppData } from "@/types";
 
 const DATA_COLLECTION = "user_data";
 const DENEME_COLLECTION = "user_denemeler";
+const PLANNER_COLLECTION = "user_planner";
 
 /**
  * Tek doğruluk kaynağı: ortam tespiti.
@@ -149,6 +150,64 @@ export const loadDenemeYeniden = async (userId: string) => {
   }
 };
 
+export const savePlannerYeniden = async (
+  userId: string,
+  plannerData: any
+) => {
+  if (!userId) return;
+  try {
+    const docRef = doc(db, PLANNER_COLLECTION, userId);
+    const payload = stripUndefined({
+      ...plannerData,
+      lastUpdated: Date.now()
+    }) as Record<string, any>;
+    await setDoc(docRef, payload, { merge: false });
+    console.log("Planner verisi yeni tabloya kaydedildi!");
+  } catch (error) {
+    console.error("❌ Planner Kayıt Hatası:", error);
+    throw error;
+  }
+};
+
+export const loadPlannerYeniden = async (userId: string) => {
+  if (!userId) return null;
+  try {
+    // 1. Önce yeni bağımsız tablodan çekmeyi dene
+    const docRef = doc(db, PLANNER_COLLECTION, userId);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data();
+    }
+    
+    // 2. Yeni tabloda veri yoksa, geçiş (Migration) amaçlı eski tablodan çekmeyi dene
+    const oldDocRef = doc(db, DATA_COLLECTION, userId);
+    const oldDocSnap = await getDoc(oldDocRef);
+    if (oldDocSnap.exists()) {
+      const oldData = oldDocSnap.data() as any;
+      if (oldData.subjects && oldData.subjects.length > 0) {
+        console.log("Eski veritabanından planner veritabanına taşıma yapılıyor...");
+        
+        // Extract planner specific data from old user_data
+        const plannerData = {
+          subjects: oldData.subjects,
+          slotNotes: (oldData as any).slotNotes || {},
+          completedNotes: (oldData as any).completedNotes || {},
+          holidays: (oldData as any).holidays || [],
+          dailyGoals: (oldData as any).dailyGoals || {},
+          dailyGoalTarget: (oldData as any).dailyGoalTarget || 100,
+        };
+        
+        await savePlannerYeniden(userId, plannerData);
+        return plannerData;
+      }
+    }
+    return null;
+  } catch (error) {
+    console.error("❌ Planner Yükleme Hatası:", error);
+    return null;
+  }
+};
+
 export const loadFromFirebase = async (
   userId: string
 ): Promise<AppData | null> => {
@@ -206,7 +265,7 @@ export const getOnlineUsersCount = async (): Promise<number> => {
 export const deleteUserAllData = async (userId: string): Promise<void> => {
   if (!userId) return;
 
-  const collections = ["user_data", "leaderboard", "active_users", "user_denemeler"];
+  const collections = ["user_data", "leaderboard", "active_users", "user_denemeler", "user_planner"];
   const branchSubjects = [
     "turkce",
     "matematik",

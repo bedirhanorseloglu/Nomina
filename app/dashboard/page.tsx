@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
 import { loadData, saveData } from "@/lib/storage"
-import { loadFromFirebase, saveToFirebase, forceUploadToFirebase, updateUserProfile } from "@/lib/firebaseService"
+import { loadFromFirebase, saveToFirebase, forceUploadToFirebase, updateUserProfile, loadPlannerYeniden, savePlannerYeniden } from "@/lib/firebaseService"
 import { initialData } from "@/lib/data"
 import { format } from "date-fns"
 import TopicList from "@/components/TopicList"
@@ -17,7 +17,7 @@ import MonthlyCalendar from "@/components/MonthlyCalendar"
 import DailyPlanView from "@/components/DailyPlanView"
 import AutoPlanGenerator from "@/components/AutoPlanGenerator"
 import DailyGoalWidget from "@/components/DailyGoalWidget"
-import { AppData, Subject } from "@/types"
+import { LocalDashboardData, Subject } from "@/types"
 import DenemeLinkButton from "@/components/deneme/DenemeLinkButton"
 import confetti from "canvas-confetti"
 import { toast } from "sonner"
@@ -33,7 +33,7 @@ function HomeContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const pathname = usePathname()
-  const [data, setData] = useState<AppData | null>(null)
+  const [data, setData] = useState<LocalDashboardData | null>(null)
   
   const [activeSubjectId, setActiveSubjectIdState] = useState(searchParams.get('subject') || "turkce")
   
@@ -73,7 +73,28 @@ function HomeContent() {
       
       if (user?.uid) {
         try {
-          const remote = await loadFromFirebase(user.uid)
+          const remoteData = await loadFromFirebase(user.uid)
+          const remotePlanner = await loadPlannerYeniden(user.uid)
+          
+          let remote = null;
+          if (remoteData || remotePlanner) {
+            remote = { ...(remoteData || {}), ...(remotePlanner || {}) } as LocalDashboardData;
+            
+            // Eğer remotePlanner yoksa (yeni migration), eski remoteData içindeki verileri kullanarak kaydet
+            if (!remotePlanner && remoteData && (remoteData as any).subjects) {
+               console.log("Migration: Saving planner data from old structure");
+               const plannerPayload = {
+                  subjects: (remoteData as any).subjects,
+                  slotNotes: (remoteData as any).slotNotes || {},
+                  completedNotes: (remoteData as any).completedNotes || {},
+                  holidays: (remoteData as any).holidays || [],
+                  dailyGoals: (remoteData as any).dailyGoals || {},
+                  dailyGoalTarget: (remoteData as any).dailyGoalTarget || 100,
+               };
+               savePlannerYeniden(user.uid, plannerPayload);
+            }
+          }
+          
           if (remote) {
             const localTime = local.lastUpdated || 0
             const remoteTime = remote.lastUpdated || 0
@@ -85,14 +106,22 @@ function HomeContent() {
             } else if (localTime > remoteTime) {
               // Lokal veri daha güncel — buluta eşitle
               setData(local)
-              saveToFirebase(user.uid, local)
+              
+              const appDataPayload = { streak: local.streak, lastActiveDate: local.lastActiveDate, denemeTargetNet: local.denemeTargetNet };
+              const plannerPayload = { subjects: local.subjects, slotNotes: local.slotNotes, completedNotes: local.completedNotes, holidays: local.holidays, dailyGoals: local.dailyGoals, dailyGoalTarget: local.dailyGoalTarget };
+              
+              saveToFirebase(user.uid, appDataPayload as any)
+              savePlannerYeniden(user.uid, plannerPayload)
             } else {
               setData(local)
             }
           } else {
             // Firebase'de henüz hiç veri yok
             setData(local)
-            saveToFirebase(user.uid, local)
+            const appDataPayload = { streak: local.streak, lastActiveDate: local.lastActiveDate, denemeTargetNet: local.denemeTargetNet };
+            const plannerPayload = { subjects: local.subjects, slotNotes: local.slotNotes, completedNotes: local.completedNotes, holidays: local.holidays, dailyGoals: local.dailyGoals, dailyGoalTarget: local.dailyGoalTarget };
+            saveToFirebase(user.uid, appDataPayload as any)
+            savePlannerYeniden(user.uid, plannerPayload)
           }
         } catch (e) {
           console.error("Sync error:", e)
@@ -121,7 +150,13 @@ function HomeContent() {
     // Debounce: 1.5 sn bekle, sürekli sunucuyu yormamak için
     const timeoutId = setTimeout(() => {
       if (user?.uid) {
-        saveToFirebase(user.uid, data).then(() => {
+        const appDataPayload = { streak: data.streak, lastActiveDate: data.lastActiveDate, denemeTargetNet: data.denemeTargetNet };
+        const plannerPayload = { subjects: data.subjects, slotNotes: data.slotNotes, completedNotes: data.completedNotes, holidays: data.holidays, dailyGoals: data.dailyGoals, dailyGoalTarget: data.dailyGoalTarget };
+        
+        Promise.all([
+          saveToFirebase(user.uid, appDataPayload as any),
+          savePlannerYeniden(user.uid, plannerPayload)
+        ]).then(() => {
           setIsSaving(false)
         }).catch(() => setIsSaving(false))
       } else {

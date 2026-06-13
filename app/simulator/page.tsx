@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Clock, AlertTriangle, Shield, CheckCircle2, Moon, Sun, Target, Layers, ArrowLeft, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
-import { loadFromFirebase, saveToFirebase } from "@/lib/firebaseService";
+import { loadPlannerYeniden } from "@/lib/firebaseService";
 import { format } from "date-fns";
 
 type SetupStep = "mode" | "duration";
@@ -46,7 +46,7 @@ export default function ExamSimulatorPage() {
   useEffect(() => {
     const fetchGoal = async () => {
       if (user?.uid) {
-        const data = await loadFromFirebase(user.uid);
+        const data = await loadPlannerYeniden(user.uid);
         if (data) {
           setDailyGoalTarget(data.dailyGoalTarget || 0);
           setTodaySolved(data.dailyGoals?.[today] || 0);
