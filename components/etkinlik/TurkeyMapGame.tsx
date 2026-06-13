@@ -25,7 +25,7 @@ function lngLatToPercent(lng: number, lat: number): { x: number; y: number } {
 
 // ── Type visuals ──
 const TYPE_VISUALS: Record<string, { bg: string; border: string; text: string; glow: string; icon: string }> = {
-  tektonik: { bg: "bg-[#1cb0f6]", border: "border-[#1899d6]", text: "text-[#1899d6]", glow: "shadow-blue-500/40", icon: "🌊" },
+  tektonik: { bg: "bg-[#1cb0f6]", border: "border-[#1899d6]", text: "text-[#1899d6]", glow: "shadow-blue-500/40", icon: "💥" },
   karstik: { bg: "bg-[#2bced6]", border: "border-[#20aeb5]", text: "text-[#20aeb5]", glow: "shadow-cyan-500/40", icon: "💧" },
   volkanik: { bg: "bg-[#ff4b4b]", border: "border-[#e04343]", text: "text-[#e04343]", glow: "shadow-red-500/40", icon: "🌋" },
   heyelan: { bg: "bg-[#ff9600]", border: "border-[#e08400]", text: "text-[#e08400]", glow: "shadow-orange-500/40", icon: "🪨" },
@@ -40,6 +40,24 @@ const TYPE_VISUALS: Record<string, { bg: string; border: string; text: string; g
   asinim: { bg: "bg-[#8965f0]", border: "border-[#6f50c8]", text: "text-[#6f50c8]", glow: "shadow-indigo-500/40", icon: "💨" },
   delta: { bg: "bg-[#58cc02]", border: "border-[#46a302]", text: "text-[#46a302]", glow: "shadow-emerald-500/40", icon: "🌱" },
   kiyiduzlugu: { bg: "bg-[#2bced6]", border: "border-[#20aeb5]", text: "text-[#20aeb5]", glow: "shadow-cyan-500/40", icon: "🏖️" },
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  tektonik: "Tektonik",
+  karstik: "Karstik",
+  volkanik: "Volkanik",
+  heyelan: "Heyelan Set",
+  aluvyal: "Alüvyal Set",
+  kiyi: "Kıyı Set",
+  karma: "Karma Yapılı",
+  kivrim: "Kıvrım",
+  kirik: "Kırık",
+  plato: "Plato",
+  tabaka: "Tabaka Düzü",
+  lav: "Lav",
+  asinim: "Aşınım",
+  delta: "Delta Ovası",
+  kiyiduzlugu: "Kıyı Düzlüğü Ovası",
 };
 
 function getTypeVisual(type: string) {
@@ -298,7 +316,7 @@ export default function TurkeyMapGame({ topic, onQuit }: { topic: MapTopic, onQu
                   </button>
                 ) : (
                   <div className="px-4 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 font-bold text-slate-500 uppercase tracking-widest text-xs border-2 border-slate-200 dark:border-slate-700">
-                    {activePoint.type} Türü
+                    {TYPE_LABELS[activePoint.type] || `${activePoint.type} Türü`}
                   </div>
                 )}
               </div>
