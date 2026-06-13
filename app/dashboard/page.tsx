@@ -57,6 +57,7 @@ function HomeContent() {
   const isSyncing = useRef(false)
   // syncedUserId: hangi kullanıcı için sync yapıldığını takip eder
   const syncedUserId = useRef<string | null>(null)
+  const lastSavedDataString = useRef<string>("")
   const scrollAreaRef = useRef<HTMLDivElement>(null)
   const dailyPlanRef = useRef<HTMLDivElement>(null)
 
@@ -103,9 +104,11 @@ function HomeContent() {
               // Bulut verisi daha güncel
               setData(remote)
               saveData(remote)
+              lastSavedDataString.current = JSON.stringify(remote)
             } else if (localTime > remoteTime) {
               // Lokal veri daha güncel — buluta eşitle
               setData(local)
+              lastSavedDataString.current = JSON.stringify(local)
               
               const appDataPayload = { streak: local.streak, lastActiveDate: local.lastActiveDate, denemeTargetNet: local.denemeTargetNet };
               const plannerPayload = { subjects: local.subjects, slotNotes: local.slotNotes, completedNotes: local.completedNotes, holidays: local.holidays, dailyGoals: local.dailyGoals, dailyGoalTarget: local.dailyGoalTarget };
@@ -114,10 +117,12 @@ function HomeContent() {
               savePlannerYeniden(user.uid, plannerPayload)
             } else {
               setData(local)
+              lastSavedDataString.current = JSON.stringify(local)
             }
           } else {
             // Firebase'de henüz hiç veri yok
             setData(local)
+            lastSavedDataString.current = JSON.stringify(local)
             const appDataPayload = { streak: local.streak, lastActiveDate: local.lastActiveDate, denemeTargetNet: local.denemeTargetNet };
             const plannerPayload = { subjects: local.subjects, slotNotes: local.slotNotes, completedNotes: local.completedNotes, holidays: local.holidays, dailyGoals: local.dailyGoals, dailyGoalTarget: local.dailyGoalTarget };
             saveToFirebase(user.uid, appDataPayload as any)
@@ -126,10 +131,12 @@ function HomeContent() {
         } catch (e) {
           console.error("Sync error:", e)
           setData(local)
+          lastSavedDataString.current = JSON.stringify(local)
         }
         updateUserProfile(user.uid, user.displayName, user.email)
       } else {
         setData(local)
+        lastSavedDataString.current = JSON.stringify(local)
       }
 
       syncedUserId.current = user?.uid ?? null
@@ -144,6 +151,13 @@ function HomeContent() {
     if (!data || isSyncing.current) return
     if (user?.uid && user.uid !== syncedUserId.current) return
 
+    const currentDataString = JSON.stringify(data)
+    if (currentDataString === lastSavedDataString.current) {
+      // Veri değişmediyse boşuna sunucuya kaydetme (ekstra yük ve okuma/yazma kotasını korur)
+      return
+    }
+
+    lastSavedDataString.current = currentDataString
     saveData(data)
     setIsSaving(true)
 
