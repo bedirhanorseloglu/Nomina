@@ -1,4 +1,4 @@
-export type MapPointType = "tektonik" | "karstik" | "volkanik" | "heyelan" | "aluvyal" | "kiyi" | "karma" | "kivrim" | "kirik" | "plato";
+export type MapPointType = "tektonik" | "karstik" | "volkanik" | "heyelan" | "aluvyal" | "kiyi" | "karma" | "kivrim" | "kirik" | "plato" | "tabaka" | "lav" | "asinim";
 
 export interface MapPoint {
   id: string;
@@ -132,6 +132,34 @@ export const MOUNTAINS: MapPoint[] = [
   { id: "uludag", name: "Uludağ (Batolit)", type: "volkanik", lng: 29.2, lat: 40.0, description: "Bursa" },
 ];
 
+export const PLATEAUS: MapPoint[] = [
+  // TABAKA DÜZÜ PLATOLARI
+  { id: "obruk", name: "Obruk Platosu", type: "tabaka", lng: 33.4, lat: 38.2, description: "Tabaka Düzü (Karstik şekiller de görülür)" },
+  { id: "cihanbeyli", name: "Cihanbeyli Platosu", type: "tabaka", lng: 32.9, lat: 38.6, description: "Tabaka Düzü (Türkiye'nin tahıl ambarı)" },
+  { id: "haymana", name: "Haymana Platosu", type: "tabaka", lng: 32.5, lat: 39.4, description: "Tabaka Düzü (Tiftik keçisi)" },
+  { id: "bozok", name: "Bozok (Yozgat)", type: "tabaka", lng: 34.8, lat: 39.8, description: "Tabaka Düzü" },
+  { id: "uzunyayla", name: "Uzunyayla (Sivas)", type: "tabaka", lng: 36.8, lat: 38.8, description: "Tabaka Düzü" },
+  { id: "yazilikaya", name: "Yazılıkaya", type: "tabaka", lng: 30.5, lat: 39.2, description: "Tabaka Düzü (Ege Bölgesi)" },
+  { id: "gaziantep", name: "Gaziantep Platosu", type: "tabaka", lng: 37.3, lat: 37.0, description: "Tabaka Düzü (Sanayi gelişmiş)" },
+  { id: "sanliurfa", name: "Şanlıurfa Platosu", type: "tabaka", lng: 38.8, lat: 37.1, description: "Tabaka Düzü" },
+  { id: "adiyaman", name: "Adıyaman Platosu", type: "tabaka", lng: 38.2, lat: 37.7, description: "Tabaka Düzü" },
+  { id: "diyarbakir", name: "Diyarbakır Platosu", type: "tabaka", lng: 40.2, lat: 37.9, description: "Tabaka Düzü" },
+
+  // LAV PLATOLARI
+  { id: "erzurum", name: "Erzurum Platosu", type: "lav", lng: 41.2, lat: 39.9, description: "Lav Platosu (Büyükbaş hayvancılık)" },
+  { id: "kars", name: "Kars Platosu", type: "lav", lng: 43.0, lat: 40.6, description: "Lav Platosu (Çernezyom)" },
+  { id: "ardahan", name: "Ardahan Platosu", type: "lav", lng: 42.7, lat: 41.1, description: "Lav Platosu (Sert Karasal İklim)" },
+  { id: "kapadokya", name: "Kapadokya Platosu", type: "lav", lng: 34.8, lat: 38.6, description: "Lav Platosu (Turizm)" },
+
+  // KARSTİK PLATOLAR
+  { id: "teke", name: "Teke Platosu", type: "karstik", lng: 29.5, lat: 36.5, description: "Karstik (Kıl keçisi)" },
+  { id: "taseli", name: "Taşeli Platosu", type: "karstik", lng: 33.0, lat: 36.5, description: "Karstik (Engebeli arazi)" },
+
+  // AŞINIM PLATOLARI
+  { id: "catalca_kocaeli", name: "Çatalca-Kocaeli", type: "asinim", lng: 29.0, lat: 41.1, description: "Aşınım (Sanayi, Ulaşım, Nüfus)" },
+  { id: "persembe", name: "Perşembe Platosu", type: "asinim", lng: 37.5, lat: 40.8, description: "Aşınım (Karadeniz)" },
+];
+
 export const MAP_TOPICS: MapTopic[] = [
   {
     id: "goller",
@@ -144,5 +172,11 @@ export const MAP_TOPICS: MapTopic[] = [
     title: "Türkiye'nin Dağları",
     description: "Kıvrım, Kırık ve Volkanik dağlarımızı harita üzerinde doğru yerlerine sürükleyin.",
     points: MOUNTAINS
+  },
+  {
+    id: "platolar",
+    title: "Türkiye'nin Platoları",
+    description: "Tabaka düzü, lav, karstik ve aşınım platolarımızı harita üzerinde bulun.",
+    points: PLATEAUS
   }
 ];

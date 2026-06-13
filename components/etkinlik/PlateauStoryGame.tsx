@@ -2,28 +2,27 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RIVER_FEATURES, RiverFeature } from "@/lib/riverData";
-import { Droplets, Check, X, ArrowRight } from "lucide-react";
+import { PLATEAU_FEATURES, PlateauFeature } from "@/lib/plateauData";
+import { Mountain, Check, X, ArrowRight } from "lucide-react";
 import confetti from "canvas-confetti";
 
-interface RiverStoryGameProps {
+interface PlateauStoryGameProps {
   onComplete: () => void;
 }
 
-export default function RiverStoryGame({ onComplete }: RiverStoryGameProps) {
+export default function PlateauStoryGame({ onComplete }: PlateauStoryGameProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   
-  // We'll just play a subset (e.g. 5 questions) for brevity, or all of them
-  const questions = RIVER_FEATURES.slice(0, 10);
-  const currentRiver = questions[currentIndex];
+  const questions = PLATEAU_FEATURES;
+  const currentPlateau = questions[currentIndex];
 
   const handleOptionClick = (option: string) => {
     if (selectedOption !== null) return; // already answered
     setSelectedOption(option);
     
-    if (option === currentRiver.blank) {
+    if (option === currentPlateau.blank) {
       setIsCorrect(true);
       confetti({
         particleCount: 50,
@@ -46,16 +45,16 @@ export default function RiverStoryGame({ onComplete }: RiverStoryGameProps) {
     }
   };
 
-  if (!currentRiver) return null;
+  if (!currentPlateau) return null;
 
   // Split story into parts: before blank and after blank
-  const parts = currentRiver.story.split("_____");
+  const parts = currentPlateau.story.split("_____");
 
   return (
-    <div className="flex flex-col items-center max-w-2xl mx-auto w-full">
+    <div className="flex flex-col items-center max-w-2xl mx-auto w-full pb-32">
       {/* Progress */}
       <div className="w-full mb-8 flex items-center gap-4">
-        <Droplets className="text-blue-500 w-6 h-6 shrink-0" />
+        <Mountain className="text-orange-500 w-6 h-6 shrink-0" />
         <div className="flex-1 h-4 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
           <motion.div 
             className="h-full bg-[#58cc02]"
@@ -76,7 +75,7 @@ export default function RiverStoryGame({ onComplete }: RiverStoryGameProps) {
         >
           {/* Question Box */}
           <div className="bg-white dark:bg-[#1e293b] w-full rounded-3xl p-8 border-2 border-slate-200 dark:border-slate-700 shadow-sm mb-8 text-center relative overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-2 bg-blue-500" />
+            <div className="absolute top-0 left-0 w-full h-2 bg-orange-500" />
             <h2 className="text-xl font-black text-slate-400 mb-2 uppercase tracking-widest">SORU {currentIndex + 1}</h2>
             <div className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white leading-snug">
               {parts[0]}
@@ -95,9 +94,9 @@ export default function RiverStoryGame({ onComplete }: RiverStoryGameProps) {
 
           {/* Options Grid */}
           <div className="grid grid-cols-2 gap-4 w-full">
-            {currentRiver.options.map((option) => {
+            {currentPlateau.options.map((option) => {
               const isSelected = selectedOption === option;
-              let btnClass = "bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-700 text-slate-700 dark:text-white border-b-4 hover:bg-slate-50";
+              let btnClass = "bg-white dark:bg-[#1e293b] border-slate-200 dark:border-slate-700 text-slate-700 dark:text-white border-b-4 hover:bg-slate-50 dark:hover:bg-slate-800";
               
               if (isSelected) {
                 if (isCorrect) {
@@ -105,7 +104,7 @@ export default function RiverStoryGame({ onComplete }: RiverStoryGameProps) {
                 } else {
                   btnClass = "bg-[#ffdfdf] dark:bg-[#ff4b4b]/20 border-[#ff4b4b] text-[#ff4b4b] border-b-0 translate-y-1";
                 }
-              } else if (selectedOption !== null && option === currentRiver.blank) {
+              } else if (selectedOption !== null && option === currentPlateau.blank) {
                 // Show correct answer if wrong was selected
                 btnClass = "bg-[#d7ffb8] dark:bg-[#58cc02]/20 border-[#58cc02] text-[#58cc02] border-b-4 opacity-50";
               } else if (selectedOption !== null) {
