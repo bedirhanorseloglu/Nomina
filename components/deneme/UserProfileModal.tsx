@@ -105,7 +105,6 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
       setLoading(true);
       setLoadError(null);
       try {
-        console.log(`[UserProfileModal] Fetching data for userId: ${userEntry.userId} (${userEntry.displayName})`);
         const data = await loadFromFirebase(userEntry.userId);
         const denemeData = await loadDenemeYeniden(userEntry.userId);
         
@@ -116,7 +115,6 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
           Object.assign(data || {}, { denemeler: denemeData.denemeler || [] });
         }
         
-        console.log(`[UserProfileModal] Data received:`, data ? `${(data.denemeler as any[])?.length ?? 0} denemeler` : 'null');
         if (!data && !denemeData) {
           setLoadError(`${userEntry.displayName} adlı kullanıcının verisi bulunamadı. Kullanıcı henüz deneme kaydetmemiş olabilir.`);
         }
