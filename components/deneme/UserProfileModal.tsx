@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, TrendingUp, Award, Calendar, BookOpen, Swords } from "lucide-react";
 import { LeaderboardEntry } from "@/lib/leaderboardService";
-import { loadFromFirebase } from "@/lib/firebaseService";
+import { loadFromFirebase, loadDenemeYeniden } from "@/lib/firebaseService";
 import { evaluateDeneme } from "@/lib/denemeUtils";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, BarChart, Bar, CartesianGrid, Legend } from "recharts";
 import { format } from "date-fns";
@@ -107,25 +107,38 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
       try {
         console.log(`[UserProfileModal] Fetching data for userId: ${userEntry.userId} (${userEntry.displayName})`);
         const data = await loadFromFirebase(userEntry.userId);
+        const denemeData = await loadDenemeYeniden(userEntry.userId);
+        
+        if (data && denemeData) {
+          data.denemeler = denemeData.denemeler || [];
+        } else if (denemeData) {
+          // If only denemeData exists
+          Object.assign(data || {}, { denemeler: denemeData.denemeler || [] });
+        }
+        
         console.log(`[UserProfileModal] Data received:`, data ? `${(data.denemeler as any[])?.length ?? 0} denemeler` : 'null');
-        if (!data) {
+        if (!data && !denemeData) {
           setLoadError(`${userEntry.displayName} adlı kullanıcının verisi bulunamadı. Kullanıcı henüz deneme kaydetmemiş olabilir.`);
         }
-        if (data) {
-          if (data.denemeler && (data.denemeler as any[]).length > 0) {
-            const migrated = migrateDenemeler(data.denemeler as DenemeRecord[]);
-            data.denemeler = migrated as any;
+        
+        // Let's use either data or denemeData as base depending on what we have
+        const combinedData = data || denemeData || {};
+        
+        if (combinedData) {
+          if (combinedData.denemeler && (combinedData.denemeler as any[]).length > 0) {
+            const migrated = migrateDenemeler(combinedData.denemeler as DenemeRecord[]);
+            combinedData.denemeler = migrated as any;
             setUserDenemeler(migrated);
             setUserGenelSubjectAverages(calculateSubjectAverages(migrated, "genel"));
             setUserBransSubjectAverages(calculateSubjectAverages(migrated, "brans"));
           }
-          if (data.denemeTargetNet !== undefined) {
-            setUserTargetNet(data.denemeTargetNet);
+          if (combinedData.denemeTargetNet !== undefined) {
+            setUserTargetNet(combinedData.denemeTargetNet);
           }
         }
         
-        if (data && data.denemeler) {
-          const allDenemeler = data.denemeler as any[];
+        if (combinedData && combinedData.denemeler) {
+          const allDenemeler = combinedData.denemeler as any[];
           
           // --- GENEL DENEME VERİSİ ---
           const genel = allDenemeler.filter(d => d.examType !== "brans")
@@ -226,7 +239,7 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
             worstGenelSubj: worstSubj,
           });
           
-          setEarnedBadges(getEarnedBadges(data));
+          setEarnedBadges(getEarnedBadges(combinedData as any));
         }
       } catch (error) {
         console.error("Kullanıcı verisi çekilemedi:", error);
@@ -238,8 +251,8 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
 
     const fetchCurrentUserStats = async () => {
       if (!user) return;
-      const data = await loadFromFirebase(user.uid);
-      const local = migrateDenemeler((data?.denemeler as DenemeRecord[]) || []);
+      const denemeData = await loadDenemeYeniden(user.uid);
+      const local = migrateDenemeler((denemeData?.denemeler as DenemeRecord[]) || []);
       setCurrentUserDenemeler(local);
       const genel = local.filter(d => d.examType !== "brans");
       const brans = local.filter(d => d.examType === "brans");
