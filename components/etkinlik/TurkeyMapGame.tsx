@@ -38,6 +38,8 @@ const TYPE_VISUALS: Record<string, { bg: string; border: string; text: string; g
   tabaka: { bg: "bg-[#ff9600]", border: "border-[#e08400]", text: "text-[#e08400]", glow: "shadow-orange-500/40", icon: "🥞" },
   lav: { bg: "bg-[#ff4b4b]", border: "border-[#e04343]", text: "text-[#e04343]", glow: "shadow-red-500/40", icon: "🌋" },
   asinim: { bg: "bg-[#8965f0]", border: "border-[#6f50c8]", text: "text-[#6f50c8]", glow: "shadow-indigo-500/40", icon: "💨" },
+  delta: { bg: "bg-[#58cc02]", border: "border-[#46a302]", text: "text-[#46a302]", glow: "shadow-emerald-500/40", icon: "🌱" },
+  kiyiduzlugu: { bg: "bg-[#2bced6]", border: "border-[#20aeb5]", text: "text-[#20aeb5]", glow: "shadow-cyan-500/40", icon: "🏖️" },
 };
 
 function getTypeVisual(type: string) {

@@ -11,12 +11,13 @@ interface RiverStoryGameProps {
 }
 
 export default function RiverStoryGame({ onComplete }: RiverStoryGameProps) {
+  const [questions] = useState(() => {
+    return [...RIVER_FEATURES].sort(() => Math.random() - 0.5).slice(0, 10);
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   
-  // We'll just play a subset (e.g. 5 questions) for brevity, or all of them
-  const questions = RIVER_FEATURES.slice(0, 10);
   const currentRiver = questions[currentIndex];
 
   const handleOptionClick = (option: string) => {

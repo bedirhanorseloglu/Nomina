@@ -93,194 +93,239 @@ export default function EtkinlikIndexPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.3 }}
-            className="grid md:grid-cols-2 gap-6 max-w-4xl"
+            className="max-w-5xl space-y-12"
           >
-            {/* Coğrafya: Dağlar */}
+            {/* COĞRAFYA BÖLÜMÜ */}
             {(activeTab === "all" || activeTab === "cografya") && (
-              <Link
-                href="/etkinlik/harita?topic=daglar"
-                className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
-              >
-                <div className="flex flex-col sm:flex-row items-start gap-5">
-                  <div className="w-20 h-20 rounded-2xl bg-red-500 text-white shadow-sm border-b-4 border-red-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <Map className="w-10 h-10 drop-shadow-sm" />
+              <div className="space-y-8">
+                {activeTab === "all" && (
+                  <div className="flex items-center gap-3 border-b-2 border-slate-200 dark:border-slate-800 pb-3">
+                    <div className="w-8 h-8 rounded-full bg-emerald-100 dark:bg-emerald-500/20 text-emerald-500 flex items-center justify-center">
+                      <Map className="w-5 h-5" />
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-800 dark:text-white">Coğrafya</h2>
                   </div>
-                  <div className="flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Yer Şekilleri</span>
+                )}
+
+                {/* Alt Kategori: Yer Şekilleri */}
+                <div>
+                  <h3 className="text-lg font-bold text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-2 tracking-wide uppercase">
+                    Yer Şekilleri
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Dağlar */}
+                    <Link href="/etkinlik/harita?topic=daglar" className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block">
+                      <div className="flex flex-col sm:flex-row items-start gap-5">
+                        <div className="w-20 h-20 rounded-2xl bg-red-500 text-white shadow-sm border-b-4 border-red-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Map className="w-10 h-10 drop-shadow-sm" />
+                        </div>
+                        <div className="flex flex-col h-full justify-between">
+                          <div>
+                            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Türkiye'nin Dağları</h3>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                              Türkiye üzerindeki dağları (kıvrım, kırık, volkanik) haritaya yerleştirerek öğren.
+                            </p>
+                          </div>
+                          <div className="inline-flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-red-200 dark:border-red-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                            Hemen Başla
+                          </div>
+                        </div>
                       </div>
-                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Türkiye'nin Dağları</h3>
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                        Türkiye üzerindeki dağları (kıvrım, kırık, volkanik) haritaya yerleştirerek öğren.
-                      </p>
-                    </div>
-                    <div className="inline-flex items-center justify-center bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-red-200 dark:border-red-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
-                      Hemen Başla
-                    </div>
+                    </Link>
+
+                    {/* Platolar */}
+                    <Link href="/etkinlik/platolar" className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block">
+                      <div className="flex flex-col sm:flex-row items-start gap-5">
+                        <div className="w-20 h-20 rounded-2xl bg-orange-500 text-white shadow-sm border-b-4 border-orange-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Map className="w-10 h-10 drop-shadow-sm" />
+                        </div>
+                        <div className="flex flex-col h-full justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-orange-500 bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded-md">2 Aşamalı</span>
+                            </div>
+                            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Türkiye'nin Platoları</h3>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                              Platoları interaktif hikayelerle öğren ve harita üzerinde yerleştirerek pratiğini yap.
+                            </p>
+                          </div>
+                          <div className="inline-flex items-center justify-center bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-orange-200 dark:border-orange-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                            Hemen Başla
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
+
+                    {/* Ovalar */}
+                    <Link href="/etkinlik/ovalar" className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block">
+                      <div className="flex flex-col sm:flex-row items-start gap-5">
+                        <div className="w-20 h-20 rounded-2xl bg-lime-500 text-white shadow-sm border-b-4 border-lime-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Map className="w-10 h-10 drop-shadow-sm" />
+                        </div>
+                        <div className="flex flex-col h-full justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-lime-500 bg-lime-50 dark:bg-lime-500/10 px-2 py-0.5 rounded-md">Yeni Mod</span>
+                            </div>
+                            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Türkiye'nin Ovaları</h3>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                              Ova Dedektifi oyunuyla ipuçlarını bul, ardından harita üzerinde ovaları yerleştir.
+                            </p>
+                          </div>
+                          <div className="inline-flex items-center justify-center bg-lime-50 dark:bg-lime-500/10 text-lime-600 dark:text-lime-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-lime-200 dark:border-lime-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                            Hemen Başla
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
                   </div>
                 </div>
-              </Link>
-            )}
 
-            {/* Coğrafya: Göller */}
-            {(activeTab === "all" || activeTab === "cografya") && (
-              <Link
-                href="/etkinlik/harita?topic=goller"
-                className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
-              >
-                <div className="flex flex-col sm:flex-row items-start gap-5">
-                  <div className="w-20 h-20 rounded-2xl bg-cyan-500 text-white shadow-sm border-b-4 border-cyan-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <Map className="w-10 h-10 drop-shadow-sm" />
-                  </div>
-                  <div className="flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Su Kaynakları</span>
+                {/* Alt Kategori: Su Kaynakları */}
+                <div>
+                  <h3 className="text-lg font-bold text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-2 tracking-wide uppercase mt-4">
+                    Su Kaynakları
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Göller */}
+                    <Link href="/etkinlik/harita?topic=goller" className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block">
+                      <div className="flex flex-col sm:flex-row items-start gap-5">
+                        <div className="w-20 h-20 rounded-2xl bg-cyan-500 text-white shadow-sm border-b-4 border-cyan-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Map className="w-10 h-10 drop-shadow-sm" />
+                        </div>
+                        <div className="flex flex-col h-full justify-between">
+                          <div>
+                            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Türkiye'nin Gölleri</h3>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                              Türkiye'deki gölleri oluşum türlerine göre haritada bul ve görsel hafızanı güçlendir.
+                            </p>
+                          </div>
+                          <div className="inline-flex items-center justify-center bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-cyan-200 dark:border-cyan-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                            Hemen Başla
+                          </div>
+                        </div>
                       </div>
-                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Türkiye'nin Gölleri</h3>
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                        Türkiye'deki gölleri oluşum türlerine göre haritada bul ve görsel hafızanı güçlendir.
-                      </p>
-                    </div>
-                    <div className="inline-flex items-center justify-center bg-cyan-50 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-cyan-200 dark:border-cyan-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
-                      Hemen Başla
-                    </div>
+                    </Link>
+
+                    {/* Akarsular */}
+                    <Link href="/etkinlik/akarsular" className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block">
+                      <div className="flex flex-col sm:flex-row items-start gap-5">
+                        <div className="w-20 h-20 rounded-2xl bg-blue-500 text-white shadow-sm border-b-4 border-blue-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Droplets className="w-10 h-10 drop-shadow-sm" />
+                        </div>
+                        <div className="flex flex-col h-full justify-between">
+                          <div>
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded-md">2 Aşamalı</span>
+                            </div>
+                            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Akarsular</h3>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                              Türkiye'nin akarsularını hikaye tarzında boşluk doldurarak öğren ve haritada yerlerini bul.
+                            </p>
+                          </div>
+                          <div className="inline-flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-blue-200 dark:border-blue-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                            Hemen Başla
+                          </div>
+                        </div>
+                      </div>
+                    </Link>
                   </div>
                 </div>
-              </Link>
-            )}
 
-            {/* Coğrafya: Platolar */}
-            {(activeTab === "all" || activeTab === "cografya") && (
-              <Link
-                href="/etkinlik/platolar"
-                className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
-              >
-                <div className="flex flex-col sm:flex-row items-start gap-5">
-                  <div className="w-20 h-20 rounded-2xl bg-orange-500 text-white shadow-sm border-b-4 border-orange-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <Map className="w-10 h-10 drop-shadow-sm" />
-                  </div>
-                  <div className="flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Yer Şekilleri</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-orange-500 bg-orange-50 dark:bg-orange-500/10 px-2 py-0.5 rounded-md">Yeni</span>
+                {/* Alt Kategori: Genel Tekrar */}
+                <div>
+                  <h3 className="text-lg font-bold text-slate-400 dark:text-slate-500 mb-4 flex items-center gap-2 tracking-wide uppercase mt-4">
+                    Genel Tekrar
+                  </h3>
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Bilgi Kartları */}
+                    <Link href="/etkinlik/kart" className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block">
+                      <div className="flex flex-col sm:flex-row items-start gap-5">
+                        <div className="w-20 h-20 rounded-2xl bg-emerald-500 text-white shadow-sm border-b-4 border-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                          <Layers className="w-10 h-10 drop-shadow-sm" />
+                        </div>
+                        <div className="flex flex-col h-full justify-between">
+                          <div>
+                            <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Tüm Konular (Bilgi Kartları)</h3>
+                            <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
+                              Hızlı tekrar yöntemiyle kavramları arkalı-önlü kartlarla ezberle ve serini koru.
+                            </p>
+                          </div>
+                          <div className="inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-emerald-200 dark:border-emerald-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
+                            Kartları Çalış
+                          </div>
+                        </div>
                       </div>
-                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Türkiye'nin Platoları</h3>
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                        Platoları interaktif hikayelerle öğren ve harita üzerinde yerleştirerek pratiğini yap.
-                      </p>
-                    </div>
-                    <div className="inline-flex items-center justify-center bg-orange-50 dark:bg-orange-500/10 text-orange-600 dark:text-orange-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-orange-200 dark:border-orange-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
-                      Hemen Başla
-                    </div>
+                    </Link>
                   </div>
                 </div>
-              </Link>
+              </div>
             )}
 
-            {/* Coğrafya: Akarsuların Serüveni */}
-            {(activeTab === "all" || activeTab === "cografya") && (
-              <Link
-                href="/etkinlik/akarsular"
-                className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
-              >
-                <div className="flex flex-col sm:flex-row items-start gap-5">
-                  <div className="w-20 h-20 rounded-2xl bg-blue-500 text-white shadow-sm border-b-4 border-blue-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <Droplets className="w-10 h-10 drop-shadow-sm" />
+            {/* TARİH BÖLÜMÜ */}
+            {(activeTab === "all" || activeTab === "tarih") && (
+              <div className="space-y-6 pt-4">
+                {activeTab === "all" && (
+                  <div className="flex items-center gap-3 border-b-2 border-slate-200 dark:border-slate-800 pb-3">
+                    <div className="w-8 h-8 rounded-full bg-amber-100 dark:bg-amber-500/20 text-amber-500 flex items-center justify-center">
+                      <Milestone className="w-5 h-5" />
+                    </div>
+                    <h2 className="text-2xl font-black text-slate-800 dark:text-white">Tarih</h2>
                   </div>
-                  <div className="flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Su Kaynakları</span>
-                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-500 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded-md">Yeni</span>
+                )}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Placeholder Tarih */}
+                  <div className="w-full h-full text-left relative bg-slate-100 dark:bg-[#1e293b]/50 rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-dashed block opacity-70">
+                    <div className="flex flex-col sm:flex-row items-start gap-5">
+                      <div className="w-20 h-20 rounded-2xl bg-amber-500/20 text-amber-500/50 flex items-center justify-center shrink-0">
+                        <Lock className="w-10 h-10" />
                       </div>
-                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Akarsular</h3>
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                        Türkiye'nin akarsularını hikaye tarzında boşluk doldurarak öğren ve haritada yerlerini bul.
-                      </p>
-                    </div>
-                    <div className="inline-flex items-center justify-center bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-blue-200 dark:border-blue-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
-                      Hemen Başla
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            )}
-
-            {/* Coğrafya: Bilgi Kartları */}
-            {(activeTab === "all" || activeTab === "cografya") && (
-              <Link
-                href="/etkinlik/kart"
-                className="group w-full h-full text-left relative bg-white dark:bg-[#1e293b] rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-b-[6px] active:border-b-2 active:translate-y-[4px] transition-all block"
-              >
-                <div className="flex flex-col sm:flex-row items-start gap-5">
-                  <div className="w-20 h-20 rounded-2xl bg-emerald-500 text-white shadow-sm border-b-4 border-emerald-700 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
-                    <Layers className="w-10 h-10 drop-shadow-sm" />
-                  </div>
-                  <div className="flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2 py-0.5 rounded-md">Genel Tekrar</span>
+                      <div className="flex flex-col h-full justify-between">
+                        <div>
+                          <h3 className="text-xl font-black text-slate-500 dark:text-slate-400 mb-2">Kronoloji Zinciri</h3>
+                          <p className="text-sm font-medium text-slate-400 dark:text-slate-500 mb-4 leading-relaxed">
+                            Önemli tarihi olayları sıraya dizerek kronolojik hafızanı test et. Çok yakında eklenecek.
+                          </p>
+                        </div>
+                        <div className="inline-flex items-center justify-center bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 font-bold px-4 py-2.5 rounded-xl text-sm self-start">
+                          Yakında
+                        </div>
                       </div>
-                      <h3 className="text-xl font-black text-slate-800 dark:text-white mb-2">Tüm Konular (Bilgi Kartları)</h3>
-                      <p className="text-sm font-medium text-slate-500 dark:text-slate-400 mb-4 leading-relaxed">
-                        Hızlı tekrar yöntemiyle kavramları arkalı-önlü kartlarla ezberle ve serini koru.
-                      </p>
-                    </div>
-                    <div className="inline-flex items-center justify-center bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold px-4 py-2.5 rounded-xl text-sm border-b-2 border-emerald-200 dark:border-emerald-900 self-start group-active:border-b-0 group-active:translate-y-[2px] transition-all">
-                      Kartları Çalış
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            )}
-
-            {/* Placeholder Tarih (Coming Soon) */}
-            {(activeTab === "tarih") && (
-              <div className="w-full h-full text-left relative bg-slate-100 dark:bg-[#1e293b]/50 rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-dashed block opacity-70">
-                <div className="flex flex-col sm:flex-row items-start gap-5">
-                  <div className="w-20 h-20 rounded-2xl bg-amber-500/20 text-amber-500/50 flex items-center justify-center shrink-0">
-                    <Lock className="w-10 h-10" />
-                  </div>
-                  <div className="flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-amber-500 bg-amber-50 dark:bg-amber-500/10 px-2 py-0.5 rounded-md">Tarih</span>
-                      </div>
-                      <h3 className="text-xl font-black text-slate-500 dark:text-slate-400 mb-2">Kronoloji Zinciri</h3>
-                      <p className="text-sm font-medium text-slate-400 dark:text-slate-500 mb-4 leading-relaxed">
-                        Önemli tarihi olayları sıraya dizerek kronolojik hafızanı test et. Çok yakında eklenecek.
-                      </p>
-                    </div>
-                    <div className="inline-flex items-center justify-center bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 font-bold px-4 py-2.5 rounded-xl text-sm self-start">
-                      Yakında
                     </div>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Placeholder Vatandaşlık (Coming Soon) */}
-            {(activeTab === "vatandaslik") && (
-              <div className="w-full h-full text-left relative bg-slate-100 dark:bg-[#1e293b]/50 rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-dashed block opacity-70">
-                <div className="flex flex-col sm:flex-row items-start gap-5">
-                  <div className="w-20 h-20 rounded-2xl bg-slate-500/20 text-slate-500/50 flex items-center justify-center shrink-0">
-                    <Lock className="w-10 h-10" />
-                  </div>
-                  <div className="flex flex-col h-full justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-200 dark:bg-slate-700/50 px-2 py-0.5 rounded-md">Vatandaşlık</span>
-                      </div>
-                      <h3 className="text-xl font-black text-slate-500 dark:text-slate-400 mb-2">Anayasa Kartları</h3>
-                      <p className="text-sm font-medium text-slate-400 dark:text-slate-500 mb-4 leading-relaxed">
-                        Temel hukuk kurallarını ve anayasa maddelerini boşluk doldurma ile öğren. Çok yakında.
-                      </p>
+            {/* VATANDAŞLIK BÖLÜMÜ */}
+            {(activeTab === "all" || activeTab === "vatandaslik") && (
+              <div className="space-y-6 pt-4">
+                {activeTab === "all" && (
+                  <div className="flex items-center gap-3 border-b-2 border-slate-200 dark:border-slate-800 pb-3">
+                    <div className="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-500 flex items-center justify-center">
+                      <Scale className="w-5 h-5" />
                     </div>
-                    <div className="inline-flex items-center justify-center bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 font-bold px-4 py-2.5 rounded-xl text-sm self-start">
-                      Yakında
+                    <h2 className="text-2xl font-black text-slate-800 dark:text-white">Vatandaşlık</h2>
+                  </div>
+                )}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Placeholder Vatandaşlık */}
+                  <div className="w-full h-full text-left relative bg-slate-100 dark:bg-[#1e293b]/50 rounded-3xl p-6 border-2 border-slate-200 dark:border-slate-700/50 border-dashed block opacity-70">
+                    <div className="flex flex-col sm:flex-row items-start gap-5">
+                      <div className="w-20 h-20 rounded-2xl bg-slate-500/20 text-slate-500/50 flex items-center justify-center shrink-0">
+                        <Lock className="w-10 h-10" />
+                      </div>
+                      <div className="flex flex-col h-full justify-between">
+                        <div>
+                          <h3 className="text-xl font-black text-slate-500 dark:text-slate-400 mb-2">Anayasa Kartları</h3>
+                          <p className="text-sm font-medium text-slate-400 dark:text-slate-500 mb-4 leading-relaxed">
+                            Temel hukuk kurallarını ve anayasa maddelerini boşluk doldurma ile öğren. Çok yakında.
+                          </p>
+                        </div>
+                        <div className="inline-flex items-center justify-center bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 font-bold px-4 py-2.5 rounded-xl text-sm self-start">
+                          Yakında
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>

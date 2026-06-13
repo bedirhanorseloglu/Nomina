@@ -11,11 +11,13 @@ interface PlateauStoryGameProps {
 }
 
 export default function PlateauStoryGame({ onComplete }: PlateauStoryGameProps) {
+  const [questions] = useState(() => {
+    return [...PLATEAU_FEATURES].sort(() => Math.random() - 0.5);
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   
-  const questions = PLATEAU_FEATURES;
   const currentPlateau = questions[currentIndex];
 
   const handleOptionClick = (option: string) => {

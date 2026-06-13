@@ -1,4 +1,4 @@
-export type MapPointType = "tektonik" | "karstik" | "volkanik" | "heyelan" | "aluvyal" | "kiyi" | "karma" | "kivrim" | "kirik" | "plato" | "tabaka" | "lav" | "asinim";
+export type MapPointType = "tektonik" | "karstik" | "volkanik" | "heyelan" | "aluvyal" | "kiyi" | "karma" | "kivrim" | "kirik" | "plato" | "tabaka" | "lav" | "asinim" | "delta" | "kiyiduzlugu";
 
 export interface MapPoint {
   id: string;
@@ -160,6 +160,47 @@ export const PLATEAUS: MapPoint[] = [
   { id: "persembe", name: "Perşembe Platosu", type: "asinim", lng: 37.5, lat: 40.8, description: "Aşınım (Karadeniz)" },
 ];
 
+export const PLAINS: MapPoint[] = [
+  // KIYI OVALARI - DELTALAR
+  { id: "cukurova", name: "Çukurova Deltası", type: "delta", lng: 35.3, lat: 36.8, description: "Delta Ovası (Seyhan ve Ceyhan nehirleri)" },
+  { id: "silifke", name: "Silifke Deltası", type: "delta", lng: 33.9, lat: 36.3, description: "Delta Ovası (Göksu nehri)" },
+  { id: "bafra", name: "Bafra Deltası", type: "delta", lng: 35.9, lat: 41.7, description: "Delta Ovası (Kızılırmak)" },
+  { id: "carsamba", name: "Çarşamba Deltası", type: "delta", lng: 36.7, lat: 41.2, description: "Delta Ovası (Yeşilırmak)" },
+  { id: "meric", name: "Meriç Deltası", type: "delta", lng: 26.2, lat: 40.7, description: "Delta Ovası (Pirinç tarımı)" },
+  { id: "dikili", name: "Dikili Deltası", type: "delta", lng: 26.8, lat: 39.0, description: "Delta Ovası (Bakırçay)" },
+  { id: "menemen", name: "Menemen Deltası", type: "delta", lng: 26.9, lat: 38.6, description: "Delta Ovası (Gediz)" },
+  { id: "selcuk", name: "Selçuk Deltası", type: "delta", lng: 27.3, lat: 37.9, description: "Delta Ovası (Küçük Menderes)" },
+  { id: "balat", name: "Balat Deltası", type: "delta", lng: 27.2, lat: 37.5, description: "Delta Ovası (Büyük Menderes)" },
+
+  // KIYI OVALARI - KIYI DÜZLÜĞÜ
+  { id: "finike", name: "Finike Ovası", type: "kiyiduzlugu", lng: 30.1, lat: 36.3, description: "Kıyı Düzlüğü Ovası" },
+  { id: "dalaman", name: "Dalaman Ovası", type: "kiyiduzlugu", lng: 28.7, lat: 36.7, description: "Kıyı Düzlüğü Ovası" },
+
+  // İÇ OVALAR - TEKTONİK
+  { id: "amik", name: "Amik Ovası", type: "tektonik", lng: 36.3, lat: 36.3, description: "Tektonik (DAF üzerinde)" },
+  { id: "ergene", name: "Ergene Ovası", type: "tektonik", lng: 27.2, lat: 41.3, description: "Tektonik (Fay hatları uzağında)" },
+  { id: "konya", name: "Konya Ovası", type: "tektonik", lng: 32.5, lat: 37.8, description: "Tektonik (Fay hatları uzağında)" },
+  { id: "harran", name: "Harran Ovası", type: "tektonik", lng: 39.0, lat: 36.9, description: "Tektonik (Fay hatları uzağında)" },
+  { id: "igdir", name: "Iğdır Ovası", type: "tektonik", lng: 44.0, lat: 39.9, description: "Tektonik (KAF üzerinde)" },
+  { id: "erzincan", name: "Erzincan Ovası", type: "tektonik", lng: 39.5, lat: 39.7, description: "Tektonik (KAF üzerinde)" },
+  { id: "malatya", name: "Malatya Ovası", type: "tektonik", lng: 38.3, lat: 38.4, description: "Tektonik (DAF üzerinde)" },
+  { id: "adapazari", name: "Adapazarı Ovası", type: "tektonik", lng: 30.4, lat: 40.7, description: "Tektonik (KAF üzerinde)" },
+  { id: "duzce", name: "Düzce Ovası", type: "tektonik", lng: 31.1, lat: 40.8, description: "Tektonik (KAF üzerinde)" },
+
+  // İÇ OVALAR - KARSTİK (TAKKE)
+  { id: "elmali", name: "Elmalı Ovası", type: "karstik", lng: 29.9, lat: 36.7, description: "Karstik Ova" },
+  { id: "kestel_ova", name: "Kestel Ovası", type: "karstik", lng: 30.2, lat: 37.4, description: "Karstik Ova" },
+  { id: "acipayam", name: "Acıpayam Ovası", type: "karstik", lng: 29.3, lat: 37.4, description: "Karstik Ova" },
+  { id: "tavas", name: "Tavas Ovası", type: "karstik", lng: 29.0, lat: 37.5, description: "Karstik Ova" },
+  { id: "korkuteli", name: "Korkuteli Ovası", type: "karstik", lng: 30.2, lat: 37.0, description: "Karstik Ova" },
+  { id: "tefenni", name: "Tefenni Ovası", type: "karstik", lng: 29.7, lat: 37.3, description: "Karstik Ova" },
+
+  // İÇ OVALAR - VOLKANİK
+  { id: "develi", name: "Develi Ovası", type: "volkanik", lng: 35.4, lat: 38.3, description: "Volkanik Ova" },
+  { id: "caldiran", name: "Çaldıran Ovası", type: "volkanik", lng: 43.9, lat: 39.1, description: "Volkanik Ova" },
+  { id: "muradiye", name: "Muradiye Ovası", type: "volkanik", lng: 43.7, lat: 38.9, description: "Volkanik Ova" },
+];
+
 export const MAP_TOPICS: MapTopic[] = [
   {
     id: "goller",
@@ -178,5 +219,11 @@ export const MAP_TOPICS: MapTopic[] = [
     title: "Türkiye'nin Platoları",
     description: "Tabaka düzü, lav, karstik ve aşınım platolarımızı harita üzerinde bulun.",
     points: PLATEAUS
+  },
+  {
+    id: "ovalar",
+    title: "Türkiye'nin Ovaları",
+    description: "Kıyı, tektonik, karstik ve volkanik ovalarımızı harita üzerinde bulun.",
+    points: PLAINS
   }
 ];
