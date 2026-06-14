@@ -7,6 +7,7 @@ import { useDroppable } from "@dnd-kit/core"
 import { UNIVERSITY_CLASSES } from "@/lib/data"
 import { motion, AnimatePresence } from "framer-motion"
 import { useState, useMemo, useEffect } from "react"
+import { getStudyDate } from "@/lib/dateUtils"
 
 interface DailyPlanViewProps {
   date: Date
@@ -167,6 +168,7 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
   const isHoliday = holidays.includes(dateStr)
   const isExamDay = dateStr === EXAM_DATE
   const topicsForDay = topics.filter(t => t.scheduledDate === dateStr)
+  const isToday = dateStr === format(getStudyDate(), "yyyy-MM-dd")
 
   useEffect(() => {
     const getStudyDay = () => {
@@ -369,9 +371,20 @@ export default function DailyPlanView({ date, topics, subjects, isDragging, onDa
         </div>
 
         <div className="flex items-center justify-between sm:justify-center gap-2 bg-slate-50 dark:bg-black/20 p-2 rounded-[1.5rem] border-2 border-slate-100 dark:border-white/5 w-full sm:w-auto">
-          <button onClick={() => onDateChange(subDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-[1rem] hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0 font-bold">→</button>
-          <button onClick={() => onDateChange(new Date())} className="flex-1 sm:flex-none px-6 py-2.5 bg-[#1cb0f6] border-b-4 border-[#1899d6] hover:bg-[#1899d6] text-white font-black rounded-[1rem] transition-all active:translate-y-1 active:border-b-0 active:mb-1 text-xs uppercase tracking-widest whitespace-nowrap">Bugün</button>
-          <button onClick={() => onDateChange(addDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-[1rem] hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0 font-bold">→</button>
+          <button onClick={() => onDateChange(subDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-[1rem] hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0 font-bold">{'<'}</button>
+          <button 
+            onClick={() => {
+              if (!isToday) onDateChange(getStudyDate())
+            }} 
+            className={`flex-1 sm:flex-none px-6 py-2.5 font-black rounded-[1rem] transition-all text-xs uppercase tracking-widest whitespace-nowrap ${
+              isToday 
+                ? "bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500 cursor-default" 
+                : "bg-[#1cb0f6] border-b-4 border-[#1899d6] hover:bg-[#1899d6] text-white active:translate-y-1 active:border-b-0 active:mb-1"
+            }`}
+          >
+            {isToday ? "Bugün" : "Bugüne Dön"}
+          </button>
+          <button onClick={() => onDateChange(addDays(new Date(date), 1))} className="w-10 sm:w-12 h-10 sm:h-12 rounded-[1rem] hover:bg-white dark:hover:bg-slate-700 flex items-center justify-center text-slate-400 hover:text-slate-800 dark:hover:text-white transition-all shadow-sm shadow-transparent hover:shadow-slate-200 dark:hover:shadow-none shrink-0 font-bold">{'>'}</button>
         </div>
       </div>
 

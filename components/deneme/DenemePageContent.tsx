@@ -18,6 +18,8 @@ import { DenemeRecord } from "@/lib/denemeUtils";
 import { loadDenemeYeniden, saveDenemeYeniden } from "@/lib/firebaseService";
 import { averageNet, evaluateDeneme, formatNet, migrateDenemeler, createEmptyScores } from "@/lib/denemeUtils";
 import { useAuth } from "@/contexts/AuthContext";
+import { getStudyDate } from "@/lib/dateUtils";
+import { format } from "date-fns";
 import { updateLeaderboard, updateBranchLeaderboard, removeFromLeaderboard, removeFromBranchLeaderboard } from "@/lib/leaderboardService";
 import { DENEME_SUBJECTS } from "@/lib/denemeConfig";
 
@@ -412,7 +414,7 @@ export default function DenemePageContent() {
                       }
                     : (initialMode || initialSubject) ? {
                         name: "",
-                        date: new Date().toISOString().split("T")[0],
+                        date: format(getStudyDate(), 'yyyy-MM-dd'),
                         scores: createEmptyScores(),
                         examType: (initialMode as "genel" | "brans") || "genel",
                         bransSubjectId: initialSubject || "",

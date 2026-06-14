@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
+import { getStudyDate } from "@/lib/dateUtils";
 import { tr } from "date-fns/locale";
 import { FileText, Brain, Compass, Calendar, Tag, Check, ArrowRight, ArrowLeft, ChevronDown, Globe, Target } from "lucide-react";
 import SubjectScoreRow from "./SubjectScoreRow";
@@ -49,7 +50,7 @@ export default function DenemeEntryForm({ targetNet, onSubmit, onCancel, initial
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [hoveredSubjectId, setHoveredSubjectId] = useState<string | null>(null);
   const [name, setName] = useState(initial?.name ?? "");
-  const [date, setDate] = useState(initial?.date ?? format(new Date(), "yyyy-MM-dd"));
+  const [date, setDate] = useState(initial?.date ?? format(getStudyDate(), "yyyy-MM-dd"));
   const [publisher, setPublisher] = useState(initial?.publisher ?? "");
   const [note, setNote] = useState(initial?.note ?? "");
   const [scores, setScores] = useState<SubjectScoreInput[]>(initial?.scores ?? createEmptyScores());

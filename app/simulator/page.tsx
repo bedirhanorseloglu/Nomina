@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import { loadPlannerYeniden } from "@/lib/firebaseService";
 import { format } from "date-fns";
+import { getStudyDate } from "@/lib/dateUtils";
 
 type SetupStep = "mode" | "duration";
 type ExamMode = "genel" | "brans" | null;
@@ -41,7 +42,7 @@ export default function ExamSimulatorPage() {
   const [dailyGoalTarget, setDailyGoalTarget] = useState(0);
   const [todaySolved, setTodaySolved] = useState(0);
   
-  const today = format(new Date(), "yyyy-MM-dd");
+  const today = format(getStudyDate(), "yyyy-MM-dd");
 
   useEffect(() => {
     const fetchGoal = async () => {

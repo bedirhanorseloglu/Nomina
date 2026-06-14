@@ -23,6 +23,7 @@ import confetti from "canvas-confetti"
 import { toast } from "sonner"
 import { useAuth } from "@/contexts/AuthContext"
 import { useTheme } from "@/components/ThemeProvider"
+import { getStudyDate } from "@/lib/dateUtils"
 
 import { useSearchParams, useRouter, usePathname } from 'next/navigation'
 import { Suspense } from 'react'
@@ -50,7 +51,7 @@ function HomeContent() {
   const [activeId, setActiveId] = useState<string | null>(null)
   const [isResetModalOpen, setIsResetModalOpen] = useState(false)
   const [isAutoPlanOpen, setIsAutoPlanOpen] = useState(false)
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [selectedDate, setSelectedDate] = useState<Date>(getStudyDate())
   const [activeView, setActiveView] = useState<'daily'|'monthly'>('daily')
   const [isSaving, setIsSaving] = useState(false)
   // isSyncing: Firebase'den ilk yükleme tamamlanana kadar geri kaydetmeyi engeller
@@ -390,7 +391,7 @@ function HomeContent() {
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } })
     }
     
-    setData({ ...data, dailyGoals: newGoals, streak: newStreak, lastActiveDate: format(new Date(), "yyyy-MM-dd") })
+    setData({ ...data, dailyGoals: newGoals, streak: newStreak, lastActiveDate: format(getStudyDate(), "yyyy-MM-dd") })
   }
 
   const handleSetGoalTarget = (target: number) => {
@@ -520,7 +521,7 @@ function HomeContent() {
                 <StatsBar 
                    total={totalTopics} 
                    completed={completedTopics} 
-                   dailySolved={data.dailyGoals?.[format(new Date(), "yyyy-MM-dd")] || 0}
+                   dailySolved={data.dailyGoals?.[format(getStudyDate(), "yyyy-MM-dd")] || 0}
                    dailyTarget={data.dailyGoalTarget || 100}
                    onUpdateGoal={handleUpdateDailyGoal}
                  />
