@@ -1,4 +1,4 @@
-export type MapPointType = "tektonik" | "karstik" | "volkanik" | "heyelan" | "aluvyal" | "kiyi" | "karma" | "kivrim" | "kirik" | "plato" | "tabaka" | "lav" | "asinim" | "delta" | "kiyiduzlugu";
+export type MapPointType = "tektonik" | "karstik" | "volkanik" | "heyelan" | "aluvyal" | "kiyi" | "karma" | "kivrim" | "kirik" | "plato" | "tabaka" | "lav" | "asinim" | "delta" | "kiyiduzlugu" | "buzul" | "traverten" | "baraj";
 
 export interface MapPoint {
   id: string;
@@ -19,29 +19,36 @@ export interface MapTopic {
 export const TURKEY_LAKES: MapPoint[] = [
   // TEKTONİK GÖLLER
   { id: "tuz", name: "Tuz Gölü", type: "tektonik", lng: 33.33, lat: 38.83, description: "Tektonik" },
-  { id: "beysehir", name: "Beyşehir Gölü", type: "tektonik", lng: 31.53, lat: 37.78, description: "Tektonik" }, 
-  { id: "egirdir", name: "Eğirdir Gölü", type: "tektonik", lng: 30.86, lat: 38.05, description: "Tektonik" },
+  { id: "beysehir", name: "Beyşehir", type: "karma", lng: 31.53, lat: 37.78, description: "Tektonik + Karstik" }, 
+  { id: "egirdir", name: "Eğirdir", type: "karma", lng: 30.86, lat: 38.05, description: "Tektonik + Karstik" },
   { id: "manyas", name: "Manyas (Kuş)", type: "tektonik", lng: 27.96, lat: 40.18, description: "Tektonik" },
   { id: "ulubat", name: "Ulubat Gölü", type: "tektonik", lng: 28.43, lat: 40.16, description: "Tektonik" },
   { id: "iznik", name: "İznik Gölü", type: "tektonik", lng: 29.53, lat: 40.43, description: "Tektonik" },
   { id: "sapanca", name: "Sapanca Gölü", type: "tektonik", lng: 30.26, lat: 40.71, description: "Tektonik" },
   { id: "burdur", name: "Burdur Gölü", type: "tektonik", lng: 30.18, lat: 37.73, description: "Tektonik" },
   { id: "hazar", name: "Hazar Gölü", type: "tektonik", lng: 39.38, lat: 38.48, description: "Tektonik (Elazığ)" },
+  { id: "aksehir", name: "Akşehir Gölü", type: "tektonik", lng: 31.45, lat: 38.50, description: "Tektonik" },
+  { id: "eber", name: "Eber Gölü", type: "tektonik", lng: 31.15, lat: 38.62, description: "Tektonik" },
+  { id: "seyfe", name: "Seyfe Gölü", type: "tektonik", lng: 34.38, lat: 39.20, description: "Tektonik" },
+  { id: "aktas", name: "Aktaş Gölü", type: "tektonik", lng: 43.18, lat: 41.20, description: "Tektonik (Sınır Gölü)" },
   
   // KARSTİK GÖLLER
   { id: "salda", name: "Salda Gölü", type: "karstik", lng: 29.68, lat: 37.55, description: "Karstik (Türkiye'nin Maldivleri)" },
   { id: "kestel", name: "Kestel Gölü", type: "karstik", lng: 30.28, lat: 37.41, description: "Karstik" },
-  { id: "sugla", name: "Suğla Gölü", type: "karstik", lng: 32.03, lat: 37.33, description: "Karstik" },
+  { id: "sugla", name: "Suğla Gölü", type: "karma", lng: 32.03, lat: 37.33, description: "Tektonik + Karstik" },
+  { id: "elmali", name: "Elmalı", type: "karstik", lng: 29.9, lat: 36.7, description: "Karstik" },
+  { id: "avlan", name: "Avlan", type: "karstik", lng: 29.95, lat: 36.58, description: "Karstik" },
+  { id: "kiziloren", name: "Kızılören (Obruk)", type: "karstik", lng: 33.1, lat: 38.1, description: "Karstik (Obruk)" },
 
   // VOLKANİK GÖLLER
   { id: "nemrut", name: "Nemrut Gölü", type: "volkanik", lng: 42.23, lat: 38.63, description: "Volkanik (Kaldera)" },
   { id: "meke", name: "Meke Tuzlası", type: "volkanik", lng: 33.63, lat: 37.71, description: "Volkanik (Maar)" },
-  { id: "golcuk", name: "Gölcük Gölü", type: "volkanik", lng: 30.51, lat: 37.73, description: "Volkanik (Krater/Maar)" },
+  { id: "golcuk", name: "Gölcük Gölü", type: "volkanik", lng: 30.51, lat: 37.73, description: "Volkanik (Krater)" },
+  { id: "aygir", name: "Aygır Gölü", type: "volkanik", lng: 43.43, lat: 40.83, description: "Volkanik" },
 
   // HEYELAN SET GÖLLERİ
   { id: "tortum", name: "Tortum Gölü", type: "heyelan", lng: 41.65, lat: 40.61, description: "Heyelan Set (Erzurum)" },
   { id: "sera", name: "Sera Gölü", type: "heyelan", lng: 39.61, lat: 40.98, description: "Heyelan Set (Trabzon)" },
-  { id: "uzungol", name: "Uzungöl", type: "heyelan", lng: 40.28, lat: 40.61, description: "Heyelan Set (Trabzon)" },
   { id: "abant", name: "Abant Gölü", type: "heyelan", lng: 31.28, lat: 40.60, description: "Heyelan Set (Bolu)" },
   { id: "yedigoller", name: "Yedigöller", type: "heyelan", lng: 31.76, lat: 40.94, description: "Heyelan Set (Bolu)" },
   { id: "borabay", name: "Borabay Gölü", type: "heyelan", lng: 36.16, lat: 40.81, description: "Heyelan Set (Amasya)" },
@@ -49,22 +56,38 @@ export const TURKEY_LAKES: MapPoint[] = [
   // ALÜVYAL SET GÖLLERİ
   { id: "mogan", name: "Mogan Gölü", type: "aluvyal", lng: 32.79, lat: 39.76, description: "Alüvyal Set (Ankara)" },
   { id: "eymir", name: "Eymir Gölü", type: "aluvyal", lng: 32.82, lat: 39.82, description: "Alüvyal Set (Ankara)" },
-  { id: "bafa", name: "Bafa (Çamiçi)", type: "aluvyal", lng: 27.46, lat: 37.50, description: "Alüvyal Set (Aydın/Muğla)" },
+  { id: "bafa", name: "Bafa (Çamiçi)", type: "aluvyal", lng: 27.46, lat: 37.50, description: "Alüvyal Set (Ege)" },
   { id: "koycegiz", name: "Köyceğiz Gölü", type: "aluvyal", lng: 28.66, lat: 36.91, description: "Alüvyal Set (Muğla)" },
-  { id: "marmara", name: "Marmara Gölü", type: "aluvyal", lng: 28.01, lat: 38.61, description: "Alüvyal Set (Manisa)" },
+  { id: "marmara_gol", name: "Marmara Gölü", type: "aluvyal", lng: 28.01, lat: 38.61, description: "Alüvyal Set (Manisa)" },
+  { id: "uzungol", name: "Uzungöl", type: "karma", lng: 40.28, lat: 40.61, description: "Alüvyal + Heyelan Set" },
 
   // VOLKANİK SET GÖLLERİ
-  { id: "cildir", name: "Çıldır Gölü", type: "karma", lng: 43.25, lat: 41.03, description: "Volkanik Set (Ardahan)" }, 
-  { id: "ercek", name: "Erçek Gölü", type: "volkanik", lng: 43.56, lat: 38.66, description: "Volkanik Set (Van)" },
-  { id: "nazik", name: "Nazik Gölü", type: "volkanik", lng: 42.28, lat: 38.85, description: "Volkanik Set (Bitlis)" },
-  { id: "balik", name: "Balık Gölü", type: "volkanik", lng: 43.56, lat: 39.76, description: "Volkanik Set (Ağrı)" },
-  { id: "hacli", name: "Haçlı Gölü", type: "volkanik", lng: 42.31, lat: 39.01, description: "Volkanik Set (Muş)" },
+  { id: "cildir", name: "Çıldır Gölü", type: "volkanik", lng: 43.25, lat: 41.03, description: "Volkanik Set" }, 
+  { id: "ercek", name: "Erçek Gölü", type: "volkanik", lng: 43.56, lat: 38.66, description: "Volkanik Set" },
+  { id: "nazik", name: "Nazik Gölü", type: "volkanik", lng: 42.28, lat: 38.85, description: "Volkanik Set" },
+  { id: "balik", name: "Balık Gölü", type: "volkanik", lng: 43.56, lat: 39.76, description: "Volkanik Set" },
+  { id: "hacli", name: "Haçlı Gölü", type: "volkanik", lng: 42.31, lat: 39.01, description: "Volkanik Set" },
 
   // KIYI SET GÖLLERİ
   { id: "buyukcekmece", name: "Büyükçekmece", type: "kiyi", lng: 28.55, lat: 41.05, description: "Kıyı Set (İstanbul)" },
   { id: "kucukcekmece", name: "Küçükçekmece", type: "kiyi", lng: 28.75, lat: 41.01, description: "Kıyı Set (İstanbul)" },
   { id: "terkos", name: "Terkos (Durusu)", type: "kiyi", lng: 28.56, lat: 41.33, description: "Kıyı Set (İstanbul)" },
   { id: "akyatan", name: "Akyatan Gölü", type: "kiyi", lng: 35.25, lat: 36.61, description: "Kıyı Set (Adana)" },
+
+  // BUZUL GÖLLERİ
+  { id: "aynali", name: "Aynalı (Uludağ)", type: "buzul", lng: 29.21, lat: 40.05, description: "Buzul Gölü" },
+  { id: "cilo_sat", name: "Kırmızıtaş (Cilo)", type: "buzul", lng: 44.00, lat: 37.50, description: "Buzul Gölü" },
+  { id: "kackar_gol", name: "Karagöl (Kaçkar)", type: "buzul", lng: 41.1, lat: 40.8, description: "Buzul Gölü" },
+
+  // TRAVERTEN SET GÖLÜ
+  { id: "otlukbeli", name: "Otlukbeli Gölü", type: "traverten", lng: 39.98, lat: 39.99, description: "Traverten Set (Erzincan)" },
+
+  // BARAJ GÖLLERİ (YAPAY)
+  { id: "ataturk", name: "Atatürk Barajı", type: "baraj", lng: 38.31, lat: 37.48, description: "Fırat Üzerinde" },
+  { id: "keban", name: "Keban Barajı", type: "baraj", lng: 38.80, lat: 38.61, description: "Fırat Üzerinde" },
+  { id: "ilisu", name: "Ilısu Barajı", type: "baraj", lng: 41.83, lat: 37.52, description: "Dicle Üzerinde" },
+  { id: "deriner", name: "Deriner Barajı", type: "baraj", lng: 41.86, lat: 41.11, description: "Çoruh Üzerinde" },
+  { id: "hirfanli", name: "Hirfanlı Barajı", type: "baraj", lng: 33.78, lat: 39.27, description: "Kızılırmak Üzerinde" },
 
   // KARMA YAPILI
   { id: "van", name: "Van Gölü", type: "karma", lng: 42.81, lat: 38.63, description: "Tektonik + Volkanik Set" },

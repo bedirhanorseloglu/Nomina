@@ -40,6 +40,9 @@ const TYPE_VISUALS: Record<string, { bg: string; border: string; text: string; g
   asinim: { bg: "bg-[#8965f0]", border: "border-[#6f50c8]", text: "text-[#6f50c8]", glow: "shadow-indigo-500/40", icon: "💨" },
   delta: { bg: "bg-[#58cc02]", border: "border-[#46a302]", text: "text-[#46a302]", glow: "shadow-emerald-500/40", icon: "🌱" },
   kiyiduzlugu: { bg: "bg-[#2bced6]", border: "border-[#20aeb5]", text: "text-[#20aeb5]", glow: "shadow-cyan-500/40", icon: "🏖️" },
+  buzul: { bg: "bg-[#7dd3fc]", border: "border-[#38bdf8]", text: "text-[#0ea5e9]", glow: "shadow-sky-300/40", icon: "🧊" },
+  traverten: { bg: "bg-[#d6d3d1]", border: "border-[#a8a29e]", text: "text-[#78716c]", glow: "shadow-stone-300/40", icon: "🧱" },
+  baraj: { bg: "bg-[#475569]", border: "border-[#334155]", text: "text-[#334155]", glow: "shadow-slate-500/40", icon: "🏗️" },
 };
 
 const TYPE_LABELS: Record<string, string> = {
@@ -58,6 +61,9 @@ const TYPE_LABELS: Record<string, string> = {
   asinim: "Aşınım",
   delta: "Delta Ovası",
   kiyiduzlugu: "Kıyı Düzlüğü Ovası",
+  buzul: "Buzul (Sirk)",
+  traverten: "Traverten Set",
+  baraj: "Yapay Baraj",
 };
 
 function getTypeVisual(type: string) {
@@ -65,7 +71,7 @@ function getTypeVisual(type: string) {
 }
 
 function formatName(name: string) {
-  return name.replace(/\s+(Dağları|Dağı|Dağ|Gölü|Göl)\s*$/i, "");
+  return name.replace(/\s+(Dağları|Dağı|Dağ)\s*$/i, "");
 }
 
 // ── Progress Bar ──
@@ -107,11 +113,16 @@ function ClickableSpot({
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
           whileHover={{ scale: 1.15 }}
-          className={`px-2 py-1 rounded-xl text-[10px] md:text-xs font-black shadow-sm flex items-center gap-1
+          className={`px-2 py-1 rounded-xl text-[10px] md:text-xs font-black shadow-sm flex flex-col items-center
             ${c.bg} text-white border-b-4 ${c.border} whitespace-nowrap`}
         >
-          <span className="text-[14px]">{c.icon}</span>
-          <span>{formatName(lake.name)}</span>
+          <div className="flex items-center gap-1">
+            <span className="text-[14px]">{c.icon}</span>
+            <span>{formatName(lake.name)}</span>
+          </div>
+          {lake.type === "karma" && lake.description && (
+            <span className="text-[8px] font-bold opacity-90 -mt-0.5">{lake.description}</span>
+          )}
         </motion.div>
       </div>
     );
@@ -300,9 +311,11 @@ export default function TurkeyMapGame({ topic, onQuit }: { topic: MapTopic, onQu
                   <span className="text-sm font-black uppercase tracking-widest text-slate-400 mb-1">
                     Hedefini Bul
                   </span>
-                  <h3 className={`text-3xl font-black ${activeVisual.text}`}>
-                    {formatName(activePoint.name)}
-                  </h3>
+                  <div className="flex flex-col">
+                    <h3 className={`text-3xl font-black ${activeVisual.text}`}>
+                      {formatName(activePoint.name)}
+                    </h3>
+                  </div>
                 </div>
               </div>
 
@@ -315,8 +328,15 @@ export default function TurkeyMapGame({ topic, onQuit }: { topic: MapTopic, onQu
                     💡 İPUCU İSTER MİSİN?
                   </button>
                 ) : (
-                  <div className="px-4 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 font-bold text-slate-500 uppercase tracking-widest text-xs border-2 border-slate-200 dark:border-slate-700">
-                    {TYPE_LABELS[activePoint.type] || `${activePoint.type} Türü`}
+                  <div className="flex flex-col items-center sm:items-end gap-1">
+                    <div className="px-4 py-2 rounded-2xl bg-slate-100 dark:bg-slate-800 font-bold text-slate-500 uppercase tracking-widest text-xs border-2 border-slate-200 dark:border-slate-700">
+                      {TYPE_LABELS[activePoint.type] || `${activePoint.type} Türü`}
+                    </div>
+                    {activePoint.type === "karma" && activePoint.description && (
+                      <span className={`text-xs font-bold opacity-80 ${activeVisual.text}`}>
+                        ({activePoint.description})
+                      </span>
+                    )}
                   </div>
                 )}
               </div>
