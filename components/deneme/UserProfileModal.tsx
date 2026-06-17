@@ -377,22 +377,22 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
           
           {/* Removed Tab Selection as requested */}
 
-          <div className="bg-white flex-1 overflow-y-auto custom-scrollbar">
+          <div className="bg-white dark:bg-[#0f172a] flex-1 overflow-y-auto custom-scrollbar">
             {currentUserStats && (
-              <div className="p-6 space-y-6 border-t-2 border-slate-100">
+              <div className="p-6 space-y-6 border-t-2 border-slate-100 dark:border-white/5">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-4">
                   <div className="flex items-center gap-4">
-                    <h3 className="text-sm font-black text-slate-800">Detaylı Karşılaştırma</h3>
-                    <div className="flex bg-slate-100/80 rounded-xl p-1 border border-slate-200/60 shadow-inner">
+                    <h3 className="text-sm font-black text-slate-800 dark:text-white">Detaylı Karşılaştırma</h3>
+                    <div className="flex bg-slate-100/80 dark:bg-white/5 rounded-xl p-1 border border-slate-200/60 dark:border-white/10 shadow-inner">
                       <button 
                         onClick={() => setKiyasType("genel")}
-                        className={`px-3 py-1 text-[10px] font-black tracking-widest uppercase rounded-lg transition-colors ${kiyasType === "genel" ? "bg-white text-blue-600 shadow-sm border border-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
+                        className={`px-3 py-1 text-[10px] font-black tracking-widest uppercase rounded-lg transition-colors ${kiyasType === "genel" ? "bg-white dark:bg-[#1e293b] text-blue-600 dark:text-[#1cb0f6] shadow-sm border border-slate-200/50 dark:border-white/5" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
                       >
                         Genel
                       </button>
                       <button 
                         onClick={() => setKiyasType("brans")}
-                        className={`px-3 py-1 text-[10px] font-black tracking-widest uppercase rounded-lg transition-colors ${kiyasType === "brans" ? "bg-white text-purple-600 shadow-sm border border-slate-200/50" : "text-slate-400 hover:text-slate-600"}`}
+                        className={`px-3 py-1 text-[10px] font-black tracking-widest uppercase rounded-lg transition-colors ${kiyasType === "brans" ? "bg-white dark:bg-[#1e293b] text-purple-600 dark:text-[#af52de] shadow-sm border border-slate-200/50 dark:border-white/5" : "text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"}`}
                       >
                         Branş
                       </button>
@@ -409,7 +409,7 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                         <button
                           key={subj.id}
                           onClick={() => setKiyasBransSubject(subj.id)}
-                          className={`px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all whitespace-nowrap border-2 ${isActive ? "text-white shadow-sm" : "bg-white text-slate-400 border-slate-200 hover:border-slate-300 hover:bg-slate-50"}`}
+                          className={`px-4 py-2 text-[11px] font-black uppercase tracking-widest rounded-xl transition-all whitespace-nowrap border-2 ${isActive ? "text-white shadow-sm" : "bg-white dark:bg-slate-800 text-slate-400 border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:hover:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-700"}`}
                           style={isActive ? { backgroundColor: subj.color, borderColor: subj.color } : {}}
                         >
                           {subj.title}
@@ -526,12 +526,12 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                           layout="vertical"
                           margin={{ top: 5, right: 10, left: 20, bottom: 5 }}
                         >
-                          <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#e2e8f0" />
+                          <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="rgba(100, 116, 139, 0.2)" />
                           <XAxis type="number" hide />
                           <YAxis dataKey="subject" type="category" axisLine={false} tickLine={false} tick={{ fontSize: 11, fontWeight: 'bold', fill: '#64748b' }} width={80} />
                           <Tooltip 
-                            cursor={{ fill: '#f8fafc' }}
-                            contentStyle={{ borderRadius: '1rem', border: '2px solid #e2e8f0', fontWeight: 'bold', fontSize: '12px' }}
+                            cursor={{ fill: 'rgba(100, 116, 139, 0.1)' }}
+                            contentStyle={{ borderRadius: '1rem', border: '2px solid rgba(100, 116, 139, 0.2)', fontWeight: 'bold', fontSize: '12px', background: 'var(--color-surface)' }}
                             formatter={(value: any) => Number(value).toFixed(1) + " Net"}
                           />
                           <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: 'bold' }} />

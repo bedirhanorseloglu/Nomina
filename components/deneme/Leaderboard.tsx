@@ -64,9 +64,9 @@ export default function Leaderboard() {
         <div className={`relative z-20 -mb-6 ${rank === 1 ? 'w-24 h-24' : 'w-20 h-20'}`}>
           <div className={`absolute inset-0 bg-gradient-to-br ${rankColors} rounded-full blur-md opacity-40 group-hover:opacity-60 transition-opacity`} />
           {leader.photoURL ? (
-            <img src={leader.photoURL} alt={leader.displayName} className={`w-full h-full rounded-full border-[6px] ${isCurrentUser ? 'border-blue-500' : 'border-white'} shadow-xl object-cover relative z-10`} />
+            <img src={leader.photoURL} alt={leader.displayName} className={`w-full h-full rounded-full border-[6px] ${isCurrentUser ? 'border-blue-500' : 'border-white dark:border-[#1e293b]'} shadow-xl object-cover relative z-10`} />
           ) : (
-            <div className={`w-full h-full rounded-full flex items-center justify-center text-3xl font-black border-[6px] ${isCurrentUser ? 'border-blue-500 text-blue-500' : 'border-white text-slate-500'} bg-slate-100 shadow-xl relative z-10`}>
+            <div className={`w-full h-full rounded-full flex items-center justify-center text-3xl font-black border-[6px] ${isCurrentUser ? 'border-blue-500 text-blue-500' : 'border-white dark:border-[#1e293b] text-slate-500 dark:text-slate-300'} bg-slate-100 dark:bg-slate-800 shadow-xl relative z-10`}>
               {leader.displayName.charAt(0).toUpperCase()}
             </div>
           )}
@@ -74,15 +74,14 @@ export default function Leaderboard() {
           {isCurrentUser && <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-blue-500 text-white text-[9px] font-black uppercase px-2 py-0.5 rounded-full z-30 border-2 border-white shadow-sm">SEN</div>}
         </div>
         
-        <div className={`w-28 sm:w-36 ${height} rounded-t-[2rem] flex flex-col items-center justify-end pb-6 shadow-2xl transition-transform transform group-hover:-translate-y-2 relative overflow-hidden`}
-             style={{ background: `linear-gradient(to top, #f1f5f9, #ffffff)` }}>
+        <div className={`w-28 sm:w-36 ${height} rounded-t-[2rem] flex flex-col items-center justify-end pb-6 shadow-2xl transition-transform transform group-hover:-translate-y-2 relative overflow-hidden bg-gradient-to-t from-slate-100 to-white dark:from-[#1e293b] dark:to-slate-800`}>
            <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${rankColors}`}></div>
            
-           <p className="text-xs sm:text-sm font-black text-slate-800 text-center truncate w-full px-3">{leader.displayName}</p>
+           <p className="text-xs sm:text-sm font-black text-slate-800 dark:text-white text-center truncate w-full px-3">{leader.displayName}</p>
            
-           <div className="mt-2 bg-white px-3 py-1.5 rounded-xl border border-slate-100 shadow-sm">
-             <p className="text-[10px] font-black uppercase text-slate-400 text-center tracking-widest leading-none mb-0.5">NET</p>
-             <p className="text-base sm:text-xl font-black font-mono leading-none" style={{ color: rank === 1 ? '#d97706' : rank === 2 ? '#475569' : '#c2410c' }}>
+           <div className="mt-2 bg-white dark:bg-slate-900/50 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-white/5 shadow-sm">
+             <p className="text-[10px] font-black uppercase text-slate-400 dark:text-slate-500 text-center tracking-widest leading-none mb-0.5">NET</p>
+             <p className={`text-base sm:text-xl font-black font-mono leading-none ${rank === 1 ? 'text-amber-600 dark:text-amber-500' : rank === 2 ? 'text-slate-600 dark:text-slate-400' : 'text-orange-700 dark:text-orange-500'}`}>
                {leader.averageNet.toFixed(1)}
              </p>
            </div>
@@ -217,9 +216,9 @@ export default function Leaderboard() {
                     
                     <div className="relative shrink-0">
                       {leader.photoURL ? (
-                        <img src={leader.photoURL} alt={leader.displayName} className="w-14 h-14 rounded-2xl border-2 border-white shadow-sm object-cover group-hover:scale-105 transition-transform" />
+                        <img src={leader.photoURL} alt={leader.displayName} className="w-14 h-14 rounded-2xl border-2 border-white dark:border-[#1e293b] shadow-sm object-cover group-hover:scale-105 transition-transform" />
                       ) : (
-                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black border-2 border-white shadow-sm bg-gradient-to-br from-slate-100 to-slate-200 text-slate-600 group-hover:scale-105 transition-transform">
+                        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl font-black border-2 border-white dark:border-[#1e293b] shadow-sm bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-800 dark:to-slate-700 text-slate-600 dark:text-slate-300 group-hover:scale-105 transition-transform">
                           {leader.displayName.charAt(0).toUpperCase()}
                         </div>
                       )}
@@ -231,7 +230,7 @@ export default function Leaderboard() {
                           {leader.displayName}
                         </p>
                         {isCurrentUser && (
-                          <span className="text-[10px] font-black uppercase text-blue-700 bg-blue-100 px-2 py-0.5 rounded-lg border border-blue-200">
+                          <span className="text-[10px] font-black uppercase text-blue-700 dark:text-blue-400 bg-blue-100 dark:bg-blue-500/20 px-2 py-0.5 rounded-lg border border-blue-200 dark:border-blue-500/30">
                             Sen
                           </span>
                         )}

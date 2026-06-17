@@ -5,7 +5,7 @@ import Leaderboard from "@/components/deneme/Leaderboard";
 
 export default function LiderlikPage() {
   return (
-    <div className="deneme-page min-h-screen text-slate-800 pb-20">
+    <div className="deneme-page min-h-screen text-slate-800 dark:text-slate-100 pb-20">
       <div className="deneme-page-bg" aria-hidden />
 
       <DenemeNav />
