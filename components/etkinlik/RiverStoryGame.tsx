@@ -12,7 +12,28 @@ interface RiverStoryGameProps {
 
 export default function RiverStoryGame({ onComplete }: RiverStoryGameProps) {
   const [questions] = useState(() => {
-    return [...RIVER_FEATURES].sort(() => Math.random() - 0.5).slice(0, 10);
+    return [...RIVER_FEATURES].sort(() => Math.random() - 0.5).slice(0, 10).map(q => {
+      // Create new options with pairs: [River Name] - [Blank]
+      const pairOptions = q.options.map(opt => {
+        // If opt is the correct blank, pair it with the correct name
+        if (opt === q.blank) return `${q.name} - ${opt}`;
+        
+        // If opt is a wrong blank, pair it with a random WRONG river name
+        const wrongRivers = RIVER_FEATURES.filter(r => r.name !== q.name);
+        const randomWrongRiver = wrongRivers[Math.floor(Math.random() * wrongRivers.length)].name;
+        return `${randomWrongRiver} - ${opt}`;
+      });
+      
+      // Shuffle the new pair options
+      const shuffledOptions = [...pairOptions].sort(() => Math.random() - 0.5);
+      
+      return {
+        ...q,
+        story: `Ben _____ . ${q.story}`,
+        blank: `${q.name} - ${q.blank}`,
+        options: shuffledOptions,
+      };
+    });
   });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -78,7 +99,9 @@ export default function RiverStoryGame({ onComplete }: RiverStoryGameProps) {
           {/* Question Box */}
           <div className="bg-white dark:bg-[#1e293b] w-full rounded-3xl p-8 border-2 border-slate-200 dark:border-slate-700 shadow-sm mb-8 text-center relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-blue-500" />
-            <h2 className="text-xl font-black text-slate-400 mb-2 uppercase tracking-widest">SORU {currentIndex + 1}</h2>
+            <h2 className="text-xl font-black text-slate-400 mb-2 uppercase tracking-widest">
+              SORU {currentIndex + 1}
+            </h2>
             <div className="text-2xl md:text-3xl font-bold text-slate-800 dark:text-white leading-snug">
               {parts[0]}
               <span className={`inline-block mx-2 px-4 py-1 min-w-[120px] border-b-4 text-center transition-colors ${
@@ -88,9 +111,23 @@ export default function RiverStoryGame({ onComplete }: RiverStoryGameProps) {
                     ? "border-[#58cc02] text-[#58cc02]" 
                     : "border-[#ff4b4b] text-[#ff4b4b]"
               }`}>
-                {selectedOption || "......"}
+                {selectedOption ? selectedOption.split(" - ")[0] : "......"}
               </span>
               {parts[1]}
+              {parts.length > 2 && (
+                <>
+                  <span className={`inline-block mx-2 px-4 py-1 min-w-[120px] border-b-4 text-center transition-colors ${
+                    selectedOption === null 
+                      ? "border-slate-300 dark:border-slate-600 text-transparent" 
+                      : isCorrect 
+                        ? "border-[#58cc02] text-[#58cc02]" 
+                        : "border-[#ff4b4b] text-[#ff4b4b]"
+                  }`}>
+                    {selectedOption ? selectedOption.split(" - ")[1] : "......"}
+                  </span>
+                  {parts[2]}
+                </>
+              )}
             </div>
           </div>
 
