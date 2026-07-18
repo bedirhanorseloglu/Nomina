@@ -521,9 +521,6 @@ function HomeContent() {
                 <StatsBar 
                    total={totalTopics} 
                    completed={completedTopics} 
-                   dailySolved={data.dailyGoals?.[format(getStudyDate(), "yyyy-MM-dd")] || 0}
-                   dailyTarget={data.dailyGoalTarget || 100}
-                   onUpdateGoal={handleUpdateDailyGoal}
                  />
               </motion.div>
 
