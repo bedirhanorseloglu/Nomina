@@ -110,6 +110,9 @@ export default function NotebookPage() {
   const [transcript, setTranscript] = useState<string>("")
   const [isFetchingTranscript, setIsFetchingTranscript] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  
+  const [showManualInput, setShowManualInput] = useState(false)
+  const [manualTranscript, setManualTranscript] = useState("")
 
   const [chatInput, setChatInput] = useState("")
   const [messages, setMessages] = useState<ChatMessage[]>([])
@@ -195,6 +198,21 @@ export default function NotebookPage() {
     } finally {
       setIsFetchingTranscript(false)
     }
+  }
+
+  const handleManualSubmit = () => {
+    if (!manualTranscript.trim() || !urlInput.trim()) return
+    const extractedId = extractVideoId(urlInput)
+    if (!extractedId) {
+      setError("Geçerli bir YouTube linki girin.")
+      return
+    }
+    setVideoId(extractedId)
+    setTranscript(manualTranscript)
+    setError(null)
+    setShowManualInput(false)
+    chatSessionRef.current = null
+    setMessages([{ role: "model", text: "Videonun altyazısı manuel olarak başarıyla eklendi! Ben bir yapay zeka asistanıyım. Videoyla ilgili her türlü soruyu bana sorabilirsin." }])
   }
 
   const handleSendMessage = async (e?: React.FormEvent) => {
@@ -410,35 +428,69 @@ Lütfen **tamamen farklı ve eski/aktif bir Google hesabı (Gmail)** ile [Google
                 YouTube linkini yapıştır, dersin tamamını saniyeler içinde okuyup analiz edeyim. Sorularını yanıtlamak için hazırım!
               </p>
 
-              <form onSubmit={handleLoadVideo} className="w-full relative group z-10">
-                <div className="absolute -inset-1 bg-gradient-to-r from-[#1cb0f6] to-[#af52de] rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
-                <div className="relative flex items-center bg-white dark:bg-[#1e293b] p-2 rounded-[2rem] border-2 border-slate-200 dark:border-white/10 shadow-lg">
-                  <div className="w-12 h-12 flex items-center justify-center shrink-0">
-                    <MonitorPlay className="w-6 h-6 text-[#ff2d55]" />
+              {showManualInput ? (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full relative z-10">
+                  <div className="bg-white dark:bg-[#1e293b] p-4 sm:p-5 rounded-[2rem] border-2 border-slate-200 dark:border-white/10 shadow-lg flex flex-col gap-3">
+                    <div className="flex items-center gap-2 mb-1 px-1">
+                      <AlertCircle className="w-5 h-5 text-[#ff2d55]" />
+                      <p className="font-bold text-sm text-[#ff2d55]">YouTube otomatik çekimi engelledi.</p>
+                    </div>
+                    <p className="text-xs font-medium text-slate-500 px-1 mb-2">Videonun altındaki "Transkripti Göster" kısmından metni kopyalayıp buraya yapıştırın:</p>
+                    <textarea 
+                      value={manualTranscript}
+                      onChange={(e) => setManualTranscript(e.target.value)}
+                      placeholder="Örn: 0:00 Merhaba arkadaşlar bugünkü dersimizde..."
+                      className="w-full h-32 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[#1cb0f6] text-sm resize-none font-medium"
+                    />
+                    <div className="flex gap-2 mt-1">
+                      <button onClick={() => setShowManualInput(false)} className="flex-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-bold py-3 rounded-xl transition-colors text-sm">İptal</button>
+                      <button onClick={handleManualSubmit} disabled={!manualTranscript.trim()} className="flex-[2] bg-[#1cb0f6] hover:bg-[#1899d6] disabled:bg-slate-300 text-white font-bold py-3 rounded-xl transition-colors shadow-[0_4px_0_#1899d6] active:shadow-none active:translate-y-1 text-sm">Metni Analiz Et</button>
+                    </div>
                   </div>
-                  <input
-                    type="text"
-                    value={urlInput}
-                    onChange={(e) => setUrlInput(e.target.value)}
-                    placeholder="https://youtube.com/watch?v=..."
-                    className="flex-1 bg-transparent border-none px-2 py-4 outline-none text-lg placeholder:text-slate-400"
-                  />
-                  <button
-                    type="submit"
-                    disabled={isFetchingTranscript || !urlInput}
-                    className="bg-[#1cb0f6] hover:bg-[#1899d6] disabled:bg-slate-300 disabled:shadow-none text-white font-bold px-8 py-4 rounded-[1.5rem] shadow-[0_4px_0_#1899d6] active:shadow-none active:translate-y-1 transition-all flex items-center gap-2"
-                  >
-                    {isFetchingTranscript ? <Loader2 className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />}
-                    <span className="hidden sm:inline">İncele</span>
-                  </button>
-                </div>
-              </form>
-
-              {error && (
-                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-6 bg-[#ff2d55]/10 text-[#ff2d55] border-2 border-[#ff2d55]/20 px-6 py-4 rounded-2xl flex items-center gap-3">
-                  <AlertCircle className="w-6 h-6 shrink-0" />
-                  <p className="font-bold">{error}</p>
                 </motion.div>
+              ) : (
+                <form onSubmit={handleLoadVideo} className="w-full relative group z-10">
+                  <div className="absolute -inset-1 bg-gradient-to-r from-[#1cb0f6] to-[#af52de] rounded-[2.5rem] blur opacity-20 group-hover:opacity-40 transition duration-500"></div>
+                  <div className="relative flex items-center bg-white dark:bg-[#1e293b] p-2 rounded-[2rem] border-2 border-slate-200 dark:border-white/10 shadow-lg">
+                    <div className="w-12 h-12 flex items-center justify-center shrink-0">
+                      <MonitorPlay className="w-6 h-6 text-[#ff2d55]" />
+                    </div>
+                    <input
+                      type="text"
+                      value={urlInput}
+                      onChange={(e) => setUrlInput(e.target.value)}
+                      placeholder="https://youtube.com/watch?v=..."
+                      className="flex-1 bg-transparent border-none px-2 py-4 outline-none text-lg placeholder:text-slate-400"
+                    />
+                    <button
+                      type="submit"
+                      disabled={isFetchingTranscript || !urlInput}
+                      className="bg-[#1cb0f6] hover:bg-[#1899d6] disabled:bg-slate-300 disabled:shadow-none text-white font-bold px-8 py-4 rounded-[1.5rem] shadow-[0_4px_0_#1899d6] active:shadow-none active:translate-y-1 transition-all flex items-center gap-2"
+                    >
+                      {isFetchingTranscript ? <Loader2 className="w-6 h-6 animate-spin" /> : <Sparkles className="w-6 h-6" />}
+                      <span className="hidden sm:inline">İncele</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {error && !showManualInput && (
+                <div className="mt-6 flex flex-col items-center gap-3 w-full">
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full bg-[#ff2d55]/10 text-[#ff2d55] border-2 border-[#ff2d55]/20 px-6 py-4 rounded-2xl flex items-center gap-3">
+                    <AlertCircle className="w-6 h-6 shrink-0" />
+                    <div className="flex-1">
+                      <p className="font-bold leading-tight">{error}</p>
+                    </div>
+                  </motion.div>
+                  {urlInput && (
+                    <button 
+                      onClick={() => setShowManualInput(true)} 
+                      className="text-[#1cb0f6] font-bold text-sm underline underline-offset-4 hover:text-[#1899d6] transition-colors"
+                    >
+                      Manuel Olarak Altyazı Ekle
+                    </button>
+                  )}
+                </div>
               )}
 
               <div className="mt-12 flex flex-wrap justify-center gap-3">
