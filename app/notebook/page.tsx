@@ -15,6 +15,11 @@ const QUICK_TIPS = [
   { icon: BookOpen, text: "Konu Özeti İste", color: "text-[#af52de]", bg: "bg-[#af52de]/10" },
 ]
 
+export interface ChatMessage {
+  role: "user" | "model";
+  text: string;
+}
+
 const QuizCodeBlock = ({ inline, className, children, ...props }: any) => {
   const match = /language-(\w+)/.exec(className || '')
   if (!inline && match && match[1] === 'quiz') {
@@ -36,6 +41,24 @@ const QuizCodeBlock = ({ inline, className, children, ...props }: any) => {
       )
     }
   }
+
+  // Handle timestamps accidentally formatted as inline code
+  if (typeof children === 'string' || (Array.isArray(children) && typeof children[0] === 'string')) {
+    const text = String(children);
+    const seekMatch = /^\[(\d{1,2}:\d{2}(?::\d{2})?)\]\(#seek-.*?\)$/.exec(text);
+    if (seekMatch) {
+      const timeStr = seekMatch[1];
+      return (
+        <button 
+          onClick={(e) => { e.preventDefault(); window.dispatchEvent(new CustomEvent('seekTo', { detail: timeStr })); }}
+          className="inline-flex items-center gap-1 bg-[#ff2d55]/10 text-[#ff2d55] px-1.5 py-0 rounded-md font-bold hover:bg-[#ff2d55]/20 transition-colors mx-0.5 text-xs"
+        >
+          <MonitorPlay className="w-3.5 h-3.5" /> {timeStr}
+        </button>
+      )
+    }
+  }
+
   return <code className="bg-slate-100 dark:bg-black/20 rounded px-1 py-0.5 text-[#ff2d55]" {...props}>{children}</code>
 }
 

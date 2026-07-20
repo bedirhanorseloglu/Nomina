@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
-import { LayoutDashboard, BarChart3, Trophy, Bell, LogOut, Settings, Timer, MapPin } from "lucide-react";
+import { LayoutDashboard, BarChart3, Trophy, Bell, LogOut, Settings, Timer, MapPin, Sparkles } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 import ProfileSettingsModal from "@/components/ProfileSettingsModal";
 import React, { useState, useEffect, useRef } from "react";
@@ -15,6 +15,7 @@ const links = [
   { href: "/simulator", label: "Simülatör", icon: Timer },
   { href: "/liderlik", label: "Liderlik Tablosu", icon: Trophy },
   { href: "/etkinlik", label: "Etkinlikler", icon: MapPin },
+  { href: "/notebook", label: "Asistan", icon: Sparkles },
 ];
 
 export default function DenemeNav({ children }: { children?: React.ReactNode }) {
