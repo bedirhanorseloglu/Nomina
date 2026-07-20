@@ -64,6 +64,7 @@ export default function ProfileSettingsModal({
   const { user, signOut, refreshUser } = useAuth();
   const [displayName, setDisplayName] = useState("");
   const [selectedPhotoURL, setSelectedPhotoURL] = useState<string | null>(null);
+  const [geminiApiKey, setGeminiApiKey] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [view, setView] = useState<View>("main");
@@ -71,6 +72,7 @@ export default function ProfileSettingsModal({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showApiKeyHelp, setShowApiKeyHelp] = useState(false);
 
   // Avatar picker state
   const [selectedStyle, setSelectedStyle] = useState<string>(AVATAR_STYLES[0].id);
@@ -81,6 +83,10 @@ export default function ProfileSettingsModal({
     if (user && isOpen) {
       setDisplayName(user.displayName || "");
       setSelectedPhotoURL(user.photoURL || null);
+      
+      const storedKey = localStorage.getItem("gemini_api_key");
+      if (storedKey) setGeminiApiKey(storedKey);
+      
       setHasChanges(false);
       setSaveStatus("idle");
       setView("main");
@@ -93,8 +99,9 @@ export default function ProfileSettingsModal({
     if (!user) return;
     const nameChanged = displayName !== (user.displayName || "");
     const photoChanged = selectedPhotoURL !== (user.photoURL || null);
-    setHasChanges(nameChanged || photoChanged);
-  }, [displayName, selectedPhotoURL, user]);
+    const keyChanged = geminiApiKey !== (localStorage.getItem("gemini_api_key") || "");
+    setHasChanges(nameChanged || photoChanged || keyChanged);
+  }, [displayName, selectedPhotoURL, geminiApiKey, user]);
 
   const handleRefreshAvatars = () => {
     setSeeds(generateSeeds(Math.random().toString(36), 12));
@@ -114,6 +121,12 @@ export default function ProfileSettingsModal({
     setSaveStatus("saving");
     setIsSaving(true);
     try {
+      if (geminiApiKey) {
+        localStorage.setItem("gemini_api_key", geminiApiKey.trim());
+      } else {
+        localStorage.removeItem("gemini_api_key");
+      }
+
       await updateProfile(auth.currentUser, {
         displayName: displayName.trim() || null,
         photoURL: selectedPhotoURL,
@@ -316,6 +329,34 @@ export default function ProfileSettingsModal({
                       </div>
                     </div>
 
+                    {/* Gemini API Key */}
+                    <div>
+                      <label className="text-[11px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-2 block">
+                        Yapay Zeka API Anahtarı (Gemini)
+                      </label>
+                      <div className="relative">
+                        <Sparkles className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-blue-400" />
+                        <input
+                          type="password"
+                          value={geminiApiKey}
+                          onChange={(e) => setGeminiApiKey(e.target.value)}
+                          placeholder="AI Studio'dan aldığınız API anahtarı"
+                          className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 text-gray-900 dark:text-white text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all placeholder:text-gray-400"
+                        />
+                      </div>
+                      <div className="mt-1.5 flex items-center justify-between">
+                        <p className="text-[10px] text-gray-400">
+                          Hem video asistanı hem de deneme analizi için gereklidir.
+                        </p>
+                        <button 
+                          onClick={() => setShowApiKeyHelp(true)}
+                          className="text-[10px] font-bold text-blue-500 hover:text-blue-600 transition-colors flex items-center gap-1"
+                        >
+                          Nasıl Alınır?
+                        </button>
+                      </div>
+                    </div>
+
                     {/* Account Info */}
                     <div className="grid grid-cols-2 gap-3">
                       <div className="flex items-center gap-3 p-3 rounded-xl bg-gray-50 dark:bg-white/[0.03] border border-gray-100 dark:border-white/5">
@@ -440,6 +481,96 @@ export default function ProfileSettingsModal({
                         </motion.div>
                       )}
                     </AnimatePresence>
+
+                    {/* API Key Help Modal */}
+                    <AnimatePresence>
+                      {showApiKeyHelp && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                          transition={{ duration: 0.2 }}
+                          className="absolute inset-0 z-50 bg-white dark:bg-[#0f172a] rounded-[2rem] flex flex-col h-full overflow-hidden"
+                        >
+                          <div className="flex items-center justify-between p-6 border-b border-gray-100 dark:border-white/5 bg-blue-50/50 dark:bg-blue-500/5">
+                            <h3 className="text-lg font-black text-gray-900 dark:text-white flex items-center gap-2">
+                              <Sparkles className="w-5 h-5 text-blue-500" />
+                              API Anahtarı Nasıl Alınır?
+                            </h3>
+                            <button
+                              onClick={() => setShowApiKeyHelp(false)}
+                              className="w-8 h-8 rounded-full bg-gray-100 dark:bg-white/10 hover:bg-gray-200 dark:hover:bg-white/20 flex items-center justify-center text-gray-500 transition-colors"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                          
+                          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                            <div className="space-y-4">
+                              <div className="flex gap-4">
+                                <div className="w-8 h-8 shrink-0 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-black flex items-center justify-center text-sm shadow-sm">1</div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Google AI Studio'ya gidin</h4>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                                    Tamamen ücretsiz olan <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-blue-500 font-semibold hover:underline">Google AI Studio</a> sayfasına gidin ve bir Google hesabı ile giriş yapın.
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <div className="flex gap-4">
+                                <div className="w-8 h-8 shrink-0 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-black flex items-center justify-center text-sm shadow-sm">2</div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Yeni bir anahtar oluşturun</h4>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                                    Açılan sayfada üstte veya sol menüde yer alan <strong>"Create API key"</strong> (API Anahtarı Oluştur) butonuna tıklayın. 
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-4">
+                                <div className="w-8 h-8 shrink-0 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-black flex items-center justify-center text-sm shadow-sm">3</div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Projeyi seçip onaylayın</h4>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                                    Çıkan pencerede <strong>"Create API key in a new project"</strong> seçeneğini seçerek onaylayın.
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex gap-4">
+                                <div className="w-8 h-8 shrink-0 rounded-full bg-blue-100 dark:bg-blue-500/20 text-blue-600 dark:text-blue-400 font-black flex items-center justify-center text-sm shadow-sm">4</div>
+                                <div>
+                                  <h4 className="text-sm font-bold text-gray-900 dark:text-white">Kodu kopyalayın</h4>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">
+                                    Ekranda uzun, karmaşık bir kod belirecek (Genelde <em>AIzaSy...</em> ile başlar). Kodu kopyalayıp buradaki kutucuğa yapıştırın.
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+                            
+                            <div className="p-4 rounded-xl bg-orange-50 dark:bg-orange-500/10 border border-orange-100 dark:border-orange-500/20">
+                              <h4 className="text-xs font-bold text-orange-600 dark:text-orange-400 flex items-center gap-1.5 mb-1">
+                                <AlertTriangle className="w-3.5 h-3.5" />
+                                Güvenlik Notu
+                              </h4>
+                              <p className="text-[11px] text-orange-500/80 dark:text-orange-400/80 leading-relaxed">
+                                API anahtarınız doğrudan tarayıcınızda (localStorage) şifreli olarak saklanır ve sunucularımıza gönderilmez. Sadece sizden Google'a doğrudan güvenli bağlantı kurmak için kullanılır.
+                              </p>
+                            </div>
+                          </div>
+                          
+                          <div className="p-4 border-t border-gray-100 dark:border-white/5">
+                            <button
+                              onClick={() => setShowApiKeyHelp(false)}
+                              className="w-full py-3 rounded-xl bg-blue-500 hover:bg-blue-600 text-white font-bold transition-all shadow-lg shadow-blue-500/25"
+                            >
+                              Anladım, Kapat
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
                   </div>
                 </motion.div>
               ) : (

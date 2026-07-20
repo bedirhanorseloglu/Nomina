@@ -20,7 +20,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/components/ThemeProvider";
 import ProfileSettingsModal from "@/components/ProfileSettingsModal";
 
-import { Trophy, Timer, MapPin } from "lucide-react";
+import { Trophy, Timer, MapPin, Sparkles } from "lucide-react";
 
 const NAV_LINKS = [
   { name: "Gösterge Paneli", href: "/dashboard", icon: LayoutDashboard },
@@ -28,6 +28,7 @@ const NAV_LINKS = [
   { name: "Simülatör", href: "/simulator", icon: Timer },
   { name: "Liderlik", href: "/liderlik", icon: Trophy },
   { name: "Etkinlikler", href: "/etkinlik", icon: MapPin },
+  { name: "Asistan", href: "/notebook", icon: Sparkles },
 ];
 
 export default function FloatingNavbar() {
