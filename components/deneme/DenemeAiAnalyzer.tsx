@@ -22,7 +22,7 @@ export default function DenemeAiAnalyzer({ isOpen, onClose, denemeler }: DenemeA
     
     // Sadece en son 10 denemeyi alalım ki token sınırı aşılmasın
     const recentDenemeler = [...denemeler]
-      .sort((a, b) => b.date - a.date)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 10);
       
     let promptData = "Öğrencinin son denemeleri:\n\n";
