@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { YoutubeTranscript } from 'youtube-transcript';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const videoId = searchParams.get('videoId');

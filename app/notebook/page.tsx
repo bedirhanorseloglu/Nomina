@@ -459,9 +459,9 @@ Lütfen **tamamen farklı ve eski/aktif bir Google hesabı (Gmail)** ile [Google
               className="flex-1 flex flex-col w-full min-h-0 gap-4"
             >
               {/* Workspace Content */}
-              <div className="flex-1 flex flex-col lg:flex-row gap-6 lg:gap-8 min-h-0 h-full overflow-hidden">
+              <div className="flex-1 flex flex-col lg:flex-row gap-6 lg:gap-8 min-h-0 h-full overflow-y-auto lg:overflow-hidden">
                 {/* LEFT PANEL: Video & Context */}
-                <div className="w-full lg:w-[45%] xl:w-[40%] flex flex-col gap-4 overflow-y-auto pr-2 pb-4 scrollbar-thin scrollbar-thumb-slate-200 min-h-0">
+                <div className="w-full lg:w-[45%] xl:w-[40%] flex flex-col gap-4 lg:overflow-y-auto pr-2 pb-4 scrollbar-thin scrollbar-thumb-slate-200 min-h-0 shrink-0">
                   {/* Top Header & Settings */}
                   <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-3">
@@ -547,7 +547,7 @@ Lütfen **tamamen farklı ve eski/aktif bir Google hesabı (Gmail)** ile [Google
               </div>
 
               {/* RIGHT PANEL: Chat UI */}
-              <div className="flex-1 bg-white dark:bg-[#1e293b] border-2 border-slate-200 dark:border-white/5 rounded-[2rem] shadow-xl flex flex-col overflow-hidden relative min-h-0 h-full">
+              <div className="flex-1 bg-white dark:bg-[#1e293b] border-2 border-slate-200 dark:border-white/5 rounded-[2rem] shadow-xl flex flex-col overflow-hidden relative min-h-[500px] lg:min-h-0 h-full">
                 {/* Header (Compacted) */}
                 <div className="bg-slate-50 dark:bg-black/20 border-b-2 border-slate-200 dark:border-white/5 px-4 py-2.5 flex justify-between items-center z-10">
                   <div className="flex items-center gap-3">
