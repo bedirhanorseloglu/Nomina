@@ -28,7 +28,7 @@ const NAV_LINKS = [
   { name: "Simülatör", href: "/simulator", icon: Timer },
   { name: "Liderlik", href: "/liderlik", icon: Trophy },
   { name: "Etkinlikler", href: "/etkinlik", icon: MapPin },
-  { name: "Asistan", href: "/notebook", icon: Sparkles },
+
 ];
 
 export default function FloatingNavbar() {

@@ -15,7 +15,7 @@ const links = [
   { href: "/simulator", label: "Simülatör", icon: Timer },
   { href: "/liderlik", label: "Liderlik Tablosu", icon: Trophy },
   { href: "/etkinlik", label: "Etkinlikler", icon: MapPin },
-  { href: "/notebook", label: "Asistan", icon: Sparkles },
+
 ];
 
 export default function DenemeNav({ children }: { children?: React.ReactNode }) {
