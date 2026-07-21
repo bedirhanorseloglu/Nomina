@@ -47,6 +47,32 @@ const CLIENT_CONFIGS = [
     },
     userAgent: 'com.google.android.youtube/20.10.38 (Linux; U; Android 14)',
   },
+  {
+    name: 'TV_EMBEDDED',
+    context: {
+      client: {
+        clientName: 'TVHTML5_SIMPLY_EMBEDDED_PLAYER',
+        clientVersion: '2.0',
+        hl: 'tr',
+        gl: 'TR',
+      },
+    },
+    userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  },
+  {
+    name: 'PROXY_ANDROID',
+    isProxy: true,
+    context: {
+      client: {
+        clientName: 'ANDROID',
+        clientVersion: '20.10.38',
+        androidSdkVersion: 34,
+        hl: 'tr',
+        gl: 'TR',
+      },
+    },
+    userAgent: 'com.google.android.youtube/20.10.38 (Linux; U; Android 14)',
+  },
 ];
 
 function decodeEntities(text: string): string {
@@ -114,12 +140,22 @@ export async function GET(request: Request) {
     try {
       console.log(`[Transcript] Trying ${config.name} client for video ${videoId}...`);
 
-      const playerResponse = await fetch(INNERTUBE_API_URL, {
+      const configIsProxy = (config as any).isProxy;
+      const targetApiUrl = configIsProxy 
+        ? `https://corsproxy.io/?${encodeURIComponent(INNERTUBE_API_URL)}` 
+        : INNERTUBE_API_URL;
+
+      const playerResponse = await fetch(targetApiUrl, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'User-Agent': config.userAgent,
-        },
+        headers: configIsProxy 
+          ? {
+              'Content-Type': 'application/json',
+              'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent })
+            }
+          : {
+              'Content-Type': 'application/json',
+              'User-Agent': config.userAgent,
+            },
         body: JSON.stringify({
           context: config.context,
           videoId,
@@ -154,8 +190,14 @@ export async function GET(request: Request) {
       }
 
       // Fetch the actual caption XML
-      const captionResponse = await fetch(captionUrl, {
-        headers: { 'User-Agent': config.userAgent },
+      const targetCaptionUrl = (config as any).isProxy
+        ? `https://corsproxy.io/?${encodeURIComponent(captionUrl)}`
+        : captionUrl;
+
+      const captionResponse = await fetch(targetCaptionUrl, {
+        headers: (config as any).isProxy
+          ? { 'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent }) }
+          : { 'User-Agent': config.userAgent },
       });
 
       if (!captionResponse.ok) {
