@@ -62,7 +62,21 @@ const CLIENT_CONFIGS = [
   },
   {
     name: 'PROXY_ANDROID',
-    isProxy: true,
+    isProxy: 'corsproxy.io',
+    context: {
+      client: {
+        clientName: 'ANDROID',
+        clientVersion: '20.10.38',
+        androidSdkVersion: 34,
+        hl: 'tr',
+        gl: 'TR',
+      },
+    },
+    userAgent: 'com.google.android.youtube/20.10.38 (Linux; U; Android 14)',
+  },
+  {
+    name: 'PROXY_THINGPROXY',
+    isProxy: 'thingproxy',
     context: {
       client: {
         clientName: 'ANDROID',
@@ -141,14 +155,18 @@ export async function GET(request: Request) {
     try {
       console.log(`[Transcript] Trying ${config.name} client for video ${videoId}...`);
 
-      const configIsProxy = (config as any).isProxy;
-      const targetApiUrl = configIsProxy 
-        ? `https://corsproxy.io/?${encodeURIComponent(INNERTUBE_API_URL)}` 
-        : INNERTUBE_API_URL;
+      const configProxyType = (config as any).isProxy;
+      let targetApiUrl = INNERTUBE_API_URL;
+      
+      if (configProxyType === 'corsproxy.io') {
+        targetApiUrl = `https://corsproxy.io/?${encodeURIComponent(INNERTUBE_API_URL)}`;
+      } else if (configProxyType === 'thingproxy') {
+        targetApiUrl = `https://thingproxy.freeboard.io/fetch/${INNERTUBE_API_URL}`;
+      }
 
       const playerResponse = await fetch(targetApiUrl, {
         method: 'POST',
-        headers: configIsProxy 
+        headers: configProxyType === 'corsproxy.io'
           ? {
               'Content-Type': 'application/json',
               'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent })
@@ -191,12 +209,15 @@ export async function GET(request: Request) {
       }
 
       // Fetch the actual caption XML
-      const targetCaptionUrl = (config as any).isProxy
-        ? `https://corsproxy.io/?${encodeURIComponent(captionUrl)}`
-        : captionUrl;
+      let targetCaptionUrl = captionUrl;
+      if (configProxyType === 'corsproxy.io') {
+        targetCaptionUrl = `https://corsproxy.io/?${encodeURIComponent(captionUrl)}`;
+      } else if (configProxyType === 'thingproxy') {
+        targetCaptionUrl = `https://thingproxy.freeboard.io/fetch/${captionUrl}`;
+      }
 
       const captionResponse = await fetch(targetCaptionUrl, {
-        headers: (config as any).isProxy
+        headers: configProxyType === 'corsproxy.io'
           ? { 'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent }) }
           : { 'User-Agent': config.userAgent },
       });

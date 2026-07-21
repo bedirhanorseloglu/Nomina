@@ -243,52 +243,69 @@ async function fetchViaClientInnerTube(videoId: string): Promise<string> {
   };
 
   const INNERTUBE_URL = 'https://www.youtube.com/youtubei/v1/player?prettyPrint=false';
-  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(INNERTUBE_URL)}`;
-
-  console.log(`[Transcript] Trying Client InnerTube via corsproxy.io...`);
   
-  const res = await fetch(proxyUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent })
-    },
-    body: JSON.stringify({
-      context: config.context,
-      videoId,
-    }),
-  });
+  const PROXIES = [
+    (url: string) => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    (url: string) => `https://thingproxy.freeboard.io/fetch/${url}`,
+    (url: string) => `https://cors.eu.org/${url}`,
+  ];
 
-  if (!res.ok) throw new Error(`InnerTube Proxy HTTP ${res.status}`);
-  const data = await res.json();
-  
-  if (data?.playabilityStatus?.status !== 'OK') {
-     throw new Error(`InnerTube: ${data?.playabilityStatus?.status || 'UNKNOWN'}`);
-  }
+  let lastError: Error | null = null;
 
-  const captionTracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
-  if (!Array.isArray(captionTracks) || captionTracks.length === 0) {
-     throw new Error(`InnerTube: No caption tracks`);
-  }
+  for (const getProxyUrl of PROXIES) {
+    try {
+      const proxyUrl = getProxyUrl(INNERTUBE_URL);
+      console.log(`[Transcript] Trying Client InnerTube via ${proxyUrl.split('/')[2]}...`);
+      
+      const res = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent })
+        },
+        body: JSON.stringify({
+          context: config.context,
+          videoId,
+        }),
+      });
 
-  const track = captionTracks.find((t: any) => t.languageCode === 'tr') || captionTracks[0];
-  const captionUrl = track.baseUrl;
+      if (!res.ok) throw new Error(`InnerTube Proxy HTTP ${res.status}`);
+      const data = await res.json();
+      
+      if (data?.playabilityStatus?.status !== 'OK') {
+         throw new Error(`InnerTube: ${data?.playabilityStatus?.status || 'UNKNOWN'}`);
+      }
 
-  const captionProxyUrl = `https://corsproxy.io/?${encodeURIComponent(captionUrl)}`;
-  const captionRes = await fetch(captionProxyUrl, {
-    headers: {
-      'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent })
+      const captionTracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+      if (!Array.isArray(captionTracks) || captionTracks.length === 0) {
+         throw new Error(`InnerTube: No caption tracks`);
+      }
+
+      const track = captionTracks.find((t: any) => t.languageCode === 'tr') || captionTracks[0];
+      const captionUrl = track.baseUrl;
+
+      const captionProxyUrl = getProxyUrl(captionUrl);
+      const captionRes = await fetch(captionProxyUrl, {
+        headers: {
+          'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent })
+        }
+      });
+
+      if (!captionRes.ok) throw new Error(`Caption Proxy HTTP ${captionRes.status}`);
+      const xml = await captionRes.text();
+      
+      const transcript = parseTimedTextXml(xml);
+      if (!transcript || transcript.length < 50) throw new Error("Parsed transcript too short");
+      
+      console.log(`[Transcript] Client InnerTube succeeded via ${proxyUrl.split('/')[2]}!`);
+      return transcript;
+    } catch (err: any) {
+      console.warn(`[Transcript] Client InnerTube via proxy failed:`, err.message);
+      lastError = err;
     }
-  });
-
-  if (!captionRes.ok) throw new Error(`Caption Proxy HTTP ${captionRes.status}`);
-  const xml = await captionRes.text();
+  }
   
-  const transcript = parseTimedTextXml(xml);
-  if (!transcript || transcript.length < 50) throw new Error("Parsed transcript too short");
-  
-  console.log(`[Transcript] Client InnerTube succeeded!`);
-  return transcript;
+  throw lastError || new Error("All Client InnerTube proxies failed");
 }
 
 // ── Main export ──────────────────────────────────────────────
