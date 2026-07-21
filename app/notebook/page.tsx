@@ -194,7 +194,6 @@ export default function NotebookPage() {
       setMessages([{ role: "model", text: "Videonun altyazısı başarıyla çekildi! Ben bir yapay zeka asistanıyım. Videoyla ilgili her türlü soruyu bana sorabilirsin, senin için özetleyebilirim veya test hazırlayabilirim." }])
     } catch (err: any) {
       setError(err.message || "Altyazı çekilemedi.")
-      setVideoId(null) // Reset view on error
     } finally {
       setIsFetchingTranscript(false)
     }
@@ -555,10 +554,38 @@ Lütfen **tamamen farklı ve eski/aktif bir Google hesabı (Gmail)** ile [Google
                     </button>
                   </form>
 
-                  {error && (
-                    <div className="bg-[#ff2d55]/10 text-[#ff2d55] border border-[#ff2d55]/20 p-3 rounded-xl flex items-center gap-2">
-                      <AlertCircle className="w-4 h-4 shrink-0" />
-                      <p className="font-bold text-sm">{error}</p>
+                  {error && !showManualInput && (
+                    <div className="flex flex-col gap-2">
+                      <div className="bg-[#ff2d55]/10 text-[#ff2d55] border border-[#ff2d55]/20 p-3 rounded-xl flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <p className="font-bold text-sm">{error}</p>
+                      </div>
+                      <button 
+                        onClick={() => setShowManualInput(true)} 
+                        className="text-[#1cb0f6] font-bold text-sm underline underline-offset-4 hover:text-[#1899d6] transition-colors self-start"
+                      >
+                        Manuel Olarak Altyazı Ekle
+                      </button>
+                    </div>
+                  )}
+
+                  {showManualInput && videoId && (
+                    <div className="bg-white dark:bg-[#1e293b] p-4 rounded-2xl border-2 border-[#1cb0f6]/20 shadow-sm flex flex-col gap-3">
+                      <div className="flex items-center gap-2 mb-1">
+                        <AlertCircle className="w-5 h-5 text-[#ff2d55]" />
+                        <p className="font-bold text-sm text-[#ff2d55]">YouTube otomatik çekimi engelledi.</p>
+                      </div>
+                      <p className="text-xs font-medium text-slate-500">Videonun altındaki "Transkripti Göster" kısmından metni kopyalayıp buraya yapıştırın:</p>
+                      <textarea 
+                        value={manualTranscript}
+                        onChange={(e) => setManualTranscript(e.target.value)}
+                        placeholder="Örn: 0:00 Merhaba arkadaşlar..."
+                        className="w-full h-32 bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl px-4 py-3 outline-none focus:border-[#1cb0f6] text-sm resize-none font-medium"
+                      />
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => setShowManualInput(false)} className="flex-1 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 text-slate-700 dark:text-slate-200 font-bold py-2.5 rounded-xl transition-colors text-sm">İptal</button>
+                        <button type="button" onClick={handleManualSubmit} disabled={!manualTranscript.trim()} className="flex-[2] bg-[#1cb0f6] hover:bg-[#1899d6] disabled:bg-slate-300 text-white font-bold py-2.5 rounded-xl transition-colors shadow-[0_4px_0_#1899d6] active:shadow-none active:translate-y-1 text-sm">Metni Analiz Et</button>
+                      </div>
                     </div>
                   )}
 
