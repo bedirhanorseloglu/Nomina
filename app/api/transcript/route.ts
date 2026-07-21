@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 export const dynamic = 'force-dynamic';
+export const runtime = 'edge';
 export const revalidate = 0;
 
 const INNERTUBE_API_URL = 'https://www.youtube.com/youtubei/v1/player?prettyPrint=false';
