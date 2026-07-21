@@ -225,9 +225,77 @@ async function fetchViaClientScrape(videoId: string): Promise<string> {
   throw lastError || new Error("All client-side proxy attempts failed");
 }
 
+// ── Strategy 3: Client-side InnerTube via proxy ──────────────────
+
+async function fetchViaClientInnerTube(videoId: string): Promise<string> {
+  const config = {
+    name: 'ANDROID',
+    context: {
+      client: {
+        clientName: 'ANDROID',
+        clientVersion: '20.10.38',
+        androidSdkVersion: 34,
+        hl: 'tr',
+        gl: 'TR',
+      },
+    },
+    userAgent: 'com.google.android.youtube/20.10.38 (Linux; U; Android 14)',
+  };
+
+  const INNERTUBE_URL = 'https://www.youtube.com/youtubei/v1/player?prettyPrint=false';
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(INNERTUBE_URL)}`;
+
+  console.log(`[Transcript] Trying Client InnerTube via corsproxy.io...`);
+  
+  const res = await fetch(proxyUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent })
+    },
+    body: JSON.stringify({
+      context: config.context,
+      videoId,
+    }),
+  });
+
+  if (!res.ok) throw new Error(`InnerTube Proxy HTTP ${res.status}`);
+  const data = await res.json();
+  
+  if (data?.playabilityStatus?.status !== 'OK') {
+     throw new Error(`InnerTube: ${data?.playabilityStatus?.status || 'UNKNOWN'}`);
+  }
+
+  const captionTracks = data?.captions?.playerCaptionsTracklistRenderer?.captionTracks;
+  if (!Array.isArray(captionTracks) || captionTracks.length === 0) {
+     throw new Error(`InnerTube: No caption tracks`);
+  }
+
+  const track = captionTracks.find((t: any) => t.languageCode === 'tr') || captionTracks[0];
+  const captionUrl = track.baseUrl;
+
+  const captionProxyUrl = `https://corsproxy.io/?${encodeURIComponent(captionUrl)}`;
+  const captionRes = await fetch(captionProxyUrl, {
+    headers: {
+      'x-corsproxy-headers': JSON.stringify({ 'User-Agent': config.userAgent })
+    }
+  });
+
+  if (!captionRes.ok) throw new Error(`Caption Proxy HTTP ${captionRes.status}`);
+  const xml = await captionRes.text();
+  
+  const transcript = parseTimedTextXml(xml);
+  if (!transcript || transcript.length < 50) throw new Error("Parsed transcript too short");
+  
+  console.log(`[Transcript] Client InnerTube succeeded!`);
+  return transcript;
+}
+
 // ── Main export ──────────────────────────────────────────────
 
 export async function fetchTranscript(videoId: string): Promise<string> {
+  const errors: string[] = [];
+
   // Strategy 1: Server API (custom InnerTube + youtube-transcript fallback)
   try {
     console.log("[Transcript] Trying server API...");
@@ -235,20 +303,32 @@ export async function fetchTranscript(videoId: string): Promise<string> {
     console.log("[Transcript] Server API succeeded!");
     return result;
   } catch (serverErr: any) {
-    console.warn("[Transcript] Server API failed:", serverErr.message);
+    const msg = serverErr.message;
+    console.warn("[Transcript] Server API failed:", msg);
+    errors.push(`Sunucu API: ${msg.includes('Unexpected token') ? 'API bulunamadı (Statik sunucu)' : msg}`);
   }
 
-  // Strategy 2: Client-side YouTube page scrape via CORS proxies
+  // Strategy 2: Client-side InnerTube via proxy
+  try {
+    const result = await fetchViaClientInnerTube(videoId);
+    return result;
+  } catch (clientInnerErr: any) {
+    console.warn("[Transcript] Client InnerTube failed:", clientInnerErr.message);
+    errors.push(`Client Proxy: ${clientInnerErr.message}`);
+  }
+
+  // Strategy 3: Client-side YouTube page scrape via CORS proxies
   try {
     console.log("[Transcript] Falling back to client-side scrape...");
     const result = await fetchViaClientScrape(videoId);
     return result;
   } catch (clientErr: any) {
     console.warn("[Transcript] Client-side scrape failed:", clientErr.message);
+    errors.push(`Web Scrape: ${clientErr.message}`);
   }
 
   // All strategies exhausted
   throw new Error(
-    "Altyazı çekilemedi. Video altyazısı olmayabilir veya YouTube geçici olarak erişimi engelliyor olabilir."
+    `Altyazı çekilemedi.\nHatalar:\n${errors.join('\n')}\nLütfen manuel olarak eklemeyi deneyin.`
   );
 }
