@@ -58,7 +58,7 @@ export default function DenemeAnalytics({
   isReadOnly = false,
 }: Props) {
   const [range, setRange] = useState<Range>("all");
-  const [activeMetric, setActiveMetric] = useState<"total" | "gy" | "gk">("total");
+  const [activeMetric, setActiveMetric] = useState<string>("total");
   const [selectedBransSubjectId, setSelectedBransSubjectId] = useState<string>(
     activeSubjectTab || ""
   );
@@ -126,6 +126,14 @@ export default function DenemeAnalytics({
       const ae = cnt ? te / cnt : 0;
       const an = ac - aw * 0.25;
       const qc = getSubjectQuestionCount(sub.id);
+
+      const subNets = evals.map((e) => {
+        const s = e.r.subjects.find((x) => x.subjectId === sub.id);
+        return s ? s.net : 0;
+      });
+      const bestNet = subNets.length > 0 ? Math.max(...subNets) : 0;
+      const latestNet = subNets.length > 0 ? subNets[0] : 0;
+
       return {
         id: sub.id,
         title: sub.title,
@@ -136,6 +144,8 @@ export default function DenemeAnalytics({
         avgWrong: aw,
         avgEmpty: ae,
         avgNet: an,
+        bestNet,
+        latestNet,
         accuracy: qc > 0 ? (an / qc) * 100 : 0,
       };
     });
@@ -202,6 +212,20 @@ export default function DenemeAnalytics({
           { net: 0, correct: 0, wrong: 0, empty: 0 }
         );
 
+      const subjectsMap: Record<
+        string,
+        { net: number; correct: number; wrong: number; empty: number }
+      > = {};
+      DENEME_SUBJECTS.forEach((sub) => {
+        const found = e.r.subjects.find((x) => x.subjectId === sub.id);
+        subjectsMap[sub.id] = {
+          net: found ? found.net : 0,
+          correct: found ? found.correct : 0,
+          wrong: found ? found.wrong : 0,
+          empty: found ? found.empty : 0,
+        };
+      });
+
       return {
         name: e.d.name,
         date: e.d.date,
@@ -217,6 +241,7 @@ export default function DenemeAnalytics({
         gkCorrect: gk.correct,
         gkWrong: gk.wrong,
         gkEmpty: gk.empty,
+        subjectsMap,
       };
     });
 
@@ -404,6 +429,42 @@ export default function DenemeAnalytics({
     );
   }
 
+  const currentMetricImprovement = useMemo(() => {
+    if (!stats || stats.count <= 1 || !stats.trend || stats.trend.length === 0) return 0;
+    const firstItem = stats.trend[0];
+    const latestItem = stats.trend[stats.trend.length - 1];
+    if (!firstItem || !latestItem) return 0;
+
+    if (activeMetric === "total") {
+      return latestItem.totalNet - firstItem.totalNet;
+    } else if (activeMetric === "gy") {
+      return latestItem.gyNet - firstItem.gyNet;
+    } else if (activeMetric === "gk") {
+      return latestItem.gkNet - firstItem.gkNet;
+    } else if (firstItem.subjectsMap?.[activeMetric] && latestItem.subjectsMap?.[activeMetric]) {
+      return (
+        latestItem.subjectsMap[activeMetric].net -
+        firstItem.subjectsMap[activeMetric].net
+      );
+    }
+    return 0;
+  }, [stats, activeMetric]);
+
+  const currentCategory = useMemo(() => {
+    if (activeMetric === "gy" || activeMetric === "turkce" || activeMetric === "matematik") {
+      return "gy";
+    }
+    if (
+      activeMetric === "gk" ||
+      activeMetric === "tarih" ||
+      activeMetric === "cografya" ||
+      activeMetric === "vatandaslik"
+    ) {
+      return "gk";
+    }
+    return "total";
+  }, [activeMetric]);
+
   if (viewType === "genel" && (!stats || stats.count === 0)) {
     return (
       <div className="flex flex-col items-center justify-center py-16 px-8 bg-white dark:bg-slate-800 rounded-[2.5rem] border-2 border-b-4 border-slate-200 dark:border-slate-700 shadow-md text-center max-w-lg mx-auto my-6">
@@ -473,35 +534,112 @@ export default function DenemeAnalytics({
             desc="Sınavdan sınava olan net değişimlerinizi ve trendinizi gösterir."
             icon={<AppleEmoji emoji="📈" size={32} color="#1cb0f6" />}
           >
-            <div className="flex p-1.5 bg-slate-100 dark:bg-slate-900 rounded-2xl border-2 border-b-4 border-slate-200 dark:border-slate-700 text-xs font-black w-fit mb-8 shadow-xs">
-              {[
-                { key: "total" as const, label: "Toplam Net", icon: "🌟" },
-                { key: "gy" as const, label: "Genel Yetenek", icon: "🧠" },
-                { key: "gk" as const, label: "Genel Kültür", icon: "🌍" },
-              ].map((m) => (
-                <button
-                  key={m.key}
-                  type="button"
-                  onClick={() => setActiveMetric(m.key)}
-                  className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all duration-300 z-10 cursor-pointer ${
-                    activeMetric === m.key
-                      ? "text-slate-800 dark:text-white"
-                      : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
-                  }`}
+            {/* Hierarchical Metric Tabs: Main Category & Sub-Subject Rows */}
+            <div className="space-y-3 mb-8">
+              {/* Ana Kategoriler */}
+              <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-900 rounded-2xl border-2 border-b-4 border-slate-200 dark:border-slate-700 text-xs font-black w-fit shadow-xs">
+                {[
+                  {
+                    key: "total" as const,
+                    label: "Toplam Net",
+                    icon: "🌟",
+                    color: "#1cb0f6",
+                    targetMetric: "total",
+                  },
+                  {
+                    key: "gy" as const,
+                    label: "Genel Yetenek",
+                    icon: "🧠",
+                    color: "#1cb0f6",
+                    targetMetric: "gy",
+                  },
+                  {
+                    key: "gk" as const,
+                    label: "Genel Kültür",
+                    icon: "🌍",
+                    color: "#58cc02",
+                    targetMetric: "gk",
+                  },
+                ].map((cat) => {
+                  const isCatActive = currentCategory === cat.key;
+                  return (
+                    <button
+                      key={cat.key}
+                      type="button"
+                      onClick={() => setActiveMetric(cat.targetMetric)}
+                      className={`relative flex items-center gap-2 px-5 py-2.5 rounded-xl transition-all duration-200 z-10 cursor-pointer ${
+                        isCatActive
+                          ? "text-slate-800 dark:text-white"
+                          : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+                      }`}
+                    >
+                      {isCatActive && (
+                        <motion.div
+                          layoutId="mainMetricCategoryTab"
+                          className="absolute inset-0 bg-white dark:bg-slate-800 border-2 border-b-4 border-[#1cb0f6] border-b-[#1899d6] shadow-xs rounded-xl"
+                          transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                        />
+                      )}
+                      <span className="relative z-10 text-sm">
+                        <AppleEmoji emoji={cat.icon} size={16} color={cat.color} />
+                      </span>
+                      <span className="relative z-10 font-black">{cat.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Alt Branş / Ders Kırılımları */}
+              {(currentCategory === "gy" || currentCategory === "gk") && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="flex items-center gap-1.5 p-1 bg-slate-100/90 dark:bg-slate-900/90 rounded-2xl border-2 border-slate-200 dark:border-slate-700 text-xs font-black max-w-full overflow-x-auto no-scrollbar shadow-2xs w-fit"
                 >
-                  {activeMetric === m.key && (
-                    <motion.div
-                      layoutId="metricTab"
-                      className="absolute inset-0 bg-white dark:bg-slate-800 border-2 border-b-4 border-[#1cb0f6] border-b-[#1899d6] shadow-xs rounded-xl"
-                      transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                    />
-                  )}
-                  <span className="relative z-10 text-sm">
-                    <AppleEmoji emoji={m.icon} size={16} color="#1cb0f6" />
-                  </span>
-                  <span className="relative z-10">{m.label}</span>
-                </button>
-              ))}
+                  {(currentCategory === "gy"
+                    ? [
+                        { key: "gy", label: "Tümü (GY)", icon: "🧠", color: "#1cb0f6", count: "60 Soru" },
+                        { key: "turkce", label: "Türkçe", icon: "📘", color: "#fa5fea", count: "30 Soru" },
+                        { key: "matematik", label: "Matematik", icon: "🔢", color: "#af52de", count: "30 Soru" },
+                      ]
+                    : [
+                        { key: "gk", label: "Tümü (GK)", icon: "🌍", color: "#58cc02", count: "60 Soru" },
+                        { key: "tarih", label: "Tarih", icon: "🏛", color: "#ff9500", count: "27 Soru" },
+                        { key: "cografya", label: "Coğrafya", icon: "🗺", color: "#10B981", count: "18 Soru" },
+                        { key: "vatandaslik", label: "Vatandaşlık", icon: "⚖️", color: "#5856d6", count: "15 Soru" },
+                      ]
+                  ).map((sub) => {
+                    const isSubActive = activeMetric === sub.key;
+                    return (
+                      <button
+                        key={sub.key}
+                        type="button"
+                        onClick={() => setActiveMetric(sub.key)}
+                        className={`relative flex items-center gap-2 px-3.5 py-1.5 rounded-xl transition-all duration-200 cursor-pointer shrink-0 ${
+                          isSubActive
+                            ? "bg-white dark:bg-slate-800 text-slate-800 dark:text-white border-2 border-b-4 shadow-xs"
+                            : "text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 border-2 border-transparent"
+                        }`}
+                        style={
+                          isSubActive
+                            ? {
+                                borderColor: `${sub.color}60`,
+                                borderBottomColor: sub.color,
+                              }
+                            : {}
+                        }
+                      >
+                        <AppleEmoji emoji={sub.icon} size={15} color={sub.color} />
+                        <span className="font-black text-xs">{sub.label}</span>
+                        <span className="text-[10px] font-extrabold text-slate-400 dark:text-slate-300">
+                          ({sub.count})
+                        </span>
+                      </button>
+                    );
+                  })}
+                </motion.div>
+              )}
             </div>
 
             <GenelRechartsTrend
@@ -510,18 +648,18 @@ export default function DenemeAnalytics({
               targetNet={targetNet}
             />
 
-            {stats.improvement !== 0 && stats.count > 1 && (
+            {currentMetricImprovement !== 0 && stats.count > 1 && (
               <div className="mt-6 flex justify-center">
                 <div className="bg-white dark:bg-slate-800 border-2 border-b-4 border-slate-200 dark:border-slate-700 rounded-2xl px-5 py-2.5 flex items-center gap-3 shadow-2xs">
                   <div
                     className={`w-8 h-8 rounded-xl flex items-center justify-center border-2 border-b-2 shrink-0 ${
-                      stats.improvement > 0
+                      currentMetricImprovement > 0
                         ? "bg-[#58cc02] border-[#46a302] text-white"
                         : "bg-[#ff4b4b] border-[#ea2b2b] text-white"
                     }`}
                   >
                     <AppleEmoji
-                      emoji={stats.improvement > 0 ? "🚀" : "📉"}
+                      emoji={currentMetricImprovement > 0 ? "🚀" : "📉"}
                       size={16}
                       color="#ffffff"
                     />
@@ -530,13 +668,13 @@ export default function DenemeAnalytics({
                     İlk denemeden bu yana{" "}
                     <span
                       className={`font-mono font-black ${
-                        stats.improvement > 0 ? "text-[#58cc02]" : "text-[#ff4b4b]"
+                        currentMetricImprovement > 0 ? "text-[#58cc02]" : "text-[#ff4b4b]"
                       }`}
                     >
-                      {stats.improvement > 0 ? "+" : "-"}
-                      {formatNet(Math.abs(stats.improvement))} net
+                      {currentMetricImprovement > 0 ? "+" : "-"}
+                      {formatNet(Math.abs(currentMetricImprovement))} net
                     </span>{" "}
-                    {stats.improvement > 0 ? "ilerleme!" : "gerileme."}
+                    {currentMetricImprovement > 0 ? "ilerleme!" : "gerileme."}
                   </span>
                 </div>
               </div>

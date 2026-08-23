@@ -350,7 +350,7 @@ export default function DenemeHistoryList({
                                     }}
                                   >
                                     <AppleEmoji emoji={subConfig.icon} size={12} />
-                                    <span>{subConfig.title} Branş</span>
+                                    <span>{subConfig.title}</span>
                                   </span>
                                 )}
                               </div>

@@ -13,6 +13,7 @@ import {
   CartesianGrid,
   ReferenceLine,
 } from "recharts";
+import { DENEME_SUBJECTS, getSubjectQuestionCount } from "@/lib/denemeConfig";
 import { formatNet } from "@/lib/denemeUtils";
 import { CustomRechartsTooltip, renderRefLabel } from "./AnalyticsCommon";
 
@@ -22,10 +23,14 @@ export function GenelRechartsTrend({
   targetNet,
 }: {
   stats: any;
-  activeMetric?: "total" | "gy" | "gk";
+  activeMetric?: string;
   targetNet?: number;
 }) {
   const [chartView, setChartView] = useState<"net" | "breakdown">("net");
+
+  const isSubject = !["total", "gy", "gk"].includes(activeMetric);
+  const subjectConfig = isSubject ? DENEME_SUBJECTS.find((s) => s.id === activeMetric) : null;
+  const subjectStat = isSubject ? stats.subjects?.find((s: any) => s.id === activeMetric) : null;
 
   const chartData = useMemo(() => {
     return stats.trend.map((d: any, idx: number) => {
@@ -44,6 +49,12 @@ export function GenelRechartsTrend({
         correct = d.gkCorrect;
         wrong = d.gkWrong;
         empty = d.gkEmpty;
+      } else if (isSubject && d.subjectsMap?.[activeMetric]) {
+        const subData = d.subjectsMap[activeMetric];
+        net = subData.net;
+        correct = subData.correct;
+        wrong = subData.wrong;
+        empty = subData.empty;
       }
 
       return {
@@ -56,36 +67,67 @@ export function GenelRechartsTrend({
         empty,
       };
     });
-  }, [stats, activeMetric]);
+  }, [stats, activeMetric, isSubject]);
 
-  const maxQuestions = activeMetric === "total" ? 120 : 60;
+  const maxQuestions = activeMetric === "total"
+    ? 120
+    : activeMetric === "gy" || activeMetric === "gk"
+    ? 60
+    : subjectConfig?.questionCount || 30;
+
   const mainColor =
     activeMetric === "total"
       ? "#1cb0f6"
       : activeMetric === "gy"
       ? "#af52de"
-      : "#58cc02";
+      : activeMetric === "gk"
+      ? "#58cc02"
+      : subjectConfig?.color || "#1cb0f6";
 
   const latestNet =
     activeMetric === "total"
       ? stats.latest
       : activeMetric === "gy"
       ? stats.gyLatest
-      : stats.gkLatest;
+      : activeMetric === "gk"
+      ? stats.gkLatest
+      : subjectStat?.latestNet ?? 0;
 
   const bestNet =
     activeMetric === "total"
       ? stats.best
       : activeMetric === "gy"
       ? stats.gyBest
-      : stats.gkBest;
+      : activeMetric === "gk"
+      ? stats.gkBest
+      : subjectStat?.bestNet ?? 0;
 
   const avgNet =
     activeMetric === "total"
       ? stats.avg
       : activeMetric === "gy"
       ? stats.gyAvg
-      : stats.gkAvg;
+      : activeMetric === "gk"
+      ? stats.gkAvg
+      : subjectStat?.avgNet ?? 0;
+
+  const chartTitle =
+    activeMetric === "total"
+      ? "Genel Sınav Net Seyri"
+      : activeMetric === "gy"
+      ? "Genel Yetenek Gelişim Grafiği"
+      : activeMetric === "gk"
+      ? "Genel Kültür Gelişim Grafiği"
+      : `${subjectConfig?.title || ""} Gelişim Grafiği`;
+
+  const chartDesc =
+    activeMetric === "total"
+      ? `Toplam ${stats.count} denemede sınavdan sınava net değişiminiz.`
+      : activeMetric === "gy"
+      ? `Toplam ${stats.count} denemede Genel Yetenek net değişiminiz.`
+      : activeMetric === "gk"
+      ? `Toplam ${stats.count} denemede Genel Kültür net değişiminiz.`
+      : `Toplam ${stats.count} genel denemede ${subjectConfig?.title || ""} net değişiminiz.`;
 
   return (
     <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-6 sm:p-8 border-2 border-b-4 border-slate-200 dark:border-slate-700 shadow-sm space-y-6 relative overflow-hidden">
@@ -108,15 +150,11 @@ export function GenelRechartsTrend({
               />
             </span>
             <h4 className="text-lg font-black text-slate-800 dark:text-white tracking-tight">
-              {activeMetric === "total"
-                ? "Genel Sınav Net Seyri"
-                : activeMetric === "gy"
-                ? "Genel Yetenek Gelişim Grafiği"
-                : "Genel Kültür Gelişim Grafiği"}
+              {chartTitle}
             </h4>
           </div>
           <p className="text-xs font-bold text-slate-400">
-            Toplam {stats.count} denemede sınavdan sınava net değişiminiz.
+            {chartDesc}
           </p>
         </div>
 

@@ -501,7 +501,7 @@ function DayActivityModal({
                             }}
                           >
                             <AppleEmoji emoji={subConfig.icon} size={13} />
-                            <span>{subConfig.title} Branş</span>
+                            <span>{subConfig.title}</span>
                           </span>
                         ) : isBrans ? (
                           <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg text-xs font-black bg-emerald-100 dark:bg-emerald-950/40 text-[#58cc02] border-2 border-b-2 border-[#58cc02] shadow-2xs shrink-0">

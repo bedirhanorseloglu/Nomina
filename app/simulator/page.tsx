@@ -356,14 +356,16 @@ export default function ExamSimulatorPage() {
                 <div className="text-center mb-8">
                   <h1 className="text-3xl md:text-4xl font-black tracking-tight mb-3 text-slate-800 dark:text-white flex items-center justify-center gap-3">
                     <AppleEmoji emoji="⏱️" size={32} />
-                    <span>Süreni Belirle</span>
+                    <span>{examMode === "genel" ? "Sınav Süresi" : "Süreni Belirle"}</span>
                   </h1>
                   <p className="text-sm text-slate-500 dark:text-slate-400 font-semibold">
-                    {examMode === "genel" ? "Genel deneme için varsayılan süre 130 dakikadır. İstersen değiştirebilirsin." : "Çözeceğin branşı seç veya doğrudan süreni gir."}
+                    {examMode === "genel"
+                      ? "Genel deneme süresi gerçek KPSS (ÖSYM) sınav formatında sabit 130 dakikadır."
+                      : "Çözeceğin branşı seç veya doğrudan süreni gir."}
                   </p>
                 </div>
 
-                {/* 3D Subject Selector Pills */}
+                {/* 3D Subject Selector Pills (Branş Denemesi için) */}
                 {examMode === "brans" && (
                   <div className="flex flex-wrap justify-center gap-3 mb-8 w-full max-w-2xl">
                     {SUBJECTS.map((sub) => {
@@ -397,47 +399,64 @@ export default function ExamSimulatorPage() {
                   </div>
                 )}
 
-                {/* 3D Counter Card */}
-                <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 sm:p-10 border-2 border-b-6 border-slate-200 dark:border-slate-700 shadow-md w-full max-w-md mx-auto text-center mb-8">
-                  <div className="inline-flex items-center px-4 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 border-2 border-b-2 border-slate-200 dark:border-slate-600/80 font-black text-xs uppercase tracking-widest mb-6">
-                    <span>{examMode === "genel" ? "Sabit Sınav Süresi" : "Özel Süre"}</span>
-                  </div>
+                {/* 3D Duration Card */}
+                {examMode === "genel" ? (
+                  /* Genel Deneme: Sabit 130 Dakika Kartı */
+                  <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 sm:p-10 border-2 border-b-6 border-slate-200 dark:border-slate-700 shadow-md w-full max-w-md mx-auto text-center mb-8">
+                    <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-[#1cb0f6] border-2 border-b-2 border-sky-200 dark:border-sky-800 font-black text-xs uppercase tracking-widest mb-6 shadow-2xs">
+                      <AppleEmoji emoji="🔒" size={14} color="#1cb0f6" />
+                      <span>Sabit Sınav Süresi</span>
+                    </div>
 
-                  <div className="flex items-center justify-center gap-6 my-2">
-                    <button 
-                      type="button"
-                      onClick={() => setCustomDuration(Math.max(1, customDuration - 5))}
-                      disabled={examMode === "genel"}
-                      className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-700/80 border-2 border-b-4 border-slate-200 border-b-slate-300 dark:border-slate-600 dark:border-b-slate-700 text-slate-700 dark:text-white font-black text-2xl hover:bg-slate-200 dark:hover:bg-slate-600 active:translate-y-0.5 transition-all flex items-center justify-center shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer select-none"
-                      title="Süreyi 5 Dk Azalt"
-                    >
-                      -
-                    </button>
-                    <div className="flex flex-col items-center justify-center min-w-[120px] select-none">
-                      <span className="text-6xl font-black text-slate-800 dark:text-white tracking-tight font-mono">
-                        {customDuration}
+                    <div className="flex flex-col items-center justify-center my-3 select-none">
+                      <span className="text-7xl font-black text-[#1cb0f6] tracking-tight font-mono leading-none">
+                        130
                       </span>
-                      <span className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mt-1">
-                        DAKİKA
+                      <span className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mt-2.5">
+                        DAKİKA (2 SAAT 10 DK)
                       </span>
                     </div>
-                    <button 
-                      type="button"
-                      onClick={() => setCustomDuration(customDuration + 5)}
-                      disabled={examMode === "genel"}
-                      className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-700/80 border-2 border-b-4 border-slate-200 border-b-slate-300 dark:border-slate-600 dark:border-b-slate-700 text-slate-700 dark:text-white font-black text-2xl hover:bg-slate-200 dark:hover:bg-slate-600 active:translate-y-0.5 transition-all flex items-center justify-center shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer select-none"
-                      title="Süreyi 5 Dk Artır"
-                    >
-                      +
-                    </button>
-                  </div>
 
-                  {examMode === "genel" && (
-                    <div className="mt-6 px-4 py-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-[#58cc02] border-2 border-b-2 border-emerald-200 dark:border-emerald-900/60 text-xs font-black flex items-center justify-center shadow-2xs">
-                      <span>Genel deneme süresi gerçek sınavla (130 dk) birebir aynıdır.</span>
+                    <div className="mt-6 px-4 py-3 rounded-2xl bg-sky-50/80 dark:bg-sky-950/40 text-slate-700 dark:text-slate-300 border-2 border-b-2 border-sky-200 dark:border-sky-900/60 text-xs font-bold text-center shadow-2xs">
+                      <span>Genel deneme süresi gerçek KPSS sınavı ile birebir sabit 130 dakikadır.</span>
                     </div>
-                  )}
-                </div>
+                  </div>
+                ) : (
+                  /* Branş Denemesi: Ayarlanabilir Sayaç Kartı */
+                  <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 sm:p-10 border-2 border-b-6 border-slate-200 dark:border-slate-700 shadow-md w-full max-w-md mx-auto text-center mb-8">
+                    <div className="inline-flex items-center px-4 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 border-2 border-b-2 border-slate-200 dark:border-slate-600/80 font-black text-xs uppercase tracking-widest mb-6">
+                      <span>Özel Branş Süresi</span>
+                    </div>
+
+                    <div className="flex items-center justify-center gap-6 my-2">
+                      <button 
+                        type="button"
+                        onClick={() => setCustomDuration(Math.max(5, customDuration - 5))}
+                        disabled={customDuration <= 5}
+                        className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-700/80 border-2 border-b-4 border-slate-200 border-b-slate-300 dark:border-slate-600 dark:border-b-slate-700 text-slate-700 dark:text-white font-black text-2xl hover:bg-slate-200 dark:hover:bg-slate-600 active:translate-y-0.5 transition-all flex items-center justify-center shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer select-none"
+                        title="Süreyi 5 Dk Azalt"
+                      >
+                        -
+                      </button>
+                      <div className="flex flex-col items-center justify-center min-w-[120px] select-none">
+                        <span className="text-6xl font-black text-slate-800 dark:text-white tracking-tight font-mono">
+                          {customDuration}
+                        </span>
+                        <span className="text-[11px] font-black uppercase tracking-widest text-slate-400 dark:text-slate-500 mt-1">
+                          DAKİKA
+                        </span>
+                      </div>
+                      <button 
+                        type="button"
+                        onClick={() => setCustomDuration(customDuration + 5)}
+                        className="w-14 h-14 rounded-2xl bg-slate-100 dark:bg-slate-700/80 border-2 border-b-4 border-slate-200 border-b-slate-300 dark:border-slate-600 dark:border-b-slate-700 text-slate-700 dark:text-white font-black text-2xl hover:bg-slate-200 dark:hover:bg-slate-600 active:translate-y-0.5 transition-all flex items-center justify-center shadow-xs disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer select-none"
+                        title="Süreyi 5 Dk Artır"
+                      >
+                        +
+                      </button>
+                    </div>
+                  </div>
+                )}
 
                 {/* 3D Start Button */}
                 <button 

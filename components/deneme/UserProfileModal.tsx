@@ -338,7 +338,7 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                         {kiyasType === "brans" && (
                           <motion.div
                             layoutId="modalKiyasTabBg"
-                            className="absolute inset-0 bg-[#af52de] border-2 border-b-4 border-[#af52de] border-b-[#963ec7] rounded-xl shadow-xs"
+                            className="absolute inset-0 bg-[#58cc02] border-2 border-b-4 border-[#58cc02] border-b-[#46a302] rounded-xl shadow-xs"
                             transition={{ type: "spring", stiffness: 400, damping: 30 }}
                           />
                         )}
@@ -348,7 +348,7 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                   </div>
 
                   {/* 3D Versus Matchup Pill */}
-                  <div className="flex items-center gap-2 bg-slate-900 dark:bg-slate-950 text-white px-4 py-2 rounded-2xl border-2 border-b-4 border-slate-950 border-b-black shadow-xs self-start sm:self-auto">
+                  <div className="flex items-center gap-2 bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-white px-4 py-2 rounded-2xl border-2 border-b-4 border-slate-200 dark:border-slate-700 shadow-xs self-start sm:self-auto">
                     <span className="text-xs font-black text-[#1cb0f6]">SEN</span>
                     <AppleEmoji emoji="⚔️" size={16} />
                     <span className="text-xs font-black text-[#F43F5E]">{userEntry.displayName}</span>
@@ -598,16 +598,29 @@ export default function UserProfileModal({ userEntry, isOpen, onClose }: UserPro
                             const isSenWinner = senNet > rakipNet;
                             const isRakipWinner = rakipNet > senNet;
 
+                            const hoverBorderClass =
+                              subj.id === "turkce"
+                                ? "hover:border-[#fa5fea] dark:hover:border-[#fa5fea] hover:shadow-[#fa5fea]/10"
+                                : subj.id === "matematik"
+                                ? "hover:border-[#af52de] dark:hover:border-[#af52de] hover:shadow-[#af52de]/10"
+                                : subj.id === "tarih"
+                                ? "hover:border-[#ff9500] dark:hover:border-[#ff9500] hover:shadow-[#ff9500]/10"
+                                : subj.id === "cografya"
+                                ? "hover:border-[#10B981] dark:hover:border-[#10B981] hover:shadow-[#10B981]/10"
+                                : subj.id === "vatandaslik"
+                                ? "hover:border-[#5856d6] dark:hover:border-[#5856d6] hover:shadow-[#5856d6]/10"
+                                : "hover:border-[#1cb0f6] dark:hover:border-[#1cb0f6]";
+
                             return (
                               <div 
                                 key={subj.id}
-                                className="bg-white dark:bg-slate-900/80 p-3.5 rounded-2xl border-2 border-b-2 border-slate-200 dark:border-slate-700 shadow-2xs space-y-2 group hover:border-slate-300 dark:hover:border-slate-600 transition-all"
+                                className={`bg-white dark:bg-slate-900/80 p-3.5 rounded-2xl border-2 border-b-2 border-slate-200 dark:border-slate-700 shadow-2xs space-y-2 group transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${hoverBorderClass}`}
                               >
                                 {/* Row Header */}
                                 <div className="flex items-center justify-between">
                                   <div className="flex items-center gap-2">
                                     <div 
-                                      className="w-7 h-7 rounded-xl flex items-center justify-center border-2 border-b-2 shadow-2xs"
+                                      className="w-7 h-7 rounded-xl flex items-center justify-center border-2 border-b-2 shadow-2xs group-hover:scale-110 transition-transform"
                                       style={{ backgroundColor: `${subj.color}15`, borderColor: `${subj.color}40` }}
                                     >
                                       <AppleEmoji emoji={subj.icon} size={14} />
