@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Nunito } from "next/font/google";
 import { Toaster } from "sonner";
 import { AuthProvider } from "@/contexts/AuthContext";
 import AuthGuard from "@/components/auth/AuthGuard";
@@ -6,6 +7,13 @@ import GlobalPomodoro from "@/components/GlobalPomodoro";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "./globals.css";
+
+const nunito = Nunito({
+  subsets: ["latin", "latin-ext"],
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-nunito",
+  display: "swap",
+});
 
 export const viewport: Viewport = {
   themeColor: "#1cb0f6",
@@ -52,7 +60,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="tr" suppressHydrationWarning>
-      <body className="antialiased min-h-screen flex flex-col font-sans">
+      <body className={`${nunito.variable} font-sans antialiased min-h-screen flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
           <AuthProvider>
             <ErrorBoundary>
@@ -62,15 +70,10 @@ export default function RootLayout({
           </AuthProvider>
         </ThemeProvider>
         <Toaster
-          position="bottom-center"
-          closeButton
+          position="top-center"
           expand={false}
-          duration={3000}
-          toastOptions={{
-            classNames: {
-              toast: "app-toast",
-            },
-          }}
+          duration={3500}
+          gap={10}
         />
       </body>
     </html>

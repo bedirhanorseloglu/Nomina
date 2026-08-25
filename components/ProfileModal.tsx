@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, RefreshCw, Check, Loader2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { updateProfile } from "firebase/auth";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -45,7 +45,7 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
 
   const handleSave = async () => {
     if (!displayName.trim()) {
-      toast.error("Lütfen bir kullanıcı adı girin.");
+      notify.error("Lütfen bir kullanıcı adı girin.", { badge: "EKSİK BİLGİ" });
       return;
     }
 
@@ -55,11 +55,11 @@ export default function ProfileModal({ isOpen, onClose }: ProfileModalProps) {
         displayName: displayName.trim(),
         photoURL: svgDataUri,
       });
-      toast.success("Profilin başarıyla güncellendi!");
+      notify.success("Profilin başarıyla güncellendi!", { badge: "GÜNCELLENDİ", emoji: "👤" });
       onClose();
     } catch (error) {
       console.error("Profile update error:", error);
-      toast.error("Profil güncellenirken bir hata oluştu.");
+      notify.error("Profil güncellenirken bir hata oluştu.");
     } finally {
       setIsSaving(false);
     }

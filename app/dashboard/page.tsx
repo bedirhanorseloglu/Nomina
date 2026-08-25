@@ -19,7 +19,7 @@ import AutoPlanGenerator from "@/components/AutoPlanGenerator"
 import DailyGoalWidget from "@/components/DailyGoalWidget"
 import { LocalDashboardData, Subject } from "@/types"
 import DenemeLinkButton from "@/components/deneme/DenemeLinkButton"
-import { toast } from "sonner"
+import { notify } from "@/lib/notify"
 import { useAuth } from "@/contexts/AuthContext"
 import { useTheme } from "@/components/ThemeProvider"
 import { getStudyDate } from "@/lib/dateUtils"
@@ -218,27 +218,11 @@ function HomeContent() {
     })
     setData({ ...data, subjects: newSubjects })
     if (wasCompleted) {
-      toast.custom(() => (
-        <div className="flex items-center justify-center w-full mt-2 pointer-events-auto">
-          <div className="bg-white dark:bg-slate-800 px-5 py-3.5 rounded-2xl border-2 border-b-4 border-slate-200 border-b-slate-300 dark:border-slate-700 dark:border-b-slate-800 shadow-2xl flex items-center gap-3.5 min-w-[320px] max-w-sm">
-            <div className="w-10 h-10 rounded-xl bg-[#e8f7ff] dark:bg-[#1cb0f6]/20 border-2 border-b-2 border-[#1cb0f6] flex items-center justify-center shrink-0 shadow-2xs">
-              <AppleEmoji emoji="📘" size={22} />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-[11px] font-black uppercase tracking-widest text-[#1cb0f6] mb-0.5 truncate">
-                {completedSubjectTitle} · Konu Tamamlandı
-              </span>
-              <span className="text-sm font-black text-slate-800 dark:text-white tracking-tight leading-tight truncate">
-                {completedTopicTitle}
-              </span>
-              <span className="text-xs font-bold text-slate-400 flex items-center gap-1 mt-0.5">
-                <span>Bir adım daha attın!</span>
-                <AppleEmoji emoji="🚀" size={13} />
-              </span>
-            </div>
-          </div>
-        </div>
-      ), { position: 'top-center', duration: 3000 });
+      notify.info(completedTopicTitle, {
+        badge: `${completedSubjectTitle} · Konu Tamamlandı`,
+        emoji: "📘",
+        description: "Harika! Bir adım daha attın.",
+      });
     }
   }
 
@@ -351,24 +335,11 @@ function HomeContent() {
     const newCompletedNotes = { ...currentCompleted, [slotId]: isNowCompleted }
     setData({ ...data, completedNotes: newCompletedNotes })
     if (isNowCompleted) {
-      toast.custom(() => (
-        <div className="flex items-center justify-center w-full mt-2 pointer-events-auto">
-          <div className="bg-white dark:bg-slate-800 text-slate-800 dark:text-white px-5 py-3.5 rounded-2xl border-2 border-b-4 border-slate-200 border-b-slate-300 dark:border-slate-700 dark:border-b-slate-800 shadow-2xl flex items-center gap-3.5 min-w-[320px]">
-            <div className="w-10 h-10 rounded-xl bg-[#e5f9e7] dark:bg-[#58cc02]/20 border-2 border-b-2 border-[#58cc02] flex items-center justify-center shrink-0 shadow-2xs">
-              <AppleEmoji emoji="✅" size={22} />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-black text-slate-800 dark:text-white tracking-tight leading-tight">
-                Günlük Görev Tamamlandı!
-              </span>
-              <span className="text-xs font-black text-[#58cc02] flex items-center gap-1 mt-0.5">
-                <span>Harika gidiyorsun!</span>
-                <AppleEmoji emoji="🚀" size={14} />
-              </span>
-            </div>
-          </div>
-        </div>
-      ), { position: 'top-center', duration: 3500 });
+      notify.success("Günlük Görev Tamamlandı!", {
+        badge: "TEBRİKLER",
+        emoji: "✅",
+        description: "Harika gidiyorsun, hedefe bir adım daha yaklaştın.",
+      });
     }
   }
 
@@ -410,7 +381,11 @@ function HomeContent() {
     const target = data.dailyGoalTarget || 100
     if (solved >= target && (currentGoals[dateStr] || 0) < target) {
       newStreak += 1
-      toast.success(`Hedefe Ulaşıldı! Seri +1 🔥`)
+      notify.purple("Hedefe Ulaşıldı! Seri +1", {
+        badge: "SERİ KAZANDIN",
+        emoji: "🔥",
+        description: "Günlük soru hedefini başarıyla tamamladın.",
+      });
     }
     
     setData({ ...data, dailyGoals: newGoals, streak: newStreak, lastActiveDate: format(getStudyDate(), "yyyy-MM-dd") })
@@ -419,7 +394,10 @@ function HomeContent() {
   const handleSetGoalTarget = (target: number) => {
     if (!data) return
     setData({ ...data, dailyGoalTarget: target })
-    toast.success(`Günlük hedef ${target} soru olarak güncellendi!`)
+    notify.purple(`Günlük hedef ${target} soru olarak güncellendi!`, {
+      badge: "HEDEF GÜNCELLENDİ",
+      emoji: "🎯",
+    });
   }
 
   const activeSubject = safeSubjects.find(s => s.id === activeSubjectId) || safeSubjects[0]

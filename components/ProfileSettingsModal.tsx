@@ -21,7 +21,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { updateProfile, deleteUser, reauthenticateWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "@/lib/firebase";
 import { deleteUserAllData, updateUserProfile } from "@/lib/firebaseService";
-import { toast } from "sonner";
+import { notify } from "@/lib/notify";
 import AppleEmoji from "@/components/AppleEmoji";
 
 /* ──────────────────────────────────────────────
@@ -134,14 +134,14 @@ export default function ProfileSettingsModal({
       await updateUserProfile(auth.currentUser.uid, displayName.trim() || null, auth.currentUser.email);
       await refreshUser();
       setSaveStatus("saved");
-      toast.success("Profil başarıyla güncellendi!");
+      notify.success("Profil başarıyla güncellendi!", { badge: "GÜNCELLENDİ", emoji: "👤" });
       setTimeout(() => {
         setSaveStatus("idle");
         setHasChanges(false);
       }, 2000);
     } catch (error) {
       console.error("Profile update failed:", error);
-      toast.error("Profil güncellenirken hata oluştu.");
+      notify.error("Profil güncellenirken hata oluştu.");
       setSaveStatus("idle");
     } finally {
       setIsSaving(false);
@@ -170,11 +170,11 @@ export default function ProfileSettingsModal({
           throw err;
         }
       }
-      toast.success("Hesabınız başarıyla silindi.");
+      notify.success("Hesabınız başarıyla silindi.", { badge: "HESAP SİLİNDİ", emoji: "👋" });
       onClose();
     } catch (error) {
       console.error("Hesap silme hatası:", error);
-      toast.error("Hesap silinirken bir hata oluştu. Lütfen tekrar deneyin.");
+      notify.error("Hesap silinirken bir hata oluştu. Lütfen tekrar deneyin.");
     } finally {
       setIsDeleting(false);
       setShowDeleteConfirm(false);
